@@ -26,10 +26,10 @@ export interface PassportScanResult {
 
 export type ImageInput = File | Blob | Buffer | ArrayBuffer | string // string = base64 or URL
 
-export type ClientMode = 'http' | 'lambda'
+export type ClientMode = 'local' | 'http' | 'lambda'
 
 export interface PassportOCROptions {
-  mode?: ClientMode // default: 'http'
+  mode?: ClientMode // default: 'local'
   endpoint?: string // required for mode: 'http'
   functionName?: string // required for mode: 'lambda'
   timeoutMs?: number // default: 30000

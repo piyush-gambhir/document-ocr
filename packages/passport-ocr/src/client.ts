@@ -1,9 +1,10 @@
 import type { ImageInput, PassportOCROptions, PassportScanResult } from './types'
 import { normalizeToBase64, normalizeToBlob } from './image'
 import { withRetry } from './retry'
+import { getLocalServer } from './local-server'
 
 export class PassportOCR {
-  private mode: 'http' | 'lambda'
+  private mode: 'local' | 'http' | 'lambda'
   private endpoint?: string
   private functionName?: string
   private timeoutMs: number
@@ -11,7 +12,7 @@ export class PassportOCR {
   private apiKey?: string
 
   constructor(options: PassportOCROptions = {}) {
-    this.mode = options.mode ?? 'http'
+    this.mode = options.mode ?? 'local'
     this.endpoint = options.endpoint
     this.functionName = options.functionName
     this.timeoutMs = options.timeoutMs ?? 30000
@@ -24,6 +25,12 @@ export class PassportOCR {
     if (this.mode === 'lambda' && !this.functionName) {
       throw new Error('functionName is required for lambda mode')
     }
+    if (this.mode === 'local' && this.endpoint) {
+      console.warn(
+        'passport-ocr: endpoint is ignored in local mode. ' +
+          'Use mode: "http" if you want to connect to an external server.',
+      )
+    }
   }
 
   async scan(image: ImageInput): Promise<PassportScanResult> {
@@ -32,13 +39,40 @@ export class PassportOCR {
         if (this.mode === 'lambda') {
           return this.invokeLambda(image, signal)
         }
+        if (this.mode === 'local') {
+          return this.invokeLocal(image, signal)
+        }
         return this.invokeHttp(image, signal)
       },
       { retries: this.retries, timeoutMs: this.timeoutMs },
     )
   }
 
+  /**
+   * Stop the local Python server (if running in local mode).
+   * Call this when you're done to clean up the subprocess.
+   */
+  async stop(): Promise<void> {
+    if (this.mode === 'local') {
+      await getLocalServer().stop()
+    }
+  }
+
+  private async invokeLocal(image: ImageInput, signal: AbortSignal): Promise<PassportScanResult> {
+    const server = getLocalServer()
+    const endpoint = await server.ensureRunning()
+    return this.invokeHttpWithEndpoint(endpoint, image, signal)
+  }
+
   private async invokeHttp(image: ImageInput, signal: AbortSignal): Promise<PassportScanResult> {
+    return this.invokeHttpWithEndpoint(this.endpoint!, image, signal)
+  }
+
+  private async invokeHttpWithEndpoint(
+    endpoint: string,
+    image: ImageInput,
+    signal: AbortSignal,
+  ): Promise<PassportScanResult> {
     const blob = await normalizeToBlob(image)
     const form = new FormData()
     form.append('image', blob, 'passport.jpg')
@@ -48,7 +82,7 @@ export class PassportOCR {
       headers['Authorization'] = `Bearer ${this.apiKey}`
     }
 
-    const res = await fetch(`${this.endpoint}/scan`, {
+    const res = await fetch(`${endpoint}/scan`, {
       method: 'POST',
       body: form,
       headers,

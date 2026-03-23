@@ -1,0 +1,23 @@
+[project]
+name = "passport-ocr-local"
+version = "1.0.0"
+description = "Local runtime for passport-ocr npm package"
+requires-python = ">=3.12"
+dependencies = [
+    "paddleocr>=3.0.0",
+    "paddlepaddle>=3.0.0",
+    "opencv-python-headless>=4.8,<5",
+    "pillow>=10.0,<11",
+    "numpy>=1.24,<3",
+    "rapidfuzz>=3.0,<4",
+    "fastapi>=0.109,<1",
+    "uvicorn[standard]>=0.27,<1",
+    "python-multipart>=0.0.6",
+    "pymupdf>=1.23,<2",
+    "pillow-heif>=0.14,<1",
+    "setuptools",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

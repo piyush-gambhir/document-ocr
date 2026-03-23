@@ -1,7 +1,7 @@
 {
   "name": "passport-ocr",
-  "version": "1.0.1",
-  "description": "TypeScript client for passport OCR service",
+  "version": "2.0.0",
+  "description": "Standalone passport OCR — scans passports locally with bundled Python pipeline",
   "type": "module",
   "exports": {
     ".": {
@@ -15,14 +15,17 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
+    "python",
+    "scripts",
     "README.md"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/piyush-gambhir/passport-ocr"
   },
-  "keywords": ["passport", "ocr", "mrz", "paddleocr", "document-scanning"],
+  "keywords": ["passport", "ocr", "mrz", "paddleocr", "document-scanning", "standalone"],
   "scripts": {
+    "postinstall": "node scripts/postinstall.mjs",
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
