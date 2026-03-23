@@ -7,6 +7,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: 'dist',
+  external: ['@aws-sdk/client-lambda'],
   outExtension({ format }) {
     return {
       js: format === 'cjs' ? '.cjs' : '.js',
