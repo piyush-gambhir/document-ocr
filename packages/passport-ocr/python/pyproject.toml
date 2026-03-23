@@ -2,7 +2,7 @@
 name = "passport-ocr-local"
 version = "1.0.0"
 description = "Local runtime for passport-ocr npm package"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "paddleocr>=3.0.0",
     "paddlepaddle>=3.0.0",
@@ -17,6 +17,9 @@ dependencies = [
     "pillow-heif>=0.14,<1",
     "setuptools",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["core"]
 
 [build-system]
 requires = ["hatchling"]

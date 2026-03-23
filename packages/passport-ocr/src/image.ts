@@ -45,9 +45,10 @@ export async function normalizeToBlob(input: ImageInput): Promise<Blob> {
     return input
   }
 
-  // Buffer (Node.js)
+  // Buffer (Node.js) — copy to Uint8Array to avoid ReadableStream issues in Node 24+
   if (typeof Buffer !== 'undefined' && Buffer.isBuffer(input)) {
-    return new Blob([input])
+    const copy = new Uint8Array(input.buffer, input.byteOffset, input.byteLength)
+    return new Blob([copy], { type: 'image/jpeg' })
   }
 
   // ArrayBuffer
