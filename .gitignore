@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.eggs/
+*.egg
+.venv/
+
+# uv
+uv.lock
+
+# Node
+node_modules/
+packages/passport-ocr/dist/
+
+# PaddleOCR models (large, downloaded at runtime)
+~/.paddleocr/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Docker
+.dockerignore
+
+# SAM
+.aws-sam/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
