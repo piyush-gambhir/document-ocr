@@ -1,5 +1,7 @@
 """
 FastAPI server wrapping the passport OCR pipeline.
+
+Used by the passport-ocr npm package to run OCR locally.
 """
 
 from __future__ import annotations
@@ -10,11 +12,6 @@ import uuid
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
-
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from core.pipeline import scan
 from core.preprocessor import ImageQualityError
@@ -86,7 +83,7 @@ async def scan_passport(image: UploadFile = File(...)):
             loop = asyncio.get_event_loop()
             result = await asyncio.wait_for(
                 loop.run_in_executor(None, scan, data),
-                timeout=30.0,
+                timeout=60.0,
             )
     except asyncio.TimeoutError:
         logger.warning(f"[{request_id}] scan_timeout")
@@ -103,13 +100,14 @@ async def scan_passport(image: UploadFile = File(...)):
 
     # Log only non-PII fields
     logger.info(
-        f"[{request_id}] confidence={result.confidence} "
-        f"mrz_valid={result.mrz_valid} "
+        f"[{request_id}] status={result.status} "
+        f"page_type={result.page_type} "
+        f"confidence={result.confidence} "
         f"processing_ms={result.processing_ms} "
         f"errors={result.errors}"
     )
 
-    if not result.success:
+    if result.status == "failure":
         return JSONResponse(status_code=422, content=result.to_dict())
 
     return result.to_dict()

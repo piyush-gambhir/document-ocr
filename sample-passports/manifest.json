@@ -1,0 +1,30 @@
+{
+  "sample-indian-passport-1.jpg": {
+    "status": "success",
+    "documentType": "passport",
+    "pageType": "passport_biodata",
+    "fields": {
+      "surname": "RAMADUGULA",
+      "givenNames": "SITA MAHA LAKSHMI",
+      "fullName": "SITA MAHA LAKSHMI RAMADUGULA",
+      "passportNumber": "J8369854",
+      "nationality": "IND",
+      "dateOfBirth": "1959-09-23",
+      "sex": "F",
+      "expiryDate": "2021-10-10",
+      "issueDate": "11/10/2011",
+      "placeOfBirth": "GUNDUGOLANU",
+      "countryCode": "IND"
+    },
+    "mrzRaw": [
+      "P<INDRAMADUGULA<<SITA<MAHA<LAKSHMI<<<<<<<<<<",
+      "J8369854<4IND5909234F2110101<<<<<<<<<<<<<<<8"
+    ]
+  },
+  "sample-indian-passport-2.jpg": {
+    "status": "unsupported_page",
+    "documentType": "passport",
+    "pageType": "passport_non_biodata",
+    "unsupportedReason": "NON_BIODATA_PAGE"
+  }
+}

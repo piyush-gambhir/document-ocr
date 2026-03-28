@@ -1,4 +1,4 @@
-.PHONY: dev test test-py test-ts build benchmark docker-build install
+.PHONY: dev test test-py test-ts build benchmark docker-build install sync
 
 install:
 	uv sync
@@ -20,6 +20,9 @@ build:
 
 benchmark:
 	uv run python benchmarks/accuracy.py
+
+sync:
+	cd packages/passport-ocr && bash scripts/sync-python.sh
 
 docker-build:
 	docker build -f deploy/docker/Dockerfile -t passport-ocr .

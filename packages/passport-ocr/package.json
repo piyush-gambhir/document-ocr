@@ -1,5 +1,5 @@
 {
-  "name": "passport-ocr",
+  "name": "document-ocr",
   "version": "2.0.0",
   "description": "Standalone passport OCR — scans passports locally with bundled Python pipeline",
   "type": "module",
@@ -21,12 +21,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/piyush-gambhir/passport-ocr"
+    "url": "https://github.com/piyush-gambhir/document-ocr"
   },
   "keywords": ["passport", "ocr", "mrz", "paddleocr", "document-scanning", "standalone"],
   "scripts": {
     "postinstall": "node scripts/postinstall.mjs",
-    "build": "tsup",
+    "sync-python": "bash scripts/sync-python.sh",
+    "build": "bash scripts/sync-python.sh && tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },

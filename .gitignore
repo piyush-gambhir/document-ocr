@@ -14,6 +14,11 @@ uv.lock
 node_modules/
 packages/passport-ocr/dist/
 
+# Synced Python code in npm package (copied from root core/ at build time)
+packages/passport-ocr/python/core/
+packages/passport-ocr/python/server.py
+packages/passport-ocr/python/__pycache__/
+
 # PaddleOCR models (large, downloaded at runtime)
 ~/.paddleocr/
 

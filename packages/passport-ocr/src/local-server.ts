@@ -21,7 +21,7 @@ function resolvePackageDir(): string {
   if (typeof __dirname === 'string') {
     return join(__dirname, '..')
   }
-  throw new Error('Cannot resolve passport-ocr package directory')
+  throw new Error('Cannot resolve document-ocr package directory')
 }
 
 const HEALTH_POLL_INTERVAL_MS = 500
@@ -87,8 +87,8 @@ export class LocalServer {
     const markerFile = join(venvDir, '.setup-complete')
     if (!existsSync(markerFile)) {
       throw new Error(
-        'passport-ocr: Python environment not set up. ' +
-          'Run "npm rebuild passport-ocr" or ensure Python 3.12+ and uv are installed. ' +
+        'document-ocr: Python environment not set up. ' +
+          'Run "npm rebuild document-ocr" or ensure Python 3.12+ and uv are installed. ' +
           'Check that the postinstall script ran successfully.',
       )
     }
@@ -101,8 +101,8 @@ export class LocalServer {
 
     if (!existsSync(pythonExe)) {
       throw new Error(
-        `passport-ocr: Python executable not found at ${pythonExe}. ` +
-          'Run "npm rebuild passport-ocr" to re-create the virtual environment.',
+        `document-ocr: Python executable not found at ${pythonExe}. ` +
+          'Run "npm rebuild document-ocr" to re-create the virtual environment.',
       )
     }
 
@@ -128,23 +128,26 @@ export class LocalServer {
       env: {
         ...process.env,
         PYTHONPATH: pythonDir,
+        PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK: 'True',
         // Suppress paddle logging noise
         GLOG_minloglevel: '2',
       },
-      stdio: ['pipe', 'pipe', 'pipe'],
+      stdio: ['ignore', 'pipe', 'pipe'],
       // Detach on Windows to avoid blocking
       detached: isWindows,
     })
 
-    // Collect stderr for error reporting
-    let stderr = ''
-    this.process.stderr?.on('data', (chunk: Buffer) => {
-      stderr += chunk.toString()
-      // Keep only the last 2KB for error messages
-      if (stderr.length > 2048) {
-        stderr = stderr.slice(-2048)
+    // Drain child output so startup can't deadlock on a full pipe buffer.
+    let processLogs = ''
+    const appendLogs = (chunk: Buffer) => {
+      processLogs += chunk.toString()
+      if (processLogs.length > 4096) {
+        processLogs = processLogs.slice(-4096)
       }
-    })
+    }
+
+    this.process.stdout?.on('data', appendLogs)
+    this.process.stderr?.on('data', appendLogs)
 
     // Handle unexpected exit
     const exitPromise = new Promise<never>((_, reject) => {
@@ -154,7 +157,7 @@ export class LocalServer {
           this.process = null
           reject(
             new Error(
-              `passport-ocr: Python server exited unexpectedly (code=${code}, signal=${signal}).\n${stderr}`,
+              `document-ocr: Python server exited unexpectedly (code=${code}, signal=${signal}).\n${processLogs}`,
             ),
           )
         }
@@ -199,7 +202,7 @@ export class LocalServer {
     // Timed out
     this.stop()
     throw new Error(
-      `passport-ocr: Python server did not become ready within ${HEALTH_TIMEOUT_MS / 1000}s. ` +
+      `document-ocr: Python server did not become ready within ${HEALTH_TIMEOUT_MS / 1000}s. ` +
         'This might happen on first run while models are being downloaded.',
     )
   }

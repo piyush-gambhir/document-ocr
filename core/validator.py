@@ -5,6 +5,7 @@ a final confidence score.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Optional
@@ -49,6 +50,29 @@ _VALID_COUNTRY_CODES = {
 }
 # fmt: on
 
+_LABEL_HINTS = [
+    "SURNAME",
+    "GIVEN NAME",
+    "NAME",
+    "DATE",
+    "BIRTH",
+    "NATIONALITY",
+    "PASSPORT",
+    "SEX",
+    "PLACE",
+    "ISSUE",
+    "EXPIRY",
+    "EXPIRATION",
+    "VALID",
+    "COUNTRY",
+    "CODE",
+    "FATHER",
+    "MOTHER",
+    "SPOUSE",
+    "ADDRESS",
+    "FILE",
+]
+
 
 # ---------------------------------------------------------------------------
 # Result types
@@ -69,13 +93,39 @@ def find_visual_field(
     regions: list[TextRegion],
     keywords: list[str],
 ) -> Optional[TextRegion]:
-    """Find a visual OCR region whose text contains one of the given keywords."""
+    """Find the best label match for the given keywords.
+
+    OCR label text is noisy, so prefer exact phrase matches and longer, more
+    specific keywords over generic substring matches.
+    """
+    normalised_keywords = [_normalise_label_text(keyword) for keyword in keywords]
+    best_match: tuple[int, float, TextRegion] | None = None
+
     for region in regions:
-        text_upper = region.text.upper()
-        for kw in keywords:
-            if kw.upper() in text_upper:
-                return region
-    return None
+        label_text = _normalise_label_text(region.text)
+        if not label_text:
+            continue
+
+        for priority, keyword in enumerate(normalised_keywords):
+            if not keyword:
+                continue
+
+            padded_label = f" {label_text} "
+            padded_keyword = f" {keyword} "
+
+            if label_text == keyword:
+                score = 10_000 - priority
+            elif padded_keyword in padded_label:
+                score = (len(keyword) * 100) - priority
+            else:
+                continue
+
+            if best_match is None or score > best_match[0] or (
+                score == best_match[0] and region.confidence > best_match[1]
+            ):
+                best_match = (score, region.confidence, region)
+
+    return best_match[2] if best_match else None
 
 
 def find_visual_value_near(
@@ -86,15 +136,18 @@ def find_visual_value_near(
     """Find the OCR region immediately below a label region."""
     label_bottom = max(p[1] for p in label_region.bbox)
     label_left = min(p[0] for p in label_region.bbox)
+    min_vertical_overlap = 10
 
     candidates = []
     for region in regions:
         top = min(p[1] for p in region.bbox)
         left = min(p[0] for p in region.bbox)
-        if top > label_bottom and (top - label_bottom) < max_y_distance:
+        vertical_gap = top - label_bottom
+        if -min_vertical_overlap <= vertical_gap < max_y_distance:
             x_distance = abs(left - label_left)
             if x_distance < 200:
-                candidates.append((top - label_bottom + x_distance * 0.3, region))
+                penalty = 500 if _looks_like_field_label(region.text) else 0
+                candidates.append((max(vertical_gap, 0) + x_distance * 0.3 + penalty, region))
 
     if candidates:
         candidates.sort(key=lambda x: x[0])
@@ -112,6 +165,21 @@ def _parse_date_flexible(text: str) -> Optional[date]:
         except ValueError:
             continue
     return None
+
+
+def _normalise_label_text(text: str) -> str:
+    """Normalise OCR label text so phrase matching is less brittle."""
+    text = text.upper()
+    text = text.replace("&", " AND ")
+    text = re.sub(r"[^A-Z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _looks_like_field_label(text: str) -> bool:
+    """Heuristic to avoid treating the next label as a field value."""
+    normalised = _normalise_label_text(text)
+    padded = f" {normalised} "
+    return any(f" {hint} " in padded for hint in _LABEL_HINTS)
 
 
 # ---------------------------------------------------------------------------
@@ -156,7 +224,7 @@ def validate(
 
     if mrz is not None:
         # Name cross-match
-        name_label = find_visual_field(regions, ["SURNAME", "NAME", "NOM"])
+        name_label = find_visual_field(regions, ["SURNAME", "FAMILY NAME", "LAST NAME", "NOM"])
         if name_label:
             name_value = find_visual_value_near(regions, name_label)
             if name_value and mrz.surname.value:
@@ -174,7 +242,7 @@ def validate(
                     warnings.append("NAME_MISMATCH")
 
         # DOB cross-match
-        dob_label = find_visual_field(regions, ["DATE OF BIRTH", "DOB", "BIRTH", "NAISSANCE"])
+        dob_label = find_visual_field(regions, ["DATE OF BIRTH", "BIRTH DATE", "DOB", "NAISSANCE"])
         if dob_label and mrz.date_of_birth.value:
             dob_value = find_visual_value_near(regions, dob_label)
             if dob_value:
@@ -186,7 +254,10 @@ def validate(
                     warnings.append("DOB_MISMATCH")
 
         # Expiry cross-match
-        exp_label = find_visual_field(regions, ["EXPIRY", "EXPIRATION", "DATE OF EXPIRY", "VALID"])
+        exp_label = find_visual_field(
+            regions,
+            ["DATE OF EXPIRY", "EXPIRY DATE", "DATE OF EXPIRATION", "EXPIRY", "EXPIRATION", "VALID UNTIL"],
+        )
         if exp_label and mrz.expiry_date.value:
             exp_value = find_visual_value_near(regions, exp_label)
             if exp_value:

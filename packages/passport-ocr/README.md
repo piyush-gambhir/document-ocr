@@ -1,11 +1,13 @@
-# passport-ocr
+# document-ocr
 
-Standalone passport OCR for Node.js. Extracts MRZ data, personal details, and validates ICAO checksums. No external server setup needed — Python + PaddleOCR v3 is managed automatically.
+Standalone document OCR for Node.js, optimized for passport biodata pages. Extracts MRZ data, passport fields, and classifies unsupported passport pages without requiring an external service.
+
+`DocumentOCR` is the primary v2 API. `PassportOCR` remains available as a compatibility alias.
 
 ## Install
 
 ```bash
-npm install passport-ocr
+npm install document-ocr
 ```
 
 **Prerequisites:** Python 3.12+ must be installed on your machine. The postinstall script automatically creates a virtual environment and installs PaddleOCR.
@@ -13,27 +15,30 @@ npm install passport-ocr
 ## Quick Start
 
 ```typescript
-import { PassportOCR } from 'passport-ocr'
+import { DocumentOCR } from 'document-ocr'
 
-const ocr = new PassportOCR()  // local mode — no server URL needed
+const ocr = new DocumentOCR()
 const result = await ocr.scan(imageFile)
 
-if (result.success) {
-  console.log(result.fields.surname)       // 'KUMAR'
-  console.log(result.fields.passportNumber) // 'J8369854'
-  console.log(result.fields.dateOfBirth)    // '1990-03-15'
-  console.log(result.mrzValid)              // true
-  console.log(result.confidence)            // 0.95
+if (result.status === 'success') {
+  console.log(result.fields.surname)
+  console.log(result.fields.passportNumber)
+  console.log(result.fields.dateOfBirth)
+  console.log(result.mrzValid)
 }
 
-// Clean up when done
+if (result.status === 'unsupported_page') {
+  console.log(result.pageType)          // 'passport_non_biodata'
+  console.log(result.unsupportedReason) // 'NON_BIODATA_PAGE'
+}
+
 await ocr.stop()
 ```
 
 ## How It Works
 
 ```
-npm install passport-ocr
+npm install document-ocr
   │
   └── postinstall:
       1. Finds Python 3.12+
@@ -44,46 +49,48 @@ ocr.scan(image)
   │
   └── First call:
       1. Auto-starts a local Python server
-      2. Downloads OCR models (~500MB, one-time)
-      3. Sends image to local server
-      4. Returns structured result
+      2. Loads OCR models
+      3. Runs a fast page classifier
+      4. Either:
+         - extracts passport biodata fields and MRZ, or
+         - returns an unsupported-page result
 
       Subsequent calls:
-      1. Reuses running server
-      2. ~2-15s per image
+      1. Reuses the running server
+      2. Reuses warmed OCR models
 ```
 
 ## Modes
 
-### Local Mode (default) — standalone, no setup
+### Local Mode (default)
 
 ```typescript
-const ocr = new PassportOCR()
+const ocr = new DocumentOCR()
 const result = await ocr.scan(image)
-await ocr.stop()  // clean up
+await ocr.stop()
 ```
 
-### HTTP Mode — connect to a deployed server
+### HTTP Mode
 
 ```typescript
-const ocr = new PassportOCR({
+const ocr = new DocumentOCR({
   mode: 'http',
   endpoint: 'https://your-ocr-service.example.com',
 })
 ```
 
-### Lambda Mode — AWS Lambda direct invocation
+### Lambda Mode
 
 ```typescript
-const ocr = new PassportOCR({
+const ocr = new DocumentOCR({
   mode: 'lambda',
-  functionName: 'passport-ocr-prod',
+  functionName: 'document-ocr-prod',
 })
 ```
 
 ## API
 
-### `new PassportOCR(options?)`
+### `new DocumentOCR(options?)`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -94,7 +101,7 @@ const ocr = new PassportOCR({
 | `retries` | `number` | `2` | Retry count with exponential backoff |
 | `apiKey` | `string` | — | Optional Bearer token for HTTP mode |
 
-### `ocr.scan(image): Promise<PassportScanResult>`
+### `ocr.scan(image): Promise<DocumentScanResult>`
 
 | Input type | Example |
 |---|---|
@@ -109,42 +116,82 @@ const ocr = new PassportOCR({
 
 Stops the local Python server. Call when done to free resources.
 
-### `PassportScanResult`
+### `DocumentScanResult`
 
 ```typescript
-{
-  success: boolean          // true if confidence >= 0.7
-  confidence: number        // 0.0 - 1.0
-  lowConfidence: boolean    // true when 0.3 <= confidence < 0.7
-  fields: {
-    surname: string | null
-    givenNames: string | null
-    fullName: string | null
-    passportNumber: string | null
-    nationality: string | null
-    dateOfBirth: string | null    // YYYY-MM-DD
-    sex: 'M' | 'F' | 'X' | null
-    expiryDate: string | null     // YYYY-MM-DD
-    issueDate: string | null
-    placeOfBirth: string | null
-    countryCode: string | null    // ISO 3166-1 alpha-3
-  }
-  mrzRaw: [string, string] | null
-  mrzValid: boolean
-  errors: string[]
-  warnings: string[]
-  processingMs: number
-}
+type DocumentScanResult =
+  | {
+      status: 'success'
+      documentType: 'passport'
+      pageType: 'passport_biodata'
+      confidence: number
+      lowConfidence: boolean
+      fields: {
+        surname: string | null
+        givenNames: string | null
+        fullName: string | null
+        passportNumber: string | null
+        nationality: string | null
+        dateOfBirth: string | null
+        sex: 'M' | 'F' | 'X' | null
+        expiryDate: string | null
+        issueDate: string | null
+        placeOfBirth: string | null
+        countryCode: string | null
+      }
+      mrzRaw: [string, string] | null
+      mrzValid: boolean
+      unsupportedReason: null
+      probeText: string[]
+      errors: string[]
+      warnings: string[]
+      processingMs: number
+    }
+  | {
+      status: 'unsupported_page'
+      documentType: 'passport' | 'unknown'
+      pageType: 'passport_non_biodata' | 'unknown'
+      confidence: number
+      lowConfidence: boolean
+      fields: null
+      mrzRaw: null
+      mrzValid: boolean
+      unsupportedReason: 'NON_BIODATA_PAGE' | 'UNSUPPORTED_DOCUMENT'
+      probeText: string[]
+      errors: string[]
+      warnings: string[]
+      processingMs: number
+    }
+  | {
+      status: 'failure'
+      documentType: 'passport' | 'unknown'
+      pageType: 'passport_biodata' | 'unknown'
+      confidence: number
+      lowConfidence: boolean
+      fields: PassportFields | null
+      mrzRaw: [string, string] | null
+      mrzValid: boolean
+      unsupportedReason: null
+      probeText: string[]
+      errors: string[]
+      warnings: string[]
+      processingMs: number
+    }
 ```
 
-## Docker / Cloud Run
+## Benchmark Gates
 
-When deploying in Docker, add Python to your image:
+The Python benchmark reads fixture expectations from `sample-passports/manifest.json` and enforces these vNext targets:
 
-```dockerfile
-# Add to your existing Dockerfile
-RUN apt-get update && apt-get install -y python3 python3-venv python3-pip
-# npm install will run postinstall automatically
+- Warm passport biodata median latency at or below 5000ms
+- Passport biodata field accuracy at or above 97%
+- MRZ exact-match rate at or above 99%
+- Non-biodata passport-page classification accuracy at or above 95%
+
+Run it with:
+
+```bash
+uv run python benchmarks/accuracy.py
 ```
 
 ## Environment Variables
@@ -158,16 +205,15 @@ RUN apt-get update && apt-get install -y python3 python3-venv python3-pip
 ```typescript
 const result = await ocr.scan(image)
 
-if (!result.success) {
+if (result.status === 'failure') {
   if (result.errors.includes('IMAGE_TOO_BLURRY')) {
     // Ask user to retake with better focus
   }
   if (result.errors.includes('RESOLUTION_TOO_LOW')) {
-    // Image too small (< 600px shortest dimension)
+    // Image too small
   }
-  if (result.lowConfidence) {
-    // Data extracted but unreliable
-    console.log(result.fields) // partially extracted
+  if (result.lowConfidence && result.fields) {
+    console.log(result.fields) // partial extraction
   }
 }
 ```

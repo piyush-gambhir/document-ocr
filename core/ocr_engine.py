@@ -6,6 +6,7 @@ Supports PaddleOCR v3 (paddleocr>=3) API only.
 
 from __future__ import annotations
 
+import os
 import threading
 from dataclasses import dataclass
 from typing import Optional
@@ -29,6 +30,13 @@ class TextRegion:
 
 _lock = threading.Lock()
 _ocr_instances: dict[str, object] = {}
+FAST_DETECTION_MODEL = "PP-OCRv5_mobile_det"
+FAST_ENGLISH_RECOGNITION_MODEL = "en_PP-OCRv5_mobile_rec"
+
+# PaddleOCR performs a network reachability check on model hosters by default.
+# We already rely on the local model cache once models are present, so skip the
+# check to reduce cold-start latency.
+os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
 
 
 def _get_ocr(lang: str = "en"):
@@ -38,10 +46,21 @@ def _get_ocr(lang: str = "en"):
     if lang not in _ocr_instances:
         with _lock:
             if lang not in _ocr_instances:
-                _ocr_instances[lang] = PaddleOCR(
-                    use_angle_cls=True,
-                    lang=lang,
-                )
+                if lang == "en":
+                    _ocr_instances[lang] = PaddleOCR(
+                        text_detection_model_name=FAST_DETECTION_MODEL,
+                        text_recognition_model_name=FAST_ENGLISH_RECOGNITION_MODEL,
+                        use_doc_orientation_classify=False,
+                        use_doc_unwarping=False,
+                        use_textline_orientation=False,
+                    )
+                else:
+                    _ocr_instances[lang] = PaddleOCR(
+                        lang=lang,
+                        use_doc_orientation_classify=False,
+                        use_doc_unwarping=False,
+                        use_textline_orientation=False,
+                    )
     return _ocr_instances[lang]
 
 

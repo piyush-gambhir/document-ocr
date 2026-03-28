@@ -1,5 +1,5 @@
 [project]
-name = "passport-ocr"
+name = "document-ocr"
 version = "1.0.0"
 description = "High-accuracy passport OCR pipeline"
 requires-python = ">=3.12"
@@ -13,7 +13,7 @@ dependencies = [
     "fastapi>=0.109,<1",
     "uvicorn[standard]>=0.27,<1",
     "python-multipart>=0.0.6",
-    "boto3>=1.34,<2",
+
     "pymupdf>=1.23,<2",
     "pillow-heif>=0.14,<1",
     "setuptools",

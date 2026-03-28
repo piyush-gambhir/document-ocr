@@ -110,7 +110,9 @@ class TestScan:
     async def test_scan_success_camel_case(self, client, small_image):
         """Successful scan returns camelCase keys from .to_dict()."""
         mock_dict = {
-            "success": True,
+            "status": "success",
+            "documentType": "passport",
+            "pageType": "passport_biodata",
             "confidence": 0.85,
             "fields": {
                 "surname": "KUMAR",
@@ -125,15 +127,18 @@ class TestScan:
             },
             "mrzRaw": None,
             "mrzValid": True,
+            "lowConfidence": False,
+            "unsupportedReason": None,
+            "probeText": ["passport"],
             "errors": [],
             "warnings": [],
             "processingMs": 150,
         }
 
         mock_result = MagicMock()
-        mock_result.success = True
+        mock_result.status = "success"
+        mock_result.page_type = "passport_biodata"
         mock_result.confidence = 0.85
-        mock_result.mrz_valid = True
         mock_result.processing_ms = 150
         mock_result.errors = []
         mock_result.to_dict.return_value = mock_dict
@@ -146,7 +151,47 @@ class TestScan:
 
         assert resp.status_code == 200
         body = resp.json()
-        assert body["success"] is True
+        assert body["status"] == "success"
+        assert body["documentType"] == "passport"
+        assert body["pageType"] == "passport_biodata"
         assert body["confidence"] == 0.85
         assert body["fields"]["surname"] == "KUMAR"
         assert body["fields"]["givenNames"] == "RAJ"
+
+    async def test_scan_unsupported_page_returns_200(self, client, small_image):
+        """Unsupported pages are classified, not treated as processing failures."""
+        mock_dict = {
+            "status": "unsupported_page",
+            "documentType": "passport",
+            "pageType": "passport_non_biodata",
+            "confidence": 0.91,
+            "fields": None,
+            "mrzRaw": None,
+            "mrzValid": False,
+            "lowConfidence": False,
+            "unsupportedReason": "NON_BIODATA_PAGE",
+            "probeText": ["name of father", "address"],
+            "errors": [],
+            "warnings": ["NON_BIODATA_HINTS_2"],
+            "processingMs": 90,
+        }
+
+        mock_result = MagicMock()
+        mock_result.status = "unsupported_page"
+        mock_result.page_type = "passport_non_biodata"
+        mock_result.confidence = 0.91
+        mock_result.processing_ms = 90
+        mock_result.errors = []
+        mock_result.to_dict.return_value = mock_dict
+
+        with patch("deploy.docker.server.scan", return_value=mock_result):
+            resp = await client.post(
+                "/scan",
+                files={"image": ("passport.jpg", small_image, "image/jpeg")},
+            )
+
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["status"] == "unsupported_page"
+        assert body["pageType"] == "passport_non_biodata"
+        assert body["unsupportedReason"] == "NON_BIODATA_PAGE"

@@ -2,7 +2,7 @@
 
 import pytest
 
-from core.validator import validate, ValidationResult
+from core.validator import validate, ValidationResult, find_visual_field, find_visual_value_near
 from core.mrz_parser import MRZResult, MRZField
 from core.ocr_engine import TextRegion
 
@@ -111,6 +111,59 @@ class TestValidation:
         result = validate(mrz=mrz, regions=regions)
         assert "NAME_MISMATCH" in result.warnings
 
+    def test_cross_match_name_ignores_given_name_label(self):
+        """Surname matching should not get confused by a nearby given-name label."""
+        mrz = _make_mrz(surname="RAMADUGULA", given_names="SITA MAHA LAKSHMI")
+        regions = (
+            _make_regions("Given Name()", "SITA MAHA LAKSHMI", label_y=100, value_y=150)
+            + _make_regions("SURNAME", "RAMADUGULA", label_y=220, value_y=270)
+        )
+        result = validate(mrz=mrz, regions=regions)
+        assert "NAME_MISMATCH" not in result.warnings
+
+    def test_value_lookup_prefers_value_over_following_label(self):
+        """The nearest region below a label is sometimes another label, not the value."""
+        regions = [
+            TextRegion(
+                text="SURNAME",
+                bbox=[[50, 100], [250, 100], [250, 130], [50, 130]],
+                confidence=0.95,
+            ),
+            TextRegion(
+                text="Given Name()",
+                bbox=[[50, 140], [250, 140], [250, 170], [50, 170]],
+                confidence=0.95,
+            ),
+            TextRegion(
+                text="RAMADUGULA",
+                bbox=[[50, 175], [250, 175], [250, 205], [50, 205]],
+                confidence=0.99,
+            ),
+        ]
+        label = find_visual_field(regions, ["SURNAME"])
+        value = find_visual_value_near(regions, label)
+        assert value is not None
+        assert value.text == "RAMADUGULA"
+
+    def test_value_lookup_allows_small_vertical_overlap(self):
+        """Passport labels and values can overlap by a few pixels in OCR boxes."""
+        regions = [
+            TextRegion(
+                text="SURNAME",
+                bbox=[[50, 100], [250, 100], [250, 130], [50, 130]],
+                confidence=0.95,
+            ),
+            TextRegion(
+                text="RAMADUGULA",
+                bbox=[[50, 128], [250, 128], [250, 158], [50, 158]],
+                confidence=0.99,
+            ),
+        ]
+        label = find_visual_field(regions, ["SURNAME"])
+        value = find_visual_value_near(regions, label)
+        assert value is not None
+        assert value.text == "RAMADUGULA"
+
     def test_cross_match_dob_match(self):
         """Visual DOB matches MRZ → no DOB_MISMATCH warning."""
         mrz = _make_mrz(dob="1990-03-15")
@@ -124,6 +177,16 @@ class TestValidation:
         regions = _make_regions("DATE OF BIRTH", "1991-03-15", label_y=200, value_y=250)
         result = validate(mrz=mrz, regions=regions)
         assert "DOB_MISMATCH" in result.warnings
+
+    def test_cross_match_dob_ignores_place_of_birth_label(self):
+        """DOB matching should prefer the birth-date label over place-of-birth."""
+        mrz = _make_mrz(dob="1959-09-23")
+        regions = (
+            _make_regions("Place of Birth", "GUNDUGOLANU", label_y=100, value_y=150)
+            + _make_regions("DATE OF BIRTH", "23/09/1959", label_y=220, value_y=270)
+        )
+        result = validate(mrz=mrz, regions=regions)
+        assert "DOB_MISMATCH" not in result.warnings
 
     def test_country_code_valid(self):
         """Known country code → no UNKNOWN_COUNTRY warning."""

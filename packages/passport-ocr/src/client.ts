@@ -1,9 +1,9 @@
-import type { ImageInput, PassportOCROptions, PassportScanResult } from './types'
+import type { DocumentOCROptions, DocumentScanResult, ImageInput } from './types'
 import { normalizeToBase64, normalizeToBlob } from './image'
 import { withRetry } from './retry'
 import { getLocalServer } from './local-server'
 
-export class PassportOCR {
+export class DocumentOCR {
   private mode: 'local' | 'http' | 'lambda'
   private endpoint?: string
   private functionName?: string
@@ -11,7 +11,7 @@ export class PassportOCR {
   private retries: number
   private apiKey?: string
 
-  constructor(options: PassportOCROptions = {}) {
+  constructor(options: DocumentOCROptions = {}) {
     this.mode = options.mode ?? 'local'
     this.endpoint = options.endpoint
     this.functionName = options.functionName
@@ -27,13 +27,13 @@ export class PassportOCR {
     }
     if (this.mode === 'local' && this.endpoint) {
       console.warn(
-        'passport-ocr: endpoint is ignored in local mode. ' +
+        'document-ocr: endpoint is ignored in local mode. ' +
           'Use mode: "http" if you want to connect to an external server.',
       )
     }
   }
 
-  async scan(image: ImageInput): Promise<PassportScanResult> {
+  async scan(image: ImageInput): Promise<DocumentScanResult> {
     return withRetry(
       (signal) => {
         if (this.mode === 'lambda') {
@@ -48,23 +48,19 @@ export class PassportOCR {
     )
   }
 
-  /**
-   * Stop the local Python server (if running in local mode).
-   * Call this when you're done to clean up the subprocess.
-   */
   async stop(): Promise<void> {
     if (this.mode === 'local') {
       await getLocalServer().stop()
     }
   }
 
-  private async invokeLocal(image: ImageInput, signal: AbortSignal): Promise<PassportScanResult> {
+  private async invokeLocal(image: ImageInput, signal: AbortSignal): Promise<DocumentScanResult> {
     const server = getLocalServer()
     const endpoint = await server.ensureRunning()
     return this.invokeHttpWithEndpoint(endpoint, image, signal)
   }
 
-  private async invokeHttp(image: ImageInput, signal: AbortSignal): Promise<PassportScanResult> {
+  private async invokeHttp(image: ImageInput, signal: AbortSignal): Promise<DocumentScanResult> {
     return this.invokeHttpWithEndpoint(this.endpoint!, image, signal)
   }
 
@@ -72,7 +68,7 @@ export class PassportOCR {
     endpoint: string,
     image: ImageInput,
     signal: AbortSignal,
-  ): Promise<PassportScanResult> {
+  ): Promise<DocumentScanResult> {
     const blob = await normalizeToBlob(image)
     const form = new FormData()
     form.append('image', blob, 'passport.jpg')
@@ -95,16 +91,14 @@ export class PassportOCR {
       throw new Error(data.error || `Bad request: ${res.status}`)
     }
 
-    // 422 means scan ran but result was unsuccessful — still return the data
     if (res.status === 422 || res.ok) {
-      return data as PassportScanResult
+      return data as DocumentScanResult
     }
 
     throw new Error(data.error || `Server error: ${res.status}`)
   }
 
-  private async invokeLambda(image: ImageInput, signal: AbortSignal): Promise<PassportScanResult> {
-    // Dynamic import so @aws-sdk/client-lambda is optional
+  private async invokeLambda(image: ImageInput, signal: AbortSignal): Promise<DocumentScanResult> {
     const { LambdaClient, InvokeCommand } = await import('@aws-sdk/client-lambda')
 
     const base64 = await normalizeToBase64(image)
@@ -115,7 +109,6 @@ export class PassportOCR {
       Payload: JSON.stringify({ image_base64: base64 }),
     })
 
-    // AbortController integration
     const abortHandler = () => client.destroy()
     signal.addEventListener('abort', abortHandler, { once: true })
 
@@ -124,18 +117,19 @@ export class PassportOCR {
       const payload = new TextDecoder().decode(response.Payload)
       const result = JSON.parse(payload)
 
-      // Lambda wraps response in statusCode/body
       if (result.statusCode && result.body) {
         const body = JSON.parse(result.body)
         if (result.statusCode === 400) {
           throw new Error(body.error || `Bad request: ${result.statusCode}`)
         }
-        return body as PassportScanResult
+        return body as DocumentScanResult
       }
 
-      return result as PassportScanResult
+      return result as DocumentScanResult
     } finally {
       signal.removeEventListener('abort', abortHandler)
     }
   }
 }
+
+export const PassportOCR = DocumentOCR
