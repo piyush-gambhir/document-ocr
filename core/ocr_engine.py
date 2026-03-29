@@ -1,12 +1,11 @@
 """
-PaddleOCR wrapper. Accepts a preprocessed image, returns detected text regions.
+RapidOCR wrapper. Accepts a preprocessed image, returns detected text regions.
 
-Supports PaddleOCR v3 (paddleocr>=3) API only.
+Uses PP-OCRv5 models via ONNX Runtime — no PaddlePaddle dependency.
 """
 
 from __future__ import annotations
 
-import os
 import threading
 from dataclasses import dataclass
 from typing import Optional
@@ -25,42 +24,45 @@ class TextRegion:
 
 
 # ---------------------------------------------------------------------------
-# Singleton OCR instance (initialisation is expensive ~3-5s)
+# Singleton OCR instance
 # ---------------------------------------------------------------------------
 
 _lock = threading.Lock()
 _ocr_instances: dict[str, object] = {}
-FAST_DETECTION_MODEL = "PP-OCRv5_mobile_det"
-FAST_ENGLISH_RECOGNITION_MODEL = "en_PP-OCRv5_mobile_rec"
-
-# PaddleOCR performs a network reachability check on model hosters by default.
-# We already rely on the local model cache once models are present, so skip the
-# check to reduce cold-start latency.
-os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
 
 
 def _get_ocr(lang: str = "en"):
-    """Get or create a cached PaddleOCR instance."""
-    from paddleocr import PaddleOCR
+    """Get or create a cached RapidOCR instance."""
+    from rapidocr import LangRec, ModelType, OCRVersion, RapidOCR
+
+    # Map string language codes to RapidOCR Enum values
+    _lang_map = {
+        "en": LangRec.EN,
+        "latin": LangRec.LATIN,
+        "ch": LangRec.CH,
+        "chinese_cht": LangRec.CHINESE_CHT,
+        "japan": LangRec.JAPAN,
+        "korean": LangRec.KOREAN,
+        "arabic": LangRec.ARABIC,
+        "cyrillic": LangRec.CYRILLIC,
+        "devanagari": LangRec.DEVANAGARI,
+        "ka": LangRec.KA,
+        "ta": LangRec.TA,
+        "te": LangRec.TE,
+    }
 
     if lang not in _ocr_instances:
         with _lock:
             if lang not in _ocr_instances:
-                if lang == "en":
-                    _ocr_instances[lang] = PaddleOCR(
-                        text_detection_model_name=FAST_DETECTION_MODEL,
-                        text_recognition_model_name=FAST_ENGLISH_RECOGNITION_MODEL,
-                        use_doc_orientation_classify=False,
-                        use_doc_unwarping=False,
-                        use_textline_orientation=False,
-                    )
-                else:
-                    _ocr_instances[lang] = PaddleOCR(
-                        lang=lang,
-                        use_doc_orientation_classify=False,
-                        use_doc_unwarping=False,
-                        use_textline_orientation=False,
-                    )
+                rec_lang = _lang_map.get(lang, LangRec.EN)
+                _ocr_instances[lang] = RapidOCR(params={
+                    "Global.use_cls": False,
+                    "Det.model_type": ModelType.MOBILE,
+                    "Det.ocr_version": OCRVersion.PPOCRV5,
+                    "Rec.lang_type": rec_lang,
+                    "Rec.model_type": ModelType.MOBILE,
+                    "Rec.ocr_version": OCRVersion.PPOCRV5,
+                })
     return _ocr_instances[lang]
 
 
@@ -68,35 +70,18 @@ def _get_ocr(lang: str = "en"):
 # Result parsing
 # ---------------------------------------------------------------------------
 
-def _parse_v3_results(results) -> list[TextRegion]:
-    """Parse PaddleOCR v3 output format (dict with rec_texts, rec_scores, dt_polys)."""
+def _parse_rapidocr_results(result) -> list[TextRegion]:
+    """Parse RapidOCR output into TextRegion list."""
     regions: list[TextRegion] = []
 
-    if not results:
+    if result.boxes is None or result.txts is None:
         return regions
 
-    if isinstance(results, dict):
-        results = [results]
-
-    for page_result in results:
-        if not isinstance(page_result, dict):
-            continue
-
-        texts = page_result.get("rec_texts", [])
-        scores = page_result.get("rec_scores", [])
-        polys = page_result.get("dt_polys", [])
-
-        for i in range(len(texts)):
-            text = str(texts[i]).strip()
-            conf = float(scores[i]) if i < len(scores) else 0.0
-            bbox = []
-            if i < len(polys):
-                poly = polys[i]
-                if hasattr(poly, 'tolist'):
-                    poly = poly.tolist()
-                bbox = [[int(p[0]), int(p[1])] for p in poly[:4]]
-            if text:
-                regions.append(TextRegion(text=text, bbox=bbox, confidence=conf))
+    for box, txt, score in zip(result.boxes, result.txts, result.scores):
+        text = str(txt).strip()
+        if text:
+            bbox = [[int(pt[0]), int(pt[1])] for pt in box]
+            regions.append(TextRegion(text=text, bbox=bbox, confidence=float(score)))
 
     return regions
 
@@ -130,7 +115,7 @@ def run_ocr(
     Args:
         image: BGR numpy array (preprocessed).
         lang: Force a language. If None, starts with 'en' and falls back to
-              'multilingual' if non-Latin script is detected.
+              'latin' if non-Latin script is detected.
 
     Returns:
         List of TextRegion with text, bounding box, and confidence.
@@ -138,11 +123,11 @@ def run_ocr(
     use_lang = lang or "en"
     ocr = _get_ocr(use_lang)
 
-    results = ocr.predict(image)
-    regions = _parse_v3_results(results)
+    result = ocr(image)
+    regions = _parse_rapidocr_results(result)
 
     # Auto-detect non-Latin and retry with multilingual
     if lang is None and _is_likely_non_latin(regions):
-        return run_ocr(image, lang="multilingual")
+        return run_ocr(image, lang="latin")
 
     return regions

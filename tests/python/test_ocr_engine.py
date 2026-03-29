@@ -1,26 +1,27 @@
 """Tests for OCR result parsing (core/ocr_engine.py).
 
-Does NOT import PaddleOCR — only tests the parsing and detection utilities.
+Does NOT import RapidOCR — only tests the parsing and detection utilities.
 """
 
 import pytest
 import numpy as np
+from unittest.mock import MagicMock
 
-from core.ocr_engine import _parse_v3_results, TextRegion, _is_likely_non_latin
+from core.ocr_engine import _parse_rapidocr_results, TextRegion, _is_likely_non_latin
 
 
-class TestParseV3Results:
+class TestParseRapidOCRResults:
     def test_parse_normal(self):
-        """Dict with 2 texts, 2 scores, 2 polys → 2 TextRegion objects."""
-        data = {
-            "rec_texts": ["HELLO", "WORLD"],
-            "rec_scores": [0.95, 0.88],
-            "dt_polys": [
-                [[0, 0], [100, 0], [100, 30], [0, 30]],
-                [[0, 50], [100, 50], [100, 80], [0, 80]],
-            ],
-        }
-        regions = _parse_v3_results([data])
+        """Result with 2 boxes, 2 texts, 2 scores → 2 TextRegion objects."""
+        result = MagicMock()
+        result.boxes = np.array([
+            [[0, 0], [100, 0], [100, 30], [0, 30]],
+            [[0, 50], [100, 50], [100, 80], [0, 80]],
+        ])
+        result.txts = ("HELLO", "WORLD")
+        result.scores = (0.95, 0.88)
+
+        regions = _parse_rapidocr_results(result)
         assert len(regions) == 2
         assert regions[0].text == "HELLO"
         assert regions[0].confidence == 0.95
@@ -28,54 +29,48 @@ class TestParseV3Results:
         assert regions[1].text == "WORLD"
         assert regions[1].confidence == 0.88
 
-    def test_parse_empty_none(self):
-        """None input → empty list."""
-        assert _parse_v3_results(None) == []
+    def test_parse_none_boxes(self):
+        """None boxes → empty list."""
+        result = MagicMock()
+        result.boxes = None
+        result.txts = None
+        result.scores = None
+        assert _parse_rapidocr_results(result) == []
 
-    def test_parse_empty_dict(self):
-        """Empty dict → empty list (no rec_texts key)."""
-        assert _parse_v3_results({}) == []
+    def test_parse_none_txts(self):
+        """None txts → empty list."""
+        result = MagicMock()
+        result.boxes = np.array([[[0, 0], [10, 0], [10, 10], [0, 10]]])
+        result.txts = None
+        result.scores = (0.9,)
+        assert _parse_rapidocr_results(result) == []
 
-    def test_parse_empty_list(self):
-        """Empty list → empty list."""
-        assert _parse_v3_results([]) == []
+    def test_parse_skips_empty_text(self):
+        """Empty/whitespace text should be skipped."""
+        result = MagicMock()
+        result.boxes = np.array([
+            [[0, 0], [100, 0], [100, 30], [0, 30]],
+            [[0, 50], [100, 50], [100, 80], [0, 80]],
+        ])
+        result.txts = ("HELLO", "  ")
+        result.scores = (0.95, 0.88)
 
-    def test_parse_missing_bbox(self):
-        """Dict with texts and scores but no dt_polys → TextRegions with empty bbox."""
-        data = {
-            "rec_texts": ["HELLO", "WORLD"],
-            "rec_scores": [0.95, 0.88],
-        }
-        regions = _parse_v3_results([data])
-        assert len(regions) == 2
-        assert regions[0].bbox == []
-        assert regions[1].bbox == []
+        regions = _parse_rapidocr_results(result)
+        assert len(regions) == 1
+        assert regions[0].text == "HELLO"
 
-    def test_parse_numpy_polys(self):
-        """Numpy array polys should be converted via .tolist() path."""
-        poly1 = np.array([[10, 20], [110, 20], [110, 50], [10, 50]])
-        poly2 = np.array([[10, 60], [110, 60], [110, 90], [10, 90]])
-        data = {
-            "rec_texts": ["FOO", "BAR"],
-            "rec_scores": [0.90, 0.85],
-            "dt_polys": [poly1, poly2],
-        }
-        regions = _parse_v3_results([data])
-        assert len(regions) == 2
-        assert regions[0].bbox == [[10, 20], [110, 20], [110, 50], [10, 50]]
-        assert isinstance(regions[0].bbox[0][0], int)
+    def test_parse_single_result(self):
+        """Single detection → single TextRegion."""
+        result = MagicMock()
+        result.boxes = np.array([[[5, 5], [50, 5], [50, 20], [5, 20]]])
+        result.txts = ("SINGLE",)
+        result.scores = (0.99,)
 
-    def test_parse_single_dict(self):
-        """Unwrapped dict (not in list) → should wrap and parse."""
-        data = {
-            "rec_texts": ["SINGLE"],
-            "rec_scores": [0.99],
-            "dt_polys": [[[5, 5], [50, 5], [50, 20], [5, 20]]],
-        }
-        regions = _parse_v3_results(data)
+        regions = _parse_rapidocr_results(result)
         assert len(regions) == 1
         assert regions[0].text == "SINGLE"
         assert regions[0].confidence == 0.99
+        assert regions[0].bbox == [[5, 5], [50, 5], [50, 20], [5, 20]]
 
 
 class TestNonLatinDetection:

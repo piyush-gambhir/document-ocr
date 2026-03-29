@@ -36,11 +36,11 @@ app = FastAPI(title="Passport OCR", version="1.0.0")
 @app.on_event("startup")
 async def _load_models():
     global _models_ready
-    logger.info("Loading PaddleOCR models...")
+    logger.info("Loading OCR models...")
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, _warm_up_ocr)
     _models_ready = True
-    logger.info("PaddleOCR models loaded.")
+    logger.info("OCR models loaded.")
 
 
 def _warm_up_ocr():

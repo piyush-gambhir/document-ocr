@@ -4,8 +4,8 @@ version = "1.0.0"
 description = "High-accuracy passport OCR pipeline"
 requires-python = ">=3.12"
 dependencies = [
-    "paddleocr>=3.0.0",
-    "paddlepaddle>=3.0.0",
+    "rapidocr>=3.0.0",
+    "onnxruntime>=1.17,<2",
     "opencv-python-headless>=4.8,<5",
     "pillow>=10.0,<11",
     "numpy>=1.24,<3",
@@ -13,10 +13,8 @@ dependencies = [
     "fastapi>=0.109,<1",
     "uvicorn[standard]>=0.27,<1",
     "python-multipart>=0.0.6",
-
     "pymupdf>=1.23,<2",
     "pillow-heif>=0.14,<1",
-    "setuptools",
 ]
 
 [project.optional-dependencies]
