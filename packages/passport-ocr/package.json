@@ -23,7 +23,7 @@
     "type": "git",
     "url": "https://github.com/piyush-gambhir/document-ocr"
   },
-  "keywords": ["passport", "ocr", "mrz", "paddleocr", "document-scanning", "standalone"],
+  "keywords": ["passport", "ocr", "mrz", "rapidocr", "onnx", "document-scanning", "standalone"],
   "scripts": {
     "postinstall": "node scripts/postinstall.mjs",
     "sync-python": "bash scripts/sync-python.sh",

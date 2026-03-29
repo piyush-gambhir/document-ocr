@@ -22,9 +22,8 @@
     ]
   },
   "sample-indian-passport-2.jpg": {
-    "status": "unsupported_page",
+    "status": "success",
     "documentType": "passport",
-    "pageType": "passport_non_biodata",
-    "unsupportedReason": "NON_BIODATA_PAGE"
+    "pageType": "passport_non_biodata"
   }
 }

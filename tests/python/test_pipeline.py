@@ -16,7 +16,7 @@ def _has_samples() -> bool:
 
 @pytest.mark.skipif(not _has_samples(), reason="No sample passport images available")
 class TestPipelineIntegration:
-    """These tests require PaddleOCR to be installed and sample images present."""
+    """These tests require OCR engine to be installed and sample images present."""
 
     def test_scan_sample_1(self):
         from core.pipeline import scan
@@ -62,7 +62,7 @@ class TestPipelineIntegration:
         assert result.status == expected["status"]
         assert result.document_type == expected["documentType"]
         assert result.page_type == expected["pageType"]
-        assert result.unsupported_reason == expected["unsupportedReason"]
+        assert result.back_page_fields is not None
 
     def test_scan_bytes(self):
         from core.pipeline import scan

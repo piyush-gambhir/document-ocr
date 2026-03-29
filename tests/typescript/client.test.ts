@@ -51,21 +51,34 @@ describe('DocumentOCR client', () => {
     expect(warnSpy).not.toHaveBeenCalled()
   })
 
-  it('returns unsupported-page results without throwing in http mode', async () => {
+  it('returns non-biodata back page results without throwing in http mode', async () => {
     const client = new DocumentOCR({ mode: 'http', endpoint: 'http://localhost:8000' })
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       json: async () => ({
-        status: 'unsupported_page',
+        status: 'success',
         documentType: 'passport',
         pageType: 'passport_non_biodata',
         confidence: 0.91,
         fields: null,
+        backPageFields: {
+          fatherName: 'JOHN DOE SR',
+          motherName: 'JANE DOE',
+          spouseName: null,
+          address: '123 MAIN ST',
+          pincode: null,
+          city: null,
+          state: null,
+          fileNumber: null,
+          oldPassportNumber: null,
+          oldPassportDateOfIssue: null,
+          oldPassportPlaceOfIssue: null,
+        },
         mrzRaw: null,
         mrzValid: false,
         lowConfidence: false,
-        unsupportedReason: 'NON_BIODATA_PAGE',
+        unsupportedReason: null,
         probeText: ['name of father'],
         errors: [],
         warnings: ['NON_BIODATA_HINTS_2'],
@@ -76,7 +89,8 @@ describe('DocumentOCR client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const result = await client.scan(Buffer.from('test'))
 
-    expect(result.status).toBe('unsupported_page')
+    expect(result.status).toBe('success')
     expect(result.pageType).toBe('passport_non_biodata')
+    expect(result.backPageFields).toBeDefined()
   })
 })

@@ -158,18 +158,31 @@ class TestScan:
         assert body["fields"]["surname"] == "KUMAR"
         assert body["fields"]["givenNames"] == "RAJ"
 
-    async def test_scan_unsupported_page_returns_200(self, client, small_image):
-        """Unsupported pages are classified, not treated as processing failures."""
+    async def test_scan_non_biodata_returns_200_with_back_fields(self, client, small_image):
+        """Non-biodata pages return success with back page fields extracted."""
         mock_dict = {
-            "status": "unsupported_page",
+            "status": "success",
             "documentType": "passport",
             "pageType": "passport_non_biodata",
             "confidence": 0.91,
             "fields": None,
+            "backPageFields": {
+                "fatherName": "JOHN DOE SR",
+                "motherName": "JANE DOE",
+                "spouseName": None,
+                "address": "123 MAIN ST",
+                "pincode": "500020",
+                "city": "HYDERABAD",
+                "state": "Telangana",
+                "fileNumber": None,
+                "oldPassportNumber": None,
+                "oldPassportDateOfIssue": None,
+                "oldPassportPlaceOfIssue": None,
+            },
             "mrzRaw": None,
             "mrzValid": False,
             "lowConfidence": False,
-            "unsupportedReason": "NON_BIODATA_PAGE",
+            "unsupportedReason": None,
             "probeText": ["name of father", "address"],
             "errors": [],
             "warnings": ["NON_BIODATA_HINTS_2"],
@@ -177,7 +190,7 @@ class TestScan:
         }
 
         mock_result = MagicMock()
-        mock_result.status = "unsupported_page"
+        mock_result.status = "success"
         mock_result.page_type = "passport_non_biodata"
         mock_result.confidence = 0.91
         mock_result.processing_ms = 90
@@ -192,6 +205,7 @@ class TestScan:
 
         assert resp.status_code == 200
         body = resp.json()
-        assert body["status"] == "unsupported_page"
+        assert body["status"] == "success"
         assert body["pageType"] == "passport_non_biodata"
-        assert body["unsupportedReason"] == "NON_BIODATA_PAGE"
+        assert body["backPageFields"] is not None
+        assert body["backPageFields"]["fatherName"] == "JOHN DOE SR"

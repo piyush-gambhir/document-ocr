@@ -12,10 +12,24 @@ export interface PassportFields {
   countryCode: string | null // ISO 3166-1 alpha-3
 }
 
+export interface BackPageFields {
+  fatherName: string | null
+  motherName: string | null
+  spouseName: string | null
+  address: string | null
+  pincode: string | null
+  city: string | null
+  state: string | null
+  fileNumber: string | null
+  oldPassportNumber: string | null
+  oldPassportDateOfIssue: string | null
+  oldPassportPlaceOfIssue: string | null
+}
+
 export type DocumentStatus = 'success' | 'unsupported_page' | 'failure'
 export type DocumentType = 'passport' | 'unknown'
 export type PageType = 'passport_biodata' | 'passport_non_biodata' | 'unknown'
-export type UnsupportedReason = 'NON_BIODATA_PAGE' | 'UNSUPPORTED_DOCUMENT'
+export type UnsupportedReason = 'UNSUPPORTED_DOCUMENT'
 
 export interface BaseDocumentScanResult {
   status: DocumentStatus
@@ -26,6 +40,7 @@ export interface BaseDocumentScanResult {
   mrzRaw: [string, string] | null
   mrzValid: boolean
   unsupportedReason: UnsupportedReason | null
+  backPageFields: BackPageFields | null
   probeText: string[]
   errors: string[]
   warnings: string[]
@@ -35,8 +50,7 @@ export interface BaseDocumentScanResult {
 export interface SuccessfulDocumentScanResult extends BaseDocumentScanResult {
   status: 'success'
   documentType: 'passport'
-  pageType: 'passport_biodata'
-  fields: PassportFields
+  fields: PassportFields | null // null for non-biodata pages
 }
 
 export interface UnsupportedPageDocumentScanResult extends BaseDocumentScanResult {

@@ -88,7 +88,6 @@ def run_benchmark():
     # Summary
     matched_results = [matched for _, _, matched in results]
     supported_success = [r for _, r, matched in results if matched and r.status == "success"]
-    correctly_rejected = [r for _, r, matched in results if matched and r.status == "unsupported_page"]
     avg_conf = sum(r.confidence for _, r, _ in results) / len(results) if results else 0
     avg_time = sum(r.processing_ms for _, r, _ in results) / len(results) if results else 0
     biodata_latencies = [
@@ -118,12 +117,11 @@ def run_benchmark():
             mrz_expectations += 1
             mrz_exact_matches += int(mrz_exact)
 
-        if expected.get("status") == "unsupported_page" and expected.get("pageType") == "passport_non_biodata":
+        if expected.get("pageType") == "passport_non_biodata":
             non_biodata_expectations += 1
             non_biodata_matches += int(
-                result.status == "unsupported_page"
+                result.status == "success"
                 and result.page_type == "passport_non_biodata"
-                and result.unsupported_reason == expected.get("unsupportedReason")
             )
 
     field_accuracy = (
@@ -138,7 +136,6 @@ def run_benchmark():
     print(f"Total images:      {len(results)}")
     print(f"Status matched:    {sum(matched_results)} ({sum(matched_results)/len(results)*100:.1f}%)")
     print(f"Successful:        {len(supported_success)}")
-    print(f"Correctly rejected:{len(correctly_rejected)}")
     print(f"Field accuracy:    {field_accuracy:.1%}")
     print(f"MRZ exact-match:   {mrz_exact_rate:.1%}")
     print(f"Non-biodata acc:   {non_biodata_rate:.1%}")
