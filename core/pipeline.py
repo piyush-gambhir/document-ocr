@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Union
 
+from .back_page_extractor import BackPageFields, extract_back_page
 from .mrz_parser import MRZResult, parse_mrz
 from .ocr_engine import TextRegion, run_ocr
 from .page_classifier import classify_passport_page
@@ -43,6 +44,7 @@ class DocumentScanResult:
     page_type: str
     confidence: float
     fields: Optional[PassportFields] = None
+    back_page_fields: Optional[BackPageFields] = None
     mrz_raw: Optional[tuple[str, str]] = None
     mrz_valid: bool = False
     low_confidence: bool = False
@@ -59,6 +61,7 @@ class DocumentScanResult:
             "pageType": self.page_type,
             "confidence": self.confidence,
             "fields": _fields_to_dict(self.fields),
+            "backPageFields": _back_page_fields_to_dict(self.back_page_fields),
             "mrzRaw": list(self.mrz_raw) if self.mrz_raw else None,
             "mrzValid": self.mrz_valid,
             "lowConfidence": self.low_confidence,
@@ -100,12 +103,15 @@ def scan(image_input: Union[str, bytes, Path]) -> DocumentScanResult:
 
     classification = classify_passport_page(regions)
     if classification.page_type == "passport_non_biodata":
+        # Run full-page OCR for back page extraction (not just bottom crop)
+        full_regions = run_ocr(prep.image)
+        back_fields = extract_back_page(full_regions)
         return DocumentScanResult(
-            status="unsupported_page",
+            status="success",
             document_type="passport",
             page_type="passport_non_biodata",
             confidence=classification.confidence,
-            unsupported_reason="NON_BIODATA_PAGE",
+            back_page_fields=back_fields,
             probe_text=classification.probe_text,
             warnings=prep.warnings + classification.reasons,
             processing_ms=_elapsed_ms(start),
@@ -211,6 +217,24 @@ def _fields_to_dict(fields: Optional[PassportFields]) -> Optional[dict]:
         "issueDate": fields.issue_date,
         "placeOfBirth": fields.place_of_birth,
         "countryCode": fields.country_code,
+    }
+
+
+def _back_page_fields_to_dict(fields: Optional[BackPageFields]) -> Optional[dict]:
+    if fields is None:
+        return None
+    return {
+        "fatherName": fields.father_name,
+        "motherName": fields.mother_name,
+        "spouseName": fields.spouse_name,
+        "address": fields.address,
+        "pincode": fields.pincode,
+        "city": fields.city,
+        "state": fields.state,
+        "fileNumber": fields.file_number,
+        "oldPassportNumber": fields.old_passport_number,
+        "oldPassportDateOfIssue": fields.old_passport_date_of_issue,
+        "oldPassportPlaceOfIssue": fields.old_passport_place_of_issue,
     }
 
 
