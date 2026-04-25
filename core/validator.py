@@ -128,6 +128,50 @@ def find_visual_field(
     return best_match[2] if best_match else None
 
 
+def find_label_row_left_edge(
+    regions: list[TextRegion],
+    label_region: TextRegion,
+    *,
+    max_prefix_chars: int = 5,
+) -> int:
+    """Leftmost x of the label *row*, absorbing short bilingual-prefix regions.
+
+    Bilingual passports (Hindi/English, Arabic/English, Cyrillic/English, …)
+    produce labels OCR'd as multiple regions on the same row, e.g.
+    `"पिता / "` (often mis-OCR'd as "fe /") followed by
+    `"Name of Father / Legal Guardian"`. Form values align to the leftmost
+    edge of the bilingual block, not to the English region alone.
+
+    Only short fragments (≤ `max_prefix_chars` alphanumeric characters) are
+    absorbed — long same-row regions are usually values from adjacent fields
+    in multi-column layouts (e.g. the Place-of-Issue value sitting on the same
+    row as the Date-of-Issue label on the biodata page) and must NOT shift
+    the label's effective left edge.
+    """
+    label_top = min(p[1] for p in label_region.bbox)
+    label_bottom = max(p[1] for p in label_region.bbox)
+    label_height = max(label_bottom - label_top, 1)
+    leftmost = min(p[0] for p in label_region.bbox)
+
+    for region in regions:
+        if region is label_region:
+            continue
+        top = min(p[1] for p in region.bbox)
+        bottom = max(p[1] for p in region.bbox)
+        overlap = min(bottom, label_bottom) - max(top, label_top)
+        if overlap < label_height * 0.5:
+            continue
+        left = min(p[0] for p in region.bbox)
+        if left >= leftmost:
+            continue
+        alnum_len = len(re.sub(r"[^A-Za-z0-9]", "", region.text))
+        if alnum_len > max_prefix_chars:
+            continue
+        leftmost = left
+
+    return leftmost
+
+
 def find_visual_value_near(
     regions: list[TextRegion],
     label_region: TextRegion,
@@ -135,7 +179,7 @@ def find_visual_value_near(
 ) -> Optional[TextRegion]:
     """Find the OCR region immediately below a label region."""
     label_bottom = max(p[1] for p in label_region.bbox)
-    label_left = min(p[0] for p in label_region.bbox)
+    label_left = find_label_row_left_edge(regions, label_region)
     min_vertical_overlap = 10
 
     candidates = []

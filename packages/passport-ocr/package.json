@@ -1,6 +1,6 @@
 {
   "name": "document-ocr",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Standalone passport OCR — scans passports locally with bundled Python pipeline",
   "type": "module",
   "exports": {

@@ -93,8 +93,8 @@ def scan(image_input: Union[str, bytes, Path]) -> DocumentScanResult:
     if not regions:
         return DocumentScanResult(
             status="failure",
-            document_type="passport",
-            page_type="passport_biodata",
+            document_type="unknown",
+            page_type="unknown",
             confidence=0.0,
             errors=["NO_TEXT_DETECTED"],
             warnings=prep.warnings,

@@ -28,6 +28,16 @@ TARGET_WIDTH = 1600            # normalise output to this width
 CLAHE_CLIP = 2.0
 CLAHE_GRID = (8, 8)
 
+# Document-detection sanity thresholds. Polygon approximation can produce
+# degenerate quads from noise (perforations, watermarks, form-field rectangles).
+# A real document boundary should cover most of the frame and be roughly
+# convex with a passport-like aspect ratio.
+MIN_QUAD_AREA_RATIO = 0.30    # quad must cover ≥ 30 % of image area
+MIN_QUAD_ASPECT = 0.5         # reject very narrow / very tall quads
+MAX_QUAD_ASPECT = 3.0
+MIN_WARPED_AREA_RATIO = 0.50  # if perspective-corrected image is < 50 %
+                              # of the input area, discard and use raw
+
 
 # ---------------------------------------------------------------------------
 # Result type
@@ -116,8 +126,18 @@ def _check_glare(img: np.ndarray) -> Optional[str]:
 
 
 def _detect_document(img: np.ndarray) -> tuple[np.ndarray | None, list[str]]:
-    """Find largest quadrilateral in the image. Returns (corners, warnings)."""
+    """Find the document quadrilateral. Returns (corners, warnings).
+
+    Only accepts a 4-corner approximation that is plausibly an entire
+    document: large enough, convex, and with a passport-like aspect ratio.
+    Without these checks, polygon approximation of noise contours
+    (perforations, form-field rectangles, watermark edges) can produce
+    degenerate quads that destroy the image during perspective correction.
+    """
     warnings: list[str] = []
+    h, w = img.shape[:2]
+    img_area = float(h * w)
+
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     edges = cv2.Canny(blurred, 50, 150)
@@ -138,11 +158,27 @@ def _detect_document(img: np.ndarray) -> tuple[np.ndarray | None, list[str]]:
     for cnt in contours[:5]:
         peri = cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-        if len(approx) == 4:
+        if len(approx) != 4:
+            continue
+        if _is_plausible_document_quad(approx, img_area):
             return approx.reshape(4, 2).astype(np.float32), warnings
 
     warnings.append("NO_DOCUMENT_BOUNDARY_DETECTED")
     return None, warnings
+
+
+def _is_plausible_document_quad(approx: np.ndarray, img_area: float) -> bool:
+    """A real document quad covers most of the image, is convex, and has a
+    sane aspect ratio. Anything else is almost certainly a noise contour."""
+    if not cv2.isContourConvex(approx):
+        return False
+    if cv2.contourArea(approx) < img_area * MIN_QUAD_AREA_RATIO:
+        return False
+    _, _, bw, bh = cv2.boundingRect(approx)
+    if bw <= 0 or bh <= 0:
+        return False
+    aspect = bw / bh
+    return MIN_QUAD_ASPECT <= aspect <= MAX_QUAD_ASPECT
 
 
 def _order_points(pts: np.ndarray) -> np.ndarray:
@@ -237,7 +273,15 @@ def preprocess(
         warnings.append(glare_warning)
 
     if corners is not None:
-        img = _perspective_correct(img, corners)
+        original_area = img.shape[0] * img.shape[1]
+        warped = _perspective_correct(img, corners)
+        warped_area = warped.shape[0] * warped.shape[1]
+        if warped_area >= original_area * MIN_WARPED_AREA_RATIO:
+            img = warped
+        else:
+            # Perspective transform produced a degenerate strip — the detected
+            # quad must have been bogus. Discard it and use the raw image.
+            warnings.append("PERSPECTIVE_CORRECTION_DISCARDED")
 
     img = _normalise(img)
 

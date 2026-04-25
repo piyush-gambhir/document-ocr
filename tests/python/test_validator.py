@@ -2,7 +2,13 @@
 
 import pytest
 
-from core.validator import validate, ValidationResult, find_visual_field, find_visual_value_near
+from core.validator import (
+    find_label_row_left_edge,
+    find_visual_field,
+    find_visual_value_near,
+    validate,
+    ValidationResult,
+)
 from core.mrz_parser import MRZResult, MRZField
 from core.ocr_engine import TextRegion
 
@@ -163,6 +169,77 @@ class TestValidation:
         value = find_visual_value_near(regions, label)
         assert value is not None
         assert value.text == "RAMADUGULA"
+
+    def test_value_lookup_handles_bilingual_label_prefix(self):
+        """Indian / Arabic / Cyrillic labels OCR as two regions on the same row.
+        The English region's left edge is *not* aligned with the value column —
+        the value column matches the leftmost edge of the bilingual block."""
+        regions = [
+            # Bilingual prefix (mostly noise) at the left
+            TextRegion(
+                text="fe /",
+                bbox=[[60, 120], [200, 120], [200, 150], [60, 150]],
+                confidence=0.55,
+            ),
+            # English label well to the right of the prefix
+            TextRegion(
+                text="Name of Father / Legal Guardian",
+                bbox=[[370, 120], [780, 120], [780, 150], [370, 150]],
+                confidence=0.98,
+            ),
+            # Value left-aligned with the bilingual prefix, not the English label
+            TextRegion(
+                text="SHRADHANAND MEHTA",
+                bbox=[[55, 160], [400, 160], [400, 195], [55, 195]],
+                confidence=1.0,
+            ),
+        ]
+        label = find_visual_field(regions, ["NAME OF FATHER", "FATHER"])
+        assert label is not None
+        # English label alone reports left=370; bilingual block reports 60.
+        assert min(p[0] for p in label.bbox) >= 370
+        assert find_label_row_left_edge(regions, label) == 60
+        value = find_visual_value_near(regions, label)
+        assert value is not None
+        assert value.text == "SHRADHANAND MEHTA"
+
+    def test_value_lookup_does_not_absorb_adjacent_field_value(self):
+        """Multi-column biodata layouts put the value of one field on the same
+        row as the label of another. Such values must NOT shift the label's
+        effective left edge — only short bilingual prefixes do."""
+        regions = [
+            # Place-of-Issue value sitting on the same row as the next label
+            TextRegion(
+                text="R.S.Lakshan",
+                bbox=[[80, 800], [290, 800], [290, 835], [80, 835]],
+                confidence=0.93,
+            ),
+            # Date of issue label, in the centre column
+            TextRegion(
+                text="Date of issue",
+                bbox=[[350, 810], [545, 810], [545, 840], [350, 840]],
+                confidence=0.79,
+            ),
+            # The actual date value, below the date label
+            TextRegion(
+                text="11/10/2011",
+                bbox=[[358, 845], [483, 845], [483, 875], [358, 875]],
+                confidence=1.0,
+            ),
+            # An MRZ-shaped line at the bottom — must NOT be picked
+            TextRegion(
+                text="P<INDRAMADUGULA<<SITA<MAHA<LAKSHMI<<<<<<<<<<",
+                bbox=[[50, 895], [720, 895], [720, 940], [50, 940]],
+                confidence=0.98,
+            ),
+        ]
+        label = find_visual_field(regions, ["DATE OF ISSUE"])
+        assert label is not None
+        # The neighbouring R.S.Lakshan value must NOT be absorbed into the row.
+        assert find_label_row_left_edge(regions, label) >= 350
+        value = find_visual_value_near(regions, label)
+        assert value is not None
+        assert value.text == "11/10/2011"
 
     def test_cross_match_dob_match(self):
         """Visual DOB matches MRZ → no DOB_MISMATCH warning."""

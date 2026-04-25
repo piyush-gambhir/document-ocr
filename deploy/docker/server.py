@@ -30,7 +30,7 @@ _models_ready = False
 # App
 # ---------------------------------------------------------------------------
 
-app = FastAPI(title="Passport OCR", version="1.0.0")
+app = FastAPI(title="Passport OCR", version="1.1.0")
 
 
 @app.on_event("startup")
