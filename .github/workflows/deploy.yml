@@ -1,0 +1,45 @@
+# Docker Hub deployment workflow.
+#
+# Currently DISABLED for automatic triggers — only fires when manually run from
+# the GitHub UI. To enable on push, uncomment the `push:` block below.
+
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - development
+  # push:
+  #   branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Deploy
+        run: |
+          cat > ".env.deploy.${ENV}" <<EOF
+          DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+          DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}
+          EOF
+          bash scripts/deploy.sh "$ENV"
+        env:
+          ENV: ${{ inputs.environment || 'production' }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
