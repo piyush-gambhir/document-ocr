@@ -1,7 +1,7 @@
 {
   "name": "document-ocr",
-  "version": "2.1.0",
-  "description": "Standalone passport OCR — scans passports locally with bundled Python pipeline",
+  "version": "2.2.0",
+  "description": "Standalone document OCR — scans passports and Indian KYC documents locally with a bundled Python pipeline",
   "type": "module",
   "exports": {
     ".": {

@@ -1,7 +1,7 @@
 [project]
 name = "document-ocr"
-version = "1.1.0"
-description = "High-accuracy passport OCR pipeline"
+version = "1.2.0"
+description = "High-accuracy OCR pipeline for passports and Indian KYC documents (PAN, Aadhaar, driving licence, voter ID)"
 requires-python = ">=3.12"
 dependencies = [
     "rapidocr>=3.0.0",

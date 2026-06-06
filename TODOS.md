@@ -1,33 +1,47 @@
 # TODOs
 
-## 1. Model download error handling
-**What:** Add try/except around RapidOCR model initialization in `core/ocr_engine.py:_get_ocr()`.
-**Why:** If ModelScope is unreachable or disk is full, the first request hangs silently until timeout. Should raise a clear `MODEL_INIT_FAILED` error.
-**Where to start:** `core/ocr_engine.py`, the `_get_ocr()` function. Wrap the `RapidOCR(...)` call in try/except, catch `Exception`, log, and raise a custom error.
+_The original six items (model-init error handling, Lambda deploy, clean sample
+images, TypeScript SDK tests, back-page accuracy, Cloud Run deploy) were
+completed in 1.2.0 — see CHANGELOG.md._
 
-## 2. Lambda deployment
-**What:** Create `deploy/lambda/Dockerfile.lambda` and `handler.py` + `template.yaml` for AWS Lambda deployment.
-**Why:** Lambda is a valid deployment target. RapidOCR + ONNX Runtime is small enough for Lambda container images (~500MB).
-**Where to start:** Create `deploy/lambda/` directory with a Dockerfile based on `public.ecr.aws/lambda/python:3.12`, test with `sam local invoke`.
+## Multi-document follow-ups
 
-## 3. Clean sample passport images
-**What:** Replace the watermarked sample images (`SAMPLE - IMMIHELP.COM`) with clean, anonymized/synthetic test passports.
-**Why:** The watermark corrupts some OCR output, making accuracy benchmarks less reliable. Cannot fully validate accuracy targets with current samples.
-**Options:** Generate synthetic passport images with PIL/reportlab, or source properly anonymized samples.
-**Where to start:** `sample-passports/` directory. `benchmarks/accuracy.py` runs against these.
+1. **Deskew in the preprocessor (biggest accuracy lever).** The end-to-end KYC
+   benchmark (`make benchmark-documents`) scores 100% on clean images but drops to
+   ~82–88% under a ±3° rotation, because `core/preprocessor.py` only does
+   document-boundary perspective correction, not text-line deskew. Adding a Hough/
+   projection-profile deskew step would recover most of the rotation loss (and
+   help real-world phone photos). This is the clearest robustness win.
 
-## 4. TypeScript SDK tests
-**What:** Add integration tests for the TS SDK: `scan()` with a mock HTTP server, retry on 5xx, timeout handling, AbortSignal propagation, `normalizeToBlob()`.
-**Why:** The SDK's scan/retry/timeout behavior has minimal test coverage.
-**Depends on:** Python pipeline tests passing.
-**Where to start:** `tests/typescript/`, use vitest with a mock HTTP server (msw or similar).
+2. **Passport probe over-eagerly claims KYC cards.** The cheap bottom-crop
+   passport probe (`core/pipeline._extract_targeted_regions` + `classify_passport_page`)
+   treats "SEX" and "DATE OF BIRTH" as biodata hints, so a voter/DL card showing
+   those exact labels in its lower ~55% can mis-route to the passport path before
+   `classify_document` ever runs. The synthetic voter cards dodge this by using
+   "Gender"/"DOB", but real cards won't. Fix: require an MRZ (or a passport
+   keyword) before committing to the passport path, or run `classify_document`
+   first and only treat as passport when it agrees.
 
-## 5. Back page extraction accuracy
-**What:** Improve the back page field extraction accuracy in `core/back_page_extractor.py`.
-**Why:** The current spatial label→value extraction works but misses some fields depending on OCR text segmentation. Father name, spouse name, and address extraction need tuning.
-**Where to start:** `core/back_page_extractor.py`, test with sample-indian-passport-2.jpg.
+3. **Real sample images for the new document types.** We now have synthetic
+   labelled specimens + an end-to-end benchmark (`sample-documents/`,
+   `benchmarks/document_accuracy.py`). The remaining gap is *real* scans — add
+   anonymized real PAN/Aadhaar/DL/voter images with ground-truth labels to
+   measure true-world (not just rendered) accuracy.
 
-## 6. Cloud Run deployment
-**What:** Add a `deploy/cloudrun/` config with `cloudbuild.yaml` or document `gcloud run deploy` steps.
-**Why:** Cloud Run is the recommended free-tier deployment target. The Docker image is ready but deployment steps aren't documented.
-**Where to start:** Document the `gcloud run deploy` command in README or create a deploy script.
+5. **Driving licence layout variance.** The DL extractor is best-effort; layouts
+   differ substantially by issuing state. Gather fixtures from more states
+   (especially Smart Card DLs and the newer Parivahan format) and tune
+   `core/driving_licence_extractor.py`. The DL identifier format check in
+   `core/validators.py` is also loose — tighten per-state if needed.
+
+6. **Aadhaar name detection.** Aadhaar has no Latin label for the holder name, so
+   `_find_name` infers it spatially relative to the DOB line. Validate against
+   more real layouts (vertical/horizontal cards, masked Aadhaar, mAadhaar PDF).
+
+7. **SDK retry semantics for 4xx.** `packages/passport-ocr/src/retry.ts` only
+   skips retries when the error message contains `400`/`422`; a 400 whose body
+   carries a non-numeric `error` (e.g. `INVALID_CONTENT_TYPE`) is still retried.
+   Consider threading the HTTP status through instead of string-matching.
+
+8. **Server lifespan handler.** `deploy/docker/server.py` still uses the
+   deprecated `@app.on_event("startup")`; migrate to a FastAPI lifespan handler.
