@@ -1,0 +1,44 @@
+[
+  {
+    "file": "sample-documents/driving_licence/dl_01.png",
+    "documentType": "driving_licence",
+    "fields": {
+      "dlNumber": "MH1220110012345",
+      "name": "RAJESH KUMAR SHARMA",
+      "relationName": "MOHAN LAL SHARMA",
+      "dateOfBirth": "14/03/1986",
+      "issueDate": "09/06/2018",
+      "validityDate": "13/03/2026",
+      "address": "FLAT 7B GREEN PARK, ANDHERI WEST, MUMBAI 400058"
+    }
+  },
+  {
+    "file": "sample-documents/driving_licence/dl_02.png",
+    "documentType": "driving_licence",
+    "fields": {
+      "dlNumber": "DL0420110149646",
+      "name": "PRIYA SINGH",
+      "relationName": "RAVINDER SINGH",
+      "dateOfBirth": "22/11/1990",
+      "issueDate": "05/01/2020",
+      "validityDate": "21/11/2030",
+      "validityDateTransport": "04/01/2023",
+      "address": "112 NEHRU NAGAR, ROHINI, NEW DELHI 110085"
+    }
+  },
+  {
+    "file": "sample-documents/driving_licence/dl_03.png",
+    "documentType": "driving_licence",
+    "fields": {
+      "dlNumber": "TN0120200001234",
+      "name": "ARUN VENKATESAN",
+      "relationName": "S VENKATESAN",
+      "dateOfBirth": "30/07/1995",
+      "issueDate": "18/02/2021",
+      "validityDate": "29/07/2035",
+      "bloodGroup": "O+",
+      "classOfVehicle": "MCWG, LMV",
+      "address": "24 GANDHI STREET, T NAGAR, CHENNAI 600017"
+    }
+  }
+]

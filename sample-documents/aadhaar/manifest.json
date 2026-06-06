@@ -1,0 +1,34 @@
+[
+  {
+    "file": "sample-documents/aadhaar/aadhaar_01.png",
+    "documentType": "aadhaar",
+    "fields": {
+      "aadhaarNumber": "9998 8877 7669",
+      "name": "Ramesh Kumar Sharma",
+      "dateOfBirth": "15/08/1985",
+      "gender": "MALE",
+      "checksumValid": true
+    }
+  },
+  {
+    "file": "sample-documents/aadhaar/aadhaar_02.png",
+    "documentType": "aadhaar",
+    "fields": {
+      "aadhaarNumber": "7260 1815 9082",
+      "name": "Sunita Devi Patel",
+      "yearOfBirth": "1990",
+      "gender": "FEMALE",
+      "checksumValid": true,
+      "vid": "9148 6541 8231 2156"
+    }
+  },
+  {
+    "file": "sample-documents/aadhaar/aadhaar_03.png",
+    "documentType": "aadhaar",
+    "fields": {
+      "aadhaarNumber": "5016 6131 8603",
+      "address": "S/O Mohan Lal, House No 42, Gandhi Nagar, Sector 12, Jaipur, Rajasthan - 302015",
+      "pincode": "302015"
+    }
+  }
+]
