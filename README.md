@@ -145,17 +145,12 @@ raw scan result on success and an `{statusCode, body}` envelope for errors.
 ## Tests & benchmarks
 
 ```bash
-make test                  # python + ts unit suites (fixture-driven, fast)
-make benchmark             # passport accuracy on sample-passports/
-make benchmark-documents   # end-to-end KYC accuracy (clean + degraded)
-make gen-documents         # regenerate the labelled synthetic KYC images
+make test         # python + ts unit suites (fixture-driven, fast)
+make benchmark    # passport accuracy on sample-passports/
 ```
 
-`benchmark-documents` runs the whole pipeline (image → OCR → fields) on the
-labelled synthetic dataset under [`sample-documents/`](sample-documents), scoring
-each image against ground truth under a sweep of degradations (blur / rotate /
-noise / JPEG / low-res). Clean images route + extract at 100%; the report breaks
-down accuracy by document type and degradation so robustness regressions surface.
+The per-document extractors are covered by deterministic `TextRegion` fixtures
+under `tests/python/test_*_extractor.py`.
 
 ## License
 

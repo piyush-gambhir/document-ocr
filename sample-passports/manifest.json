@@ -25,27 +25,5 @@
     "status": "success",
     "documentType": "passport",
     "pageType": "passport_non_biodata"
-  },
-  "synthetic-specimen-passport.png": {
-    "status": "success",
-    "documentType": "passport",
-    "pageType": "passport_biodata",
-    "fields": {
-      "surname": "SPECIMEN",
-      "givenNames": "JOHN ROBERT",
-      "fullName": "JOHN ROBERT SPECIMEN",
-      "passportNumber": "L8988901",
-      "nationality": "IND",
-      "dateOfBirth": "1990-01-15",
-      "sex": "M",
-      "expiryDate": "2029-01-15",
-      "issueDate": "16/01/2019",
-      "placeOfBirth": "NEW DELHI",
-      "countryCode": "IND"
-    },
-    "mrzRaw": [
-      "P<INDSPECIMEN<<JOHN<ROBERT<<<<<<<<<<<<<<<<<<",
-      "L8988901<2IND9001158M2901156<<<<<<<<<<<<<<00"
-    ]
   }
 }

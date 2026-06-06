@@ -1,32 +1,34 @@
 # TODOs
 
-_The original six items (model-init error handling, Lambda deploy, clean sample
-images, TypeScript SDK tests, back-page accuracy, Cloud Run deploy) were
-completed in 1.2.0 — see CHANGELOG.md._
+_Five of the original six items (model-init error handling, Lambda deploy,
+TypeScript SDK tests, back-page accuracy, Cloud Run deploy) were completed in
+1.2.0 — see CHANGELOG.md._
 
-## Multi-document follow-ups
+## Open
 
-1. **Deskew in the preprocessor (biggest accuracy lever).** The end-to-end KYC
-   benchmark (`make benchmark-documents`) scores 100% on clean images but drops to
-   ~82–88% under a ±3° rotation, because `core/preprocessor.py` only does
-   document-boundary perspective correction, not text-line deskew. Adding a Hough/
-   projection-profile deskew step would recover most of the rotation loss (and
-   help real-world phone photos). This is the clearest robustness win.
+1. **Replace the watermarked sample images.** `sample-passports/` still uses
+   watermarked specimens (`SAMPLE - IMMIHELP.COM`), which corrupt some OCR output
+   and make the passport benchmark less reliable. Source properly anonymized or
+   licence-clean passport scans for `benchmarks/accuracy.py`.
 
-2. **Passport probe over-eagerly claims KYC cards.** The cheap bottom-crop
+2. **End-to-end image benchmark for the new document types.** The PAN / Aadhaar /
+   driving-licence / voter-ID extractors are covered only by deterministic
+   `TextRegion` fixtures (`tests/python/test_*_extractor.py`) — they never run
+   real OCR. Add an image-level benchmark (anonymized real cards with ground-truth
+   labels) to measure true end-to-end accuracy.
+
+3. **Deskew in the preprocessor.** `core/preprocessor.py` does document-boundary
+   perspective correction but no text-line deskew, so rotated/tilted inputs shift
+   the spatial label→value relationships the extractors rely on. A Hough /
+   projection-profile deskew step would harden real-world phone-photo accuracy.
+
+4. **Passport probe over-eagerly claims KYC cards.** The cheap bottom-crop
    passport probe (`core/pipeline._extract_targeted_regions` + `classify_passport_page`)
    treats "SEX" and "DATE OF BIRTH" as biodata hints, so a voter/DL card showing
    those exact labels in its lower ~55% can mis-route to the passport path before
-   `classify_document` ever runs. The synthetic voter cards dodge this by using
-   "Gender"/"DOB", but real cards won't. Fix: require an MRZ (or a passport
-   keyword) before committing to the passport path, or run `classify_document`
-   first and only treat as passport when it agrees.
-
-3. **Real sample images for the new document types.** We now have synthetic
-   labelled specimens + an end-to-end benchmark (`sample-documents/`,
-   `benchmarks/document_accuracy.py`). The remaining gap is *real* scans — add
-   anonymized real PAN/Aadhaar/DL/voter images with ground-truth labels to
-   measure true-world (not just rendered) accuracy.
+   `classify_document` runs. Fix: require an MRZ (or a passport keyword) before
+   committing to the passport path, or run `classify_document` first and only
+   treat as passport when it agrees.
 
 5. **Driving licence layout variance.** The DL extractor is best-effort; layouts
    differ substantially by issuing state. Gather fixtures from more states
