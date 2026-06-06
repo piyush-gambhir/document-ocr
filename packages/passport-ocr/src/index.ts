@@ -2,6 +2,11 @@ export { DocumentOCR, PassportOCR } from './client'
 export { LocalServer, getLocalServer } from './local-server'
 export type {
   PassportFields,
+  BackPageFields,
+  PanFields,
+  AadhaarFields,
+  DrivingLicenceFields,
+  VoterIdFields,
   DocumentScanResult,
   DocumentOCROptions,
   PassportScanResult,

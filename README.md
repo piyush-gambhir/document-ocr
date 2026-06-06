@@ -79,8 +79,8 @@ The package auto-creates a `.venv`, installs the Python deps, and manages the lo
 ```jsonc
 {
   "status": "success",                  // success | failure | unsupported_page
-  "documentType": "passport",
-  "pageType": "passport_biodata",       // passport_biodata | passport_non_biodata | unknown
+  "documentType": "passport",           // passport | pan | aadhaar | driving_licence | voter_id | unknown
+  "pageType": "passport_biodata",       // passport_biodata | passport_non_biodata | pan | aadhaar | driving_licence | voter_id | unknown
   "confidence": 0.91,
   "fields": {
     "surname": "...", "givenNames": "...", "fullName": "...",
@@ -95,6 +95,17 @@ The package auto-creates a `.venv`, installs the Python deps, and manages the lo
     "fileNumber": "...", "oldPassportNumber": "...",
     "oldPassportDateOfIssue": "...", "oldPassportPlaceOfIssue": "..."
   },
+  // Exactly one document block is populated, keyed by documentType; the rest
+  // are null. (passport uses fields/backPageFields above.)
+  "panFields":            { "panNumber": "...", "name": "...", "fatherName": "...", "dateOfBirth": "..." },
+  "aadhaarFields":        { "aadhaarNumber": "...", "name": "...", "dateOfBirth": "...", "yearOfBirth": null,
+                            "gender": "...", "address": "...", "pincode": "...", "checksumValid": true,
+                            "aadhaarMasked": false, "aadhaarLast4": "...", "vid": null },
+  "drivingLicenceFields": { "dlNumber": "...", "name": "...", "dateOfBirth": "...", "issueDate": "...",
+                            "validityDate": "...", "address": "...", "relationName": "...", "bloodGroup": "...",
+                            "classOfVehicle": "...", "validityDateTransport": null },
+  "voterIdFields":        { "epicNumber": "...", "name": "...", "relationName": "...", "relationType": "father",
+                            "gender": "...", "dateOfBirth": "...", "age": null },
   "mrzRaw": ["P<IND...", "..."], "mrzValid": true,
   "lowConfidence": false,
   "errors": [], "warnings": [],
