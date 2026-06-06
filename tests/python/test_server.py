@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from httpx import AsyncClient, ASGITransport
 
+from core.ocr_engine import OCRModelInitError
 from deploy.docker.server import app
 import deploy.docker.server as server_module
 
@@ -76,6 +77,22 @@ class TestReady:
             assert resp.json()["status"] == "ready"
         finally:
             server_module._models_ready = original
+
+    async def test_ready_reports_model_init_failure(self, client):
+        """GET /ready when model init failed → 503 model_init_failed."""
+        original_ready = server_module._models_ready
+        original_err = server_module._model_init_error
+        try:
+            server_module._models_ready = False
+            server_module._model_init_error = "MODEL_INIT_FAILED: ModelScope unreachable"
+            resp = await client.get("/ready")
+            assert resp.status_code == 503
+            body = resp.json()
+            assert body["status"] == "model_init_failed"
+            assert "MODEL_INIT_FAILED" in body["error"]
+        finally:
+            server_module._models_ready = original_ready
+            server_module._model_init_error = original_err
 
 
 class TestScan:
@@ -209,3 +226,17 @@ class TestScan:
         assert body["pageType"] == "passport_non_biodata"
         assert body["backPageFields"] is not None
         assert body["backPageFields"]["fatherName"] == "JOHN DOE SR"
+
+    async def test_scan_model_init_error_returns_503(self, client, small_image):
+        """If OCR models fail to initialise mid-request → 503 MODEL_INIT_FAILED."""
+        def boom(*args, **kwargs):
+            raise OCRModelInitError("MODEL_INIT_FAILED: disk full")
+
+        with patch("deploy.docker.server.scan", side_effect=boom):
+            resp = await client.post(
+                "/scan",
+                files={"image": ("passport.jpg", small_image, "image/jpeg")},
+            )
+
+        assert resp.status_code == 503
+        assert resp.json()["error"] == "MODEL_INIT_FAILED"

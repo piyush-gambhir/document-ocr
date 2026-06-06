@@ -13,6 +13,7 @@ import uuid
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 
+from core.ocr_engine import OCRModelInitError
 from core.pipeline import scan
 from core.preprocessor import ImageQualityError
 
@@ -25,20 +26,28 @@ logger = logging.getLogger("passport-ocr")
 
 _ocr_semaphore = asyncio.Semaphore(1)
 _models_ready = False
+_model_init_error: str | None = None
 
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
 
-app = FastAPI(title="Passport OCR", version="1.1.0")
+app = FastAPI(title="Document OCR", version="1.2.0")
 
 
 @app.on_event("startup")
 async def _load_models():
-    global _models_ready
+    global _models_ready, _model_init_error
     logger.info("Loading OCR models...")
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, _warm_up_ocr)
+    try:
+        await loop.run_in_executor(None, _warm_up_ocr)
+    except OCRModelInitError as exc:
+        # Stay up so /ready and /scan can report a clear error instead of the
+        # process crash-looping. Liveness (/health) remains green.
+        _model_init_error = str(exc)
+        logger.error("OCR model initialisation failed: %s", exc)
+        return
     _models_ready = True
     logger.info("OCR models loaded.")
 
@@ -55,6 +64,11 @@ async def health():
 
 @app.get("/ready")
 async def ready():
+    if _model_init_error is not None:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "model_init_failed", "error": _model_init_error},
+        )
     if not _models_ready:
         return JSONResponse(status_code=503, content={"status": "loading"})
     return {"status": "ready"}
@@ -88,6 +102,9 @@ async def scan_passport(image: UploadFile = File(...)):
     except asyncio.TimeoutError:
         logger.warning(f"[{request_id}] scan_timeout")
         return JSONResponse(status_code=504, content={"error": "SCAN_TIMEOUT"})
+    except OCRModelInitError as e:
+        logger.error(f"[{request_id}] model_init_failed={e}")
+        return JSONResponse(status_code=503, content={"error": "MODEL_INIT_FAILED"})
     except ImageQualityError as e:
         logger.info(f"[{request_id}] quality_error={e}")
         return JSONResponse(status_code=400, content={"error": str(e)})

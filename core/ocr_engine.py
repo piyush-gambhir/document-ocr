@@ -6,11 +6,14 @@ Uses PP-OCRv5 models via ONNX Runtime — no PaddlePaddle dependency.
 
 from __future__ import annotations
 
+import logging
 import threading
 from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
+
+logger = logging.getLogger("document-ocr.ocr_engine")
 
 # ---------------------------------------------------------------------------
 # Types
@@ -23,6 +26,15 @@ class TextRegion:
     confidence: float
 
 
+class OCRModelInitError(RuntimeError):
+    """Raised when the RapidOCR models cannot be initialised.
+
+    Surfaces a clear, actionable error instead of letting the first request
+    hang until timeout when the model source (ModelScope) is unreachable or
+    the local model cache cannot be written (e.g. disk full / read-only FS).
+    """
+
+
 # ---------------------------------------------------------------------------
 # Singleton OCR instance
 # ---------------------------------------------------------------------------
@@ -32,8 +44,21 @@ _ocr_instances: dict[str, object] = {}
 
 
 def _get_ocr(lang: str = "en"):
-    """Get or create a cached RapidOCR instance."""
-    from rapidocr import LangRec, ModelType, OCRVersion, RapidOCR
+    """Get or create a cached RapidOCR instance.
+
+    Raises:
+        OCRModelInitError: if RapidOCR model initialisation fails. A failed
+            instance is never cached, so a subsequent call can retry once the
+            underlying problem (network / disk) is resolved.
+    """
+    if lang in _ocr_instances:
+        return _ocr_instances[lang]
+
+    try:
+        from rapidocr import LangRec, ModelType, OCRVersion, RapidOCR
+    except Exception as exc:  # pragma: no cover - import failure is environmental
+        logger.exception("Failed to import rapidocr")
+        raise OCRModelInitError(f"MODEL_INIT_FAILED: rapidocr import failed: {exc}") from exc
 
     # Map string language codes to RapidOCR Enum values
     _lang_map = {
@@ -51,18 +76,30 @@ def _get_ocr(lang: str = "en"):
         "te": LangRec.TE,
     }
 
-    if lang not in _ocr_instances:
-        with _lock:
-            if lang not in _ocr_instances:
-                rec_lang = _lang_map.get(lang, LangRec.EN)
-                _ocr_instances[lang] = RapidOCR(params={
-                    "Global.use_cls": False,
-                    "Det.model_type": ModelType.MOBILE,
-                    "Det.ocr_version": OCRVersion.PPOCRV5,
-                    "Rec.lang_type": rec_lang,
-                    "Rec.model_type": ModelType.MOBILE,
-                    "Rec.ocr_version": OCRVersion.PPOCRV5,
-                })
+    with _lock:
+        # Re-check under the lock — another thread may have built it.
+        if lang in _ocr_instances:
+            return _ocr_instances[lang]
+
+        rec_lang = _lang_map.get(lang, LangRec.EN)
+        try:
+            instance = RapidOCR(params={
+                "Global.use_cls": False,
+                "Det.model_type": ModelType.MOBILE,
+                "Det.ocr_version": OCRVersion.PPOCRV5,
+                "Rec.lang_type": rec_lang,
+                "Rec.model_type": ModelType.MOBILE,
+                "Rec.ocr_version": OCRVersion.PPOCRV5,
+            })
+        except Exception as exc:
+            # Do NOT cache — leave the slot empty so a later call can retry.
+            logger.exception("RapidOCR model initialisation failed (lang=%s)", lang)
+            raise OCRModelInitError(
+                f"MODEL_INIT_FAILED: could not initialise OCR models for lang={lang}: {exc}"
+            ) from exc
+
+        _ocr_instances[lang] = instance
+
     return _ocr_instances[lang]
 
 
