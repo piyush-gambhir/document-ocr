@@ -64,6 +64,7 @@ _STATE_CODES: dict[str, str] = {
 }
 
 _STATE_NAMES_UPPER = {name.upper() for name in _STATE_CODES.values()}
+_UPPER_TO_CANONICAL_STATE = {name.upper(): name for name in _STATE_CODES.values()}
 
 
 # ---------------------------------------------------------------------------
@@ -256,6 +257,12 @@ def _parse_address(address_regions: list[TextRegion]) -> tuple[str, Optional[str
             if m and not city:
                 city = m.group(1).strip()
                 continue
+
+    # Normalise the resolved state to canonical title case regardless of which
+    # path set it (the per-line fallback patterns above capture the raw, often
+    # all-caps, OCR text). Keeps output consistent — e.g. "KARNATAKA" → "Karnataka".
+    if state and state.upper() in _UPPER_TO_CANONICAL_STATE:
+        state = _UPPER_TO_CANONICAL_STATE[state.upper()]
 
     return full_address, pincode, city, state
 
