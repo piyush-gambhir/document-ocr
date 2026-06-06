@@ -1,0 +1,51 @@
+# Knative service manifest for Google Cloud Run.
+#
+# Deploy with:
+#   gcloud run services replace deploy/cloudrun/service.yaml \
+#     --region "$GCP_REGION" --project "$GCP_PROJECT"
+#
+# The `image` below is a placeholder — deploy/cloudrun/deploy.sh substitutes the
+# real pushed tag before applying. Edit the resource values to taste.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: document-ocr
+  labels:
+    app: document-ocr
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        # OCR is CPU-bound and serialized inside the process (Semaphore(1)), so
+        # one request per instance — let Cloud Run scale out horizontally.
+        autoscaling.knative.dev/minScale: '0'
+        autoscaling.knative.dev/maxScale: '10'
+        # CPU is only allocated during requests (scale-to-zero friendly). The
+        # first request after a cold start downloads/loads models, so allow a
+        # generous startup window via the readiness probe below.
+        run.googleapis.com/cpu-throttling: 'true'
+    spec:
+      containerConcurrency: 1
+      timeoutSeconds: 300
+      containers:
+        - image: IMAGE_PLACEHOLDER
+          ports:
+            - name: http1
+              containerPort: 8000
+          resources:
+            limits:
+              cpu: '2'
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /ready
+            # Models load on startup; /ready returns 503 until they are ready.
+            periodSeconds: 5
+            failureThreshold: 30
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+            periodSeconds: 30

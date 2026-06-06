@@ -1,0 +1,54 @@
+# Google Cloud Build pipeline: build the container, push to Artifact Registry,
+# and deploy to Cloud Run.
+#
+# Trigger manually:
+#   gcloud builds submit --config deploy/cloudrun/cloudbuild.yaml \
+#     --substitutions=_REGION=asia-south1,_SERVICE=document-ocr
+#
+# Or wire to a Cloud Build trigger on push to main.
+
+substitutions:
+  _REGION: asia-south1
+  _SERVICE: document-ocr
+  _AR_REPO: document-ocr
+
+images:
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/document-ocr:${SHORT_SHA}'
+
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file=deploy/docker/Dockerfile
+      - --tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/document-ocr:${SHORT_SHA}
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/document-ocr:${SHORT_SHA}
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/document-ocr:${SHORT_SHA}
+      - --region=${_REGION}
+      - --platform=managed
+      - --memory=2Gi
+      - --cpu=2
+      - --concurrency=1
+      - --timeout=300
+      - --min-instances=0
+      - --max-instances=10
+      - --port=8000
+      - --allow-unauthenticated
+
+options:
+  machineType: E2_HIGHCPU_8
+  logging: CLOUD_LOGGING_ONLY

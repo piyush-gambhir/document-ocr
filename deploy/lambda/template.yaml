@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: document-ocr — passport / KYC OCR pipeline on AWS Lambda (container image)
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 2048
+
+Resources:
+  DocumentOcrFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: Dockerfile.lambda
+      DockerContext: ../..
+      DockerTag: document-ocr-lambda
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      # Direct-invoke is the primary path (the npm SDK's mode:'lambda').
+      # The optional HTTP API below exposes the same handler over POST /scan.
+      Events:
+        ScanApi:
+          Type: HttpApi
+          Properties:
+            Path: /scan
+            Method: POST
+
+Outputs:
+  FunctionName:
+    Description: Lambda function name (use with the SDK's mode:'lambda')
+    Value: !Ref DocumentOcrFunction
+  FunctionArn:
+    Value: !GetAtt DocumentOcrFunction.Arn
+  HttpApiUrl:
+    Description: Base URL of the HTTP API
+    Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com'
