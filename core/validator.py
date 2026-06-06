@@ -199,6 +199,60 @@ def find_visual_value_near(
     return None
 
 
+def find_visual_value_right(
+    regions: list[TextRegion],
+    label_region: TextRegion,
+    max_x_distance: int = 450,
+) -> Optional[TextRegion]:
+    """Find the value region on the same row, immediately to the right of a label.
+
+    KYC cards (PAN / Aadhaar / DL / Voter ID) commonly lay fields out as
+    "Label : value" on one line, unlike the passport's label-above-value form.
+    """
+    label_right = max(p[0] for p in label_region.bbox)
+    label_top = min(p[1] for p in label_region.bbox)
+    label_bottom = max(p[1] for p in label_region.bbox)
+    label_height = max(label_bottom - label_top, 1)
+
+    candidates = []
+    for region in regions:
+        if region is label_region:
+            continue
+        top = min(p[1] for p in region.bbox)
+        bottom = max(p[1] for p in region.bbox)
+        overlap = min(bottom, label_bottom) - max(top, label_top)
+        if overlap < label_height * 0.4:
+            continue
+        left = min(p[0] for p in region.bbox)
+        gap = left - label_right
+        if 0 <= gap < max_x_distance:
+            if _looks_like_field_label(region.text):
+                continue
+            candidates.append((gap, region))
+
+    if candidates:
+        candidates.sort(key=lambda x: x[0])
+        return candidates[0][1]
+    return None
+
+
+def find_label_value(
+    regions: list[TextRegion],
+    labels: list[str],
+) -> Optional[str]:
+    """Resolve a label to its value text, preferring same-row-right then below."""
+    label_region = find_visual_field(regions, labels)
+    if label_region is None:
+        return None
+    value = find_visual_value_right(regions, label_region) or find_visual_value_near(
+        regions, label_region
+    )
+    if value is None:
+        return None
+    text = value.text.strip()
+    return text or None
+
+
 def _parse_date_flexible(text: str) -> Optional[date]:
     """Try multiple date formats to parse a visual date field."""
     text = text.strip().replace("/", "-").replace(".", "-")

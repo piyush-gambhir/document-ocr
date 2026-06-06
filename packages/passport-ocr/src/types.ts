@@ -26,9 +26,66 @@ export interface BackPageFields {
   oldPassportPlaceOfIssue: string | null
 }
 
+export interface PanFields {
+  panNumber: string | null
+  name: string | null
+  fatherName: string | null
+  dateOfBirth: string | null
+}
+
+export interface AadhaarFields {
+  aadhaarNumber: string | null // grouped 'XXXX XXXX XXXX'
+  name: string | null
+  dateOfBirth: string | null
+  yearOfBirth: string | null
+  gender: string | null
+  address: string | null
+  pincode: string | null
+  checksumValid: boolean
+  aadhaarMasked: boolean // true when only a masked 'XXXX XXXX 9012' form was found
+  aadhaarLast4: string | null
+  vid: string | null // 16-digit Virtual ID, grouped, if present
+}
+
+export interface DrivingLicenceFields {
+  dlNumber: string | null
+  name: string | null
+  dateOfBirth: string | null
+  issueDate: string | null
+  validityDate: string | null // non-transport (NT) / primary validity
+  address: string | null
+  relationName: string | null
+  bloodGroup: string | null
+  classOfVehicle: string | null // comma-joined COV tokens (MCWG, LMV, ...)
+  validityDateTransport: string | null // transport (TR) validity, if present
+}
+
+export interface VoterIdFields {
+  epicNumber: string | null
+  name: string | null
+  relationName: string | null
+  relationType: string | null // 'father' | 'husband' | 'mother' | null
+  gender: string | null
+  dateOfBirth: string | null
+  age: string | null
+}
+
 export type DocumentStatus = 'success' | 'unsupported_page' | 'failure'
-export type DocumentType = 'passport' | 'unknown'
-export type PageType = 'passport_biodata' | 'passport_non_biodata' | 'unknown'
+export type DocumentType =
+  | 'passport'
+  | 'pan'
+  | 'aadhaar'
+  | 'driving_licence'
+  | 'voter_id'
+  | 'unknown'
+export type PageType =
+  | 'passport_biodata'
+  | 'passport_non_biodata'
+  | 'pan'
+  | 'aadhaar'
+  | 'driving_licence'
+  | 'voter_id'
+  | 'unknown'
 export type UnsupportedReason = 'UNSUPPORTED_DOCUMENT'
 
 export interface BaseDocumentScanResult {
@@ -41,6 +98,12 @@ export interface BaseDocumentScanResult {
   mrzValid: boolean
   unsupportedReason: UnsupportedReason | null
   backPageFields: BackPageFields | null
+  // Per-document field blocks — null unless documentType matches. Additive:
+  // a passport result has all four null, a PAN result populates `panFields`, etc.
+  panFields: PanFields | null
+  aadhaarFields: AadhaarFields | null
+  drivingLicenceFields: DrivingLicenceFields | null
+  voterIdFields: VoterIdFields | null
   probeText: string[]
   errors: string[]
   warnings: string[]
@@ -49,8 +112,7 @@ export interface BaseDocumentScanResult {
 
 export interface SuccessfulDocumentScanResult extends BaseDocumentScanResult {
   status: 'success'
-  documentType: 'passport'
-  fields: PassportFields | null // null for non-biodata pages
+  fields: PassportFields | null // populated for passport biodata; null otherwise
 }
 
 export interface UnsupportedPageDocumentScanResult extends BaseDocumentScanResult {
