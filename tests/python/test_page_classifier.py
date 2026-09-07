@@ -39,3 +39,21 @@ class TestPageClassifier:
         assert result.document_type == "passport"
         assert result.page_type == "passport_non_biodata"
         assert result.confidence >= 0.7
+
+
+def test_mrz_with_fully_populated_optional_data_is_a_passport():
+    result = classify_passport_page([
+        _make_region("P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<", 400),
+        _make_region("L898902C36UTO7408122F1204159ABCDEFGHIJKLMN06", 440),
+    ])
+    assert result.document_type == "passport"
+    assert result.page_type == "passport_biodata"
+    assert "MRZ_DETECTED" in result.reasons
+
+
+def test_long_footer_strings_without_td3_header_are_not_mrz():
+    result = classify_passport_page([
+        _make_region("ABC123" * 6 + "<<<<<<<<", 400),
+        _make_region("DEF456" * 6 + "<<<<<<<<", 440),
+    ])
+    assert result.document_type == "unknown"

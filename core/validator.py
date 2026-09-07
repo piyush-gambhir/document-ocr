@@ -42,7 +42,7 @@ _VALID_COUNTRY_CODES = {
     "TUV", "UGA", "UKR", "ARE", "GBR", "USA", "URY", "UZB", "VUT", "VEN",
     "VNM", "YEM", "ZMB", "ZWE",
     # Common MRZ-specific codes
-    "D<<",  # Germany uses "D<<" in some contexts
+    "D",  # Germany's "D<<" is exposed without fillers by the parser
     "GBD", "GBN", "GBO", "GBP", "GBS",  # British territories
     "XBA", "XIM", "XCC", "XOM", "XXA", "XXB", "XXC",  # special codes
     "UNO", "UNA",  # UN
@@ -184,14 +184,15 @@ def find_visual_value_near(
 
     candidates = []
     for region in regions:
+        if region is label_region or _looks_like_field_label(region.text):
+            continue
         top = min(p[1] for p in region.bbox)
         left = min(p[0] for p in region.bbox)
         vertical_gap = top - label_bottom
         if -min_vertical_overlap <= vertical_gap < max_y_distance:
             x_distance = abs(left - label_left)
             if x_distance < 200:
-                penalty = 500 if _looks_like_field_label(region.text) else 0
-                candidates.append((max(vertical_gap, 0) + x_distance * 0.3 + penalty, region))
+                candidates.append((max(vertical_gap, 0) + x_distance * 0.3, region))
 
     if candidates:
         candidates.sort(key=lambda x: x[0])
@@ -372,15 +373,23 @@ def validate(
             if code not in _VALID_COUNTRY_CODES:
                 warnings.append(f"UNKNOWN_COUNTRY_CODE_{code}")
 
-        # Date sanity checks
-        if mrz.date_of_birth.value and mrz.expiry_date.value:
+        # A correct checksum does not establish that a date exists. Unknown
+        # date components are permitted as fillers, but impossible numeric
+        # dates must not disappear silently when the parser returns None.
+        parsed_dates: dict[str, date] = {}
+        for name, field in (("DATE_OF_BIRTH", mrz.date_of_birth), ("EXPIRY_DATE", mrz.expiry_date)):
+            if field.value is None:
+                if re.fullmatch(r"[0-9<]{6}", field.raw) and "<" in field.raw:
+                    warnings.append(f"INCOMPLETE_{name}")
+                else:
+                    errors.append(f"INVALID_{name}")
+                continue
             try:
-                dob = date.fromisoformat(mrz.date_of_birth.value)
-                exp = date.fromisoformat(mrz.expiry_date.value)
-                if exp <= dob:
-                    errors.append("EXPIRY_BEFORE_DOB")
+                parsed_dates[name] = date.fromisoformat(field.value)
             except ValueError:
-                pass
+                errors.append(f"INVALID_{name}")
+        if len(parsed_dates) == 2 and parsed_dates["EXPIRY_DATE"] <= parsed_dates["DATE_OF_BIRTH"]:
+            errors.append("EXPIRY_BEFORE_DOB")
 
     cross_score = (cross_matches / cross_total) if cross_total > 0 else 0.5
 

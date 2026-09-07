@@ -224,10 +224,6 @@ def classify_document(regions: list[TextRegion]) -> DocumentClassification:
     best_doc = max(scores, key=lambda d: scores[d])
     best_score = scores[best_doc]
 
-    # Need at least a keyword phrase or an identifier-format hit (score >= 2).
-    if best_score < 2:
-        return DocumentClassification("unknown", 0.3, ["WEAK_DOCUMENT_HINTS"], probe_text)
-
     confidence = round(min(0.5 + 0.12 * best_score, 0.98), 3)
     return DocumentClassification(
         document_type=best_doc,

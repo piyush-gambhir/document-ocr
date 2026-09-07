@@ -10,6 +10,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from .mrz_parser import _find_mrz_lines
 from .ocr_engine import TextRegion
 
 _BIODATA_HINTS = [
@@ -121,18 +122,10 @@ def _has_mrz_like_lines(regions: list[TextRegion]) -> bool:
 
     page_bottom = max((max(point[1] for point in region.bbox) for region in regions if region.bbox), default=0)
     bottom_threshold = page_bottom * 0.6
-    candidates = 0
-
-    for region in regions:
-        if not region.bbox:
-            continue
-
-        y_pos = max(point[1] for point in region.bbox)
-        if y_pos < bottom_threshold:
-            continue
-
-        text = region.text.upper().replace(" ", "").replace("«", "<").replace("‹", "<").replace(">", "<")
-        if 40 <= len(text) <= 44 and re.fullmatch(r"[A-Z0-9<]{40,44}", text) and text.count("<") >= 5:
-            candidates += 1
-
-    return candidates >= 2
+    bottom_regions = [
+        region for region in regions
+        if region.bbox and max(point[1] for point in region.bbox) >= bottom_threshold
+    ]
+    # Optional data may occupy all of line two: it need not contain fillers.
+    # Require a paired TD3 header instead of counting arbitrary long strings.
+    return _find_mrz_lines(bottom_regions) is not None

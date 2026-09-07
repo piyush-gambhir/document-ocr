@@ -21,22 +21,32 @@ import re
 # The 4th letter encodes holder type (P=individual, C=company, ...).
 # ---------------------------------------------------------------------------
 
-_PAN_RE = re.compile(r"^[A-Z]{5}[0-9]{4}[A-Z]$")
+_PAN_RE = re.compile(
+    r"(?<![A-Z0-9])(?:[A-Z][ \t-]*){5}(?:[0-9][ \t-]*){4}[A-Z](?![A-Z0-9])"
+)
 _PAN_HOLDER_TYPES = set("ABCFGHLJPTK")
+
+
+def _extract_identifier(text: str, pattern: re.Pattern[str]) -> str | None:
+    """Extract a whole identifier, allowing OCR spaces and printed hyphens.
+
+    Matching before removing separators preserves token boundaries, so an
+    overlong identifier cannot be silently truncated into a valid one.
+    """
+    match = pattern.search(text.upper())
+    return re.sub(r"[ \t-]", "", match.group(0)) if match else None
 
 
 def normalize_pan(text: str) -> str | None:
     """Extract a PAN-shaped token from noisy OCR text, or None."""
-    compact = re.sub(r"[^A-Z0-9]", "", text.upper())
-    match = re.search(r"[A-Z]{5}[0-9]{4}[A-Z]", compact)
-    return match.group(0) if match else None
+    return _extract_identifier(text, _PAN_RE)
 
 
 def is_valid_pan(text: str) -> bool:
     pan = normalize_pan(text)
     if pan is None:
         return False
-    return bool(_PAN_RE.match(pan)) and pan[3] in _PAN_HOLDER_TYPES
+    return pan[3] in _PAN_HOLDER_TYPES
 
 
 # ---------------------------------------------------------------------------
@@ -44,18 +54,17 @@ def is_valid_pan(text: str) -> bool:
 # Format: 3 letters + 7 digits, e.g. ABC1234567.
 # ---------------------------------------------------------------------------
 
-_EPIC_RE = re.compile(r"^[A-Z]{3}[0-9]{7}$")
+_EPIC_RE = re.compile(
+    r"(?<![A-Z0-9])(?:[A-Z][ \t-]*){3}(?:[0-9][ \t-]*){6}[0-9](?![A-Z0-9])"
+)
 
 
 def normalize_epic(text: str) -> str | None:
-    compact = re.sub(r"[^A-Z0-9]", "", text.upper())
-    match = re.search(r"[A-Z]{3}[0-9]{7}", compact)
-    return match.group(0) if match else None
+    return _extract_identifier(text, _EPIC_RE)
 
 
 def is_valid_epic(text: str) -> bool:
-    epic = normalize_epic(text)
-    return epic is not None and bool(_EPIC_RE.match(epic))
+    return normalize_epic(text) is not None
 
 
 # ---------------------------------------------------------------------------
@@ -66,18 +75,17 @@ def is_valid_epic(text: str) -> bool:
 # We accept a loose shape and surface the compact form.
 # ---------------------------------------------------------------------------
 
-_DL_RE = re.compile(r"^[A-Z]{2}[0-9]{2}[0-9]{11}$")
+_DL_RE = re.compile(
+    r"(?<![A-Z0-9])(?:[A-Z][ \t-]*){2}(?:[0-9][ \t-]*){12}[0-9](?![A-Z0-9])"
+)
 
 
 def normalize_dl(text: str) -> str | None:
-    compact = re.sub(r"[^A-Z0-9]", "", text.upper())
-    match = re.search(r"[A-Z]{2}[0-9]{2}[0-9]{11}", compact)
-    return match.group(0) if match else None
+    return _extract_identifier(text, _DL_RE)
 
 
 def is_valid_dl(text: str) -> bool:
-    dl = normalize_dl(text)
-    return dl is not None and bool(_DL_RE.match(dl))
+    return normalize_dl(text) is not None
 
 
 # ---------------------------------------------------------------------------
@@ -141,7 +149,7 @@ _VERHOEFF_P = (
 
 def verhoeff_validate(number: str) -> bool:
     """True if the digit string passes the Verhoeff checksum (check digit included)."""
-    if not number.isdigit():
+    if not number.isascii() or not number.isdigit():
         return False
     c = 0
     for i, digit in enumerate(reversed(number)):
@@ -149,7 +157,7 @@ def verhoeff_validate(number: str) -> bool:
     return c == 0
 
 
-_AADHAAR_DIGITS_RE = re.compile(r"\b(\d{4})\s?(\d{4})\s?(\d{4})\b")
+_AADHAAR_DIGITS_RE = re.compile(r"\b([0-9]{4})[ \t]*([0-9]{4})[ \t]*([0-9]{4})\b")
 
 
 def extract_aadhaar_number(text: str) -> str | None:

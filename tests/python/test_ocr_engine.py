@@ -3,8 +3,6 @@
 Does NOT import RapidOCR — only tests the parsing and detection utilities.
 """
 
-import sys
-
 import pytest
 import numpy as np
 from unittest.mock import MagicMock

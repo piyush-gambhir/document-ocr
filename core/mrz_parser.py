@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Optional
 
 from .ocr_engine import TextRegion
@@ -55,16 +56,21 @@ def icao_check_digit(data: str) -> int:
     """Compute ICAO weighted checksum for a string of MRZ characters."""
     total = 0
     for i, ch in enumerate(data):
-        val = _CHAR_VALUES.get(ch.upper(), 0)
+        try:
+            val = _CHAR_VALUES[ch.upper()]
+        except KeyError:
+            raise ValueError(f"Invalid MRZ character: {ch!r}") from None
         total += val * _WEIGHTS[i % 3]
     return total % 10
 
 
 def verify_check_digit(data: str, expected: str) -> bool:
     """Verify a single check digit field."""
+    if len(expected) != 1 or expected not in "0123456789":
+        return False
     try:
         return icao_check_digit(data) == int(expected)
-    except (ValueError, IndexError):
+    except ValueError:
         return False
 
 
@@ -72,16 +78,34 @@ def verify_check_digit(data: str, expected: str) -> bool:
 # Date parsing
 # ---------------------------------------------------------------------------
 
-def _parse_mrz_date(yymmdd: str) -> Optional[str]:
-    """Convert YYMMDD to ISO 8601 YYYY-MM-DD. YY >= 30 → 19YY, else 20YY."""
-    if len(yymmdd) != 6 or not yymmdd.isdigit():
+def _parse_mrz_date(
+    yymmdd: str,
+    *,
+    is_expiry: bool = False,
+    reference_date: Optional[date] = None,
+) -> Optional[str]:
+    """Resolve an MRZ's two-digit year and validate the calendar date.
+
+    Birth dates use the most recent occurrence not after the reference date.
+    Expiry dates use the nearest century, supporting both expired documents and
+    future expiries. The MRZ alone cannot disambiguate dates a century apart.
+    """
+    if not re.fullmatch(r"[0-9]{6}", yymmdd):
         return None
+    reference_date = reference_date or date.today()
     yy, mm, dd = int(yymmdd[:2]), int(yymmdd[2:4]), int(yymmdd[4:6])
-    century = 1900 if yy >= 30 else 2000
-    year = century + yy
-    if not (1 <= mm <= 12 and 1 <= dd <= 31):
+    year = (reference_date.year // 100) * 100 + yy
+    if is_expiry:
+        if year - reference_date.year > 50:
+            year -= 100
+        elif reference_date.year - year > 50:
+            year += 100
+    elif (year, mm, dd) > (reference_date.year, reference_date.month, reference_date.day):
+        year -= 100
+    try:
+        return date(year, mm, dd).isoformat()
+    except ValueError:
         return None
-    return f"{year:04d}-{mm:02d}-{dd:02d}"
 
 
 # ---------------------------------------------------------------------------
@@ -118,11 +142,12 @@ class MRZResult:
 # ---------------------------------------------------------------------------
 
 _MRZ_PATTERN = re.compile(r"^[A-Z0-9<]{40,44}$")
+_MRZ_LINE1_PATTERN = re.compile(r"P[A-Z<][A-Z<]{3}[A-Z<]{35,39}")
 
 
 def _clean_mrz_text(raw: str) -> str:
     """Clean OCR text for MRZ matching — fix common substitution errors."""
-    text = raw.upper().replace(" ", "")
+    text = re.sub(r"\s+", "", raw.upper())
     # Common OCR substitutions for the '<' filler character
     text = text.replace("«", "<").replace("‹", "<").replace(">", "<")
     return text
@@ -130,32 +155,22 @@ def _clean_mrz_text(raw: str) -> str:
 
 def _find_mrz_lines(regions: list[TextRegion]) -> Optional[tuple[str, str]]:
     """Identify the two MRZ lines from OCR output."""
-    candidates: list[str] = []
-
+    mrz_regions: list[tuple[int, str]] = []
     for region in regions:
         text = _clean_mrz_text(region.text)
-        if _MRZ_PATTERN.match(text) and len(text) >= 40:
-            candidates.append(text)
-
-    if len(candidates) < 2:
-        return None
-
-    # Take the last two matching lines (MRZ is at the bottom)
-    # Sort by vertical position (bottom of bounding box)
-    mrz_regions = []
-    for region in regions:
-        text = _clean_mrz_text(region.text)
-        if _MRZ_PATTERN.match(text) and len(text) >= 40:
+        if _MRZ_PATTERN.fullmatch(text):
             y_pos = max(p[1] for p in region.bbox) if region.bbox else 0
             mrz_regions.append((y_pos, text))
 
     mrz_regions.sort(key=lambda x: x[0])
-    bottom_two = mrz_regions[-2:]
-
-    line1 = _pad_to_44(bottom_two[0][1])
-    line2 = _pad_to_44(bottom_two[1][1])
-
-    return (line1, line2)
+    # Anchor the pair to a TD3 passport header. A footer or OCR duplicate below
+    # the MRZ must not displace the actual first line.
+    for index in range(len(mrz_regions) - 2, -1, -1):
+        line1 = mrz_regions[index][1]
+        line2 = mrz_regions[index + 1][1]
+        if _MRZ_LINE1_PATTERN.fullmatch(line1) and not _MRZ_LINE1_PATTERN.fullmatch(line2):
+            return (_pad_to_44(line1), _pad_to_44(line2))
+    return None
 
 
 def _pad_to_44(line: str) -> str:
@@ -230,7 +245,10 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
     pn_valid = verify_check_digit(pn_raw, pn_check)
     dob_valid = verify_check_digit(dob_raw, dob_check)
     expiry_valid = verify_check_digit(expiry_raw, expiry_check)
-    personal_valid = verify_check_digit(personal_raw, personal_check)
+    # ICAO Doc 9303-4 permits '<' instead of zero for unused optional data.
+    personal_valid = (
+        personal_raw == "<" * 14 and personal_check == "<"
+    ) or verify_check_digit(personal_raw, personal_check)
 
     # Overall check digit: computed over passport_number + check + DOB + check + expiry + check + personal + check
     composite = line2[0:10] + line2[13:20] + line2[21:43]
@@ -242,6 +260,8 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
         errors.append("DOB_CHECKSUM_FAILED")
     if not expiry_valid:
         errors.append("EXPIRY_CHECKSUM_FAILED")
+    if not personal_valid:
+        errors.append("PERSONAL_NUMBER_CHECKSUM_FAILED")
     if not overall_valid:
         errors.append("OVERALL_CHECKSUM_FAILED")
 
@@ -270,7 +290,7 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
         ),
         sex=MRZField(value=sex_value, raw=sex_raw),
         expiry_date=MRZField(
-            value=_parse_mrz_date(expiry_raw),
+            value=_parse_mrz_date(expiry_raw, is_expiry=True),
             raw=expiry_raw,
             checksum_valid=expiry_valid,
         ),
@@ -279,7 +299,7 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
             raw=personal_raw,
             checksum_valid=personal_valid,
         ),
-        overall_checksum_valid=overall_valid and pn_valid and dob_valid and expiry_valid,
+        overall_checksum_valid=overall_valid and pn_valid and dob_valid and expiry_valid and personal_valid,
         raw_lines=(line1, line2),
         errors=errors,
     )

@@ -7,7 +7,6 @@ from core.validator import (
     find_visual_field,
     find_visual_value_near,
     validate,
-    ValidationResult,
 )
 from core.mrz_parser import MRZResult, MRZField
 from core.ocr_engine import TextRegion
@@ -170,6 +169,14 @@ class TestValidation:
         assert value is not None
         assert value.text == "RAMADUGULA"
 
+    def test_missing_value_does_not_return_following_label(self):
+        regions = _make_regions("SURNAME", "DATE OF BIRTH")
+        assert find_visual_value_near(regions, regions[0]) is None
+
+    def test_short_label_does_not_match_itself(self):
+        label = TextRegion(text="SURNAME", bbox=[[50, 100], [100, 100], [100, 105], [50, 105]], confidence=0.99)
+        assert find_visual_value_near([label], label) is None
+
     def test_value_lookup_handles_bilingual_label_prefix(self):
         """Indian / Arabic / Cyrillic labels OCR as two regions on the same row.
         The English region's left edge is *not* aligned with the value column —
@@ -277,6 +284,29 @@ class TestValidation:
         mrz = _make_mrz(country_code="ZZZ")
         result = validate(mrz=mrz, regions=[])
         assert "UNKNOWN_COUNTRY_CODE_ZZZ" in result.warnings
+
+    def test_normalized_german_country_code_is_known(self):
+        mrz = _make_mrz(country_code="D")
+        mrz.country_code.raw = "D<<"
+        result = validate(mrz=mrz, regions=[])
+        assert "UNKNOWN_COUNTRY_CODE_D" not in result.warnings
+
+    @pytest.mark.parametrize("value", [None, "1990-02-31"])
+    def test_impossible_birth_date_is_an_error_even_with_valid_checksums(self, value):
+        result = validate(mrz=_make_mrz(dob=value), regions=[])
+        assert "INVALID_DATE_OF_BIRTH" in result.errors
+
+    @pytest.mark.parametrize("value", [None, "2030-02-31"])
+    def test_impossible_expiry_date_is_an_error_even_with_valid_checksums(self, value):
+        result = validate(mrz=_make_mrz(expiry=value), regions=[])
+        assert "INVALID_EXPIRY_DATE" in result.errors
+
+    def test_unknown_birth_date_fillers_do_not_invent_a_date(self):
+        mrz = _make_mrz(dob=None)
+        mrz.date_of_birth.raw = "90<<<<"
+        result = validate(mrz=mrz, regions=[])
+        assert "INVALID_DATE_OF_BIRTH" not in result.errors
+        assert "INCOMPLETE_DATE_OF_BIRTH" in result.warnings
 
     def test_expiry_before_dob(self):
         """Expiry date before DOB → EXPIRY_BEFORE_DOB error."""

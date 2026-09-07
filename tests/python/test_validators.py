@@ -1,5 +1,7 @@
 """Tests for KYC identifier format + checksum validators (core/validators.py)."""
 
+import pytest
+
 from core.validators import (
     extract_aadhaar_number,
     is_valid_aadhaar,
@@ -31,6 +33,10 @@ class TestVerhoeff:
     def test_non_digit_is_invalid(self):
         assert verhoeff_validate("12A4") is False
 
+    @pytest.mark.parametrize("value", ["", "²363", "２３６３", "٢٣٦٣"])
+    def test_rejects_non_ascii_digits_without_crashing(self, value):
+        assert verhoeff_validate(value) is False
+
 
 class TestPan:
     def test_valid_pan(self):
@@ -60,6 +66,16 @@ class TestAadhaar:
 
     def test_cannot_start_with_zero_or_one(self):
         assert is_valid_aadhaar("0998 8877 7669") is False
+
+    def test_repeated_spacing_is_accepted(self):
+        assert extract_aadhaar_number("9998  8877\t\t7669") == "9998 8877 7669"
+        assert is_valid_aadhaar("9998  8877\t\t7669")
+
+    def test_unrelated_lines_are_not_joined_into_an_identifier(self):
+        assert extract_aadhaar_number("9998\n8877\n7669") is None
+
+    def test_non_ascii_digits_are_not_aadhaar_identifiers(self):
+        assert extract_aadhaar_number("９９９８ ８８７７ ７６６９") is None
 
 
 class TestEpic:
@@ -92,3 +108,27 @@ class TestNregaJobCard:
         assert is_valid_nrega_job_card("JOB-CARD-123") is False
         assert is_valid_nrega_job_card("RJ-27-123") is False
         assert is_valid_nrega_job_card("ABCDE1234F") is False
+
+
+@pytest.mark.parametrize(
+    "normalize, validate, identifier",
+    [(normalize_pan, is_valid_pan, "ABCPE1234F"),
+     (normalize_epic, is_valid_epic, "ABC1234567"),
+     (normalize_dl, is_valid_dl, "MH1220110012345")],
+)
+class TestIdentifierBoundaries:
+    @pytest.mark.parametrize("prefix, suffix", [("X", ""), ("", "1"), ("1", ""), ("", "X")])
+    def test_does_not_slice_a_larger_token(self, normalize, validate, identifier, prefix, suffix):
+        text = prefix + identifier + suffix
+        assert normalize(text) is None
+        assert not validate(text)
+
+    def test_keeps_labels_and_ocr_grouping(self, normalize, validate, identifier):
+        text = "Number: " + " ".join(identifier) + " issued"
+        assert normalize(text) == identifier
+        assert validate(text)
+
+    def test_does_not_remove_arbitrary_corrupt_characters(self, normalize, validate, identifier):
+        text = identifier[:6] + "?" + identifier[6:]
+        assert normalize(text) is None
+        assert not validate(text)
