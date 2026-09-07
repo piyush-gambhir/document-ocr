@@ -327,6 +327,9 @@ def _normalise_blood_group(text: str) -> Optional[str]:
 
 
 def _find_blood_group(regions: list[TextRegion]) -> Optional[str]:
+    labelled = find_label_value(regions, _BLOOD_GROUP_LABELS)
+    if labelled and (group := _normalise_blood_group(labelled)):
+        return group
     label = find_visual_field(regions, _BLOOD_GROUP_LABELS)
     if label is not None:
         # Value may sit to the right, below, or (rarely) on the label region.

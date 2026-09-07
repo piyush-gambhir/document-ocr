@@ -15,40 +15,8 @@ from rapidfuzz import fuzz
 from .mrz_parser import MRZResult
 from .ocr_engine import TextRegion
 
-# ---------------------------------------------------------------------------
-# ISO 3166-1 alpha-3 country codes (subset — full list is ~249)
-# ---------------------------------------------------------------------------
-
-# fmt: off
-_VALID_COUNTRY_CODES = {
-    "AFG", "ALB", "DZA", "AND", "AGO", "ATG", "ARG", "ARM", "AUS", "AUT",
-    "AZE", "BHS", "BHR", "BGD", "BRB", "BLR", "BEL", "BLZ", "BEN", "BTN",
-    "BOL", "BIH", "BWA", "BRA", "BRN", "BGR", "BFA", "BDI", "KHM", "CMR",
-    "CAN", "CPV", "CAF", "TCD", "CHL", "CHN", "COL", "COM", "COG", "COD",
-    "CRI", "CIV", "HRV", "CUB", "CYP", "CZE", "DNK", "DJI", "DMA", "DOM",
-    "ECU", "EGY", "SLV", "GNQ", "ERI", "EST", "SWZ", "ETH", "FJI", "FIN",
-    "FRA", "GAB", "GMB", "GEO", "DEU", "GHA", "GRC", "GRD", "GTM", "GIN",
-    "GNB", "GUY", "HTI", "HND", "HUN", "ISL", "IND", "IDN", "IRN", "IRQ",
-    "IRL", "ISR", "ITA", "JAM", "JPN", "JOR", "KAZ", "KEN", "KIR", "PRK",
-    "KOR", "KWT", "KGZ", "LAO", "LVA", "LBN", "LSO", "LBR", "LBY", "LIE",
-    "LTU", "LUX", "MDG", "MWI", "MYS", "MDV", "MLI", "MLT", "MHL", "MRT",
-    "MUS", "MEX", "FSM", "MDA", "MCO", "MNG", "MNE", "MAR", "MOZ", "MMR",
-    "NAM", "NRU", "NPL", "NLD", "NZL", "NIC", "NER", "NGA", "MKD", "NOR",
-    "OMN", "PAK", "PLW", "PAN", "PNG", "PRY", "PER", "PHL", "POL", "PRT",
-    "QAT", "ROU", "RUS", "RWA", "KNA", "LCA", "VCT", "WSM", "SMR", "STP",
-    "SAU", "SEN", "SRB", "SYC", "SLE", "SGP", "SVK", "SVN", "SLB", "SOM",
-    "ZAF", "SSD", "ESP", "LKA", "SDN", "SUR", "SWE", "CHE", "SYR", "TWN",
-    "TJK", "TZA", "THA", "TLS", "TGO", "TON", "TTO", "TUN", "TUR", "TKM",
-    "TUV", "UGA", "UKR", "ARE", "GBR", "USA", "URY", "UZB", "VUT", "VEN",
-    "VNM", "YEM", "ZMB", "ZWE",
-    # Common MRZ-specific codes
-    "D",  # Germany's "D<<" is exposed without fillers by the parser
-    "GBD", "GBN", "GBO", "GBP", "GBS",  # British territories
-    "XBA", "XIM", "XCC", "XOM", "XXA", "XXB", "XXC",  # special codes
-    "UNO", "UNA",  # UN
-    "EUE",  # EU
-}
-# fmt: on
+# Shared ISO/ICAO code validation also covers travel-card and visa recovery.
+from .document_registry import is_known_mrz_country
 
 _LABEL_HINTS = [
     "SURNAME",
@@ -115,6 +83,10 @@ def find_visual_field(
 
             if label_text == keyword:
                 score = 10_000 - priority
+            elif label_text.startswith(keyword + " "):
+                # An inline "Name: value" is stronger than NAME occurring
+                # inside "Father's Name: value", regardless of OCR confidence.
+                score = 2_000 + (len(keyword) * 100) - priority
             elif padded_keyword in padded_label:
                 score = (len(keyword) * 100) - priority
             else:
@@ -241,10 +213,21 @@ def find_label_value(
     regions: list[TextRegion],
     labels: list[str],
 ) -> Optional[str]:
-    """Resolve a label to its value text, preferring same-row-right then below."""
+    """Resolve an explicit inline value, then same-row-right and below."""
     label_region = find_visual_field(regions, labels)
     if label_region is None:
         return None
+    # Detection can merge an entire printed "Label: value" row. Match the
+    # label at the beginning, not an embedded word such as Name in Father's
+    # Name. Preserve punctuation and casing in the actual printed value.
+    tokens = list(re.finditer(r"[A-Za-z0-9]+", label_region.text))
+    for label in sorted(labels, key=len, reverse=True):
+        words = _normalise_label_text(label).split()
+        if words and [t.group().upper() for t in tokens[:len(words)]] == words:
+            inline = label_region.text[tokens[len(words) - 1].end():].strip(" :\t#")
+            if inline and not _looks_like_field_label(inline):
+                return inline
+            break  # A longer empty label must not become a shorter label's value.
     value = find_visual_value_right(regions, label_region) or find_visual_value_near(
         regions, label_region
     )
@@ -368,10 +351,13 @@ def validate(
                     warnings.append("EXPIRY_DATE_MISMATCH")
 
         # Country code validation
-        if mrz.country_code.value:
-            code = mrz.country_code.value.upper()
-            if code not in _VALID_COUNTRY_CODES:
-                warnings.append(f"UNKNOWN_COUNTRY_CODE_{code}")
+        code = (mrz.country_code.value or "").upper()
+        if not is_known_mrz_country(code):
+            reason = f"UNKNOWN_COUNTRY_CODE_{code}" if code else "MISSING_COUNTRY_CODE"
+            warnings.append(reason)
+            errors.append(reason)
+        if not is_known_mrz_country(mrz.nationality.value):
+            errors.append("UNKNOWN_NATIONALITY")
 
         # A correct checksum does not establish that a date exists. Unknown
         # date components are permitted as fillers, but impossible numeric

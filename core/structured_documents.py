@@ -56,9 +56,12 @@ def _compact(value: str) -> str:
 
 def _us_date(value: str) -> str | None:
     value = value.strip().replace(".", "/")
+    if re.fullmatch(r"[0-9\s/-]+", value):
+        value = re.sub(r"\s+", "", value)
     # OCR often joins a printed month to its neighbouring day or year.
     value = re.sub(r"(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", " ", value)
-    for fmt in ("%m/%d/%Y", "%m-%d-%Y", "%Y-%m-%d", "%m%d%Y", "%d %b %Y", "%d %B %Y", "%d-%b-%Y"):
+    for fmt in ("%m/%d/%Y", "%m-%d-%Y", "%Y-%m-%d", "%m%d%Y", "%d %b %Y", "%d %B %Y", "%d-%b-%Y",
+                "%m/%d/%y", "%m-%d-%y", "%Y %B %d", "%Y %b %d"):
         try:
             return datetime.strptime(value, fmt).date().isoformat()
         except ValueError:
@@ -199,7 +202,7 @@ def _detect_text_type(regions: list[TextRegion]) -> tuple[str | None, str | None
         return "us_driver_license", state
     if state and re.search(r"\b(?:IDENTIFICATION|IDENTITY) CARD\b", text):
         return "us_state_id", state
-    american = bool(re.search(r"\bUSCIS\b|UNITED STATES", text))
+    american = bool(re.search(r"\bUSCIS\b|UNITED\s*STATES", text))
     if american and "PERMANENT RESIDENT" in text:
         return "us_green_card", None
     if american and "EMPLOYMENT AUTHORIZATION" in text:
@@ -282,8 +285,8 @@ def _identity_visual(result: StructuredExtraction, regions: list[TextRegion]) ->
             _visual(result, regions, "given_names", (r"2",), _person_name)
     else:
         _visual(result, regions, "given_names", (r"given names?", r"first(?: \(given\))? name", r"FN"), _person_name)
-    _visual(result, regions, "date_of_birth", (r"date of birth", r"birth date(?: \([^)]*\))?", r"DOB"), _us_date)
-    _visual(result, regions, "expiry_date", (r"card expires", r"expires on", r"date of expiry", r"expiration date", r"expiry date", r"EXP"), _us_date)
+    _visual(result, regions, "date_of_birth", (r"(?:USA\s*)?date of birth", r"birth date(?: \([^)]*\))?", r"DOB"), _us_date)
+    _visual(result, regions, "expiry_date", (r"card expires", r"expires(?: on)?", r"date of expiry", r"expiration date", r"expiry date", r"EXP"), _us_date)
     _visual(result, regions, "sex", (r"sex",), lambda value: value.upper() if value.upper() in ("M", "F", "X") else None)
 
 
@@ -298,13 +301,13 @@ def _extract_visual(result: StructuredExtraction, regions: list[TextRegion]) -> 
         _visual(result, regions, "address", (r"address",), lambda value: value.strip() if re.search(r"[0-9]", value) else None)
     elif kind in ("us_green_card", "us_ead"):
         _visual(result, regions, "uscis_number", (r"USCIS\s*#?", r"A[ -]?(?:number|#)"), _pattern(r"[0-9]{9}"))
-        _visual(result, regions, "card_number", (r"card\s*(?:#|number|no\.?)",), _pattern(r"[A-Z]{3}[0-9]{10}"))
-        _visual(result, regions, "category", (r"category",), _pattern(r"[A-Z][0-9]{1,2}"))
+        _visual(result, regions, "card_number", (r"(?:category\s+)?card\s*(?:#|number|no\.?)",), _pattern(r"[A-Z]{3}[0-9]{10}"))
+        _visual(result, regions, "category", (r"category",), _pattern(r"[A-Z]{1,2}[0-9]{1,2}"))
         _visual(result, regions, "country_of_birth", (r"country of birth",), _country_of_birth)
         _visual(result, regions, "resident_since" if kind == "us_green_card" else "valid_from", (r"resident since",) if kind == "us_green_card" else (r"valid from",), _us_date)
     elif kind == "us_i94":
         _visual(result, regions, "i94_number", (r"admission\s*\(I[ -]?94\)\s*record number", r"I[ -]?94\s*(?:admission|record)?\s*(?:number|no\.?)", r"admission record number"), _pattern(r"[0-9]{9}[A-Z0-9][0-9]"))
-        _visual(result, regions, "surname", (r"family name", r"surname"))
+        _visual(result, regions, "surname", (r"last/surname", r"family name", r"surname"))
         _visual(result, regions, "given_names", (r"first(?: \(given\))? name", r"given name"))
         _visual(result, regions, "date_of_birth", (r"birth date(?: \([^)]*\))?", r"date of birth"), _us_date)
         _visual(result, regions, "class_of_admission", (r"class of admission",), _pattern(r"[A-Z][A-Z0-9]{0,4}"))

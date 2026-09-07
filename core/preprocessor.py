@@ -49,6 +49,9 @@ MIN_WARPED_AREA_RATIO = 0.50  # if perspective-corrected image is < 50 %
 class PreprocessResult:
     image: np.ndarray
     warnings: list[str] = field(default_factory=list)
+    # Same geometry and resolution as image, without contrast enhancement.
+    # Retained for bounded rereads when security backgrounds worsen with CLAHE.
+    unenhanced_image: Optional[np.ndarray] = field(default=None, repr=False)
 
 
 # ---------------------------------------------------------------------------
@@ -211,13 +214,19 @@ def _perspective_correct(img: np.ndarray, corners: np.ndarray) -> np.ndarray:
     return cv2.warpPerspective(img, matrix, (max_w, max_h))
 
 
-def _normalise(img: np.ndarray) -> np.ndarray:
-    """Downscale to standard width (if larger) and apply CLAHE contrast enhancement."""
+def _resize(img: np.ndarray) -> np.ndarray:
+    """Use the same coordinate plane for enhanced and original-color reads."""
     h, w = img.shape[:2]
     if w > TARGET_WIDTH:
         ratio = TARGET_WIDTH / w
         new_h = int(h * ratio)
         img = cv2.resize(img, (TARGET_WIDTH, new_h), interpolation=cv2.INTER_LANCZOS4)
+    return img
+
+
+def _normalise(img: np.ndarray) -> np.ndarray:
+    """Downscale to standard width (if larger) and apply CLAHE contrast enhancement."""
+    img = _resize(img)
 
     # CLAHE on L channel in LAB
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
@@ -278,6 +287,7 @@ def preprocess(
             # quad must have been bogus. Discard it and use the raw image.
             warnings.append("PERSPECTIVE_CORRECTION_DISCARDED")
 
-    img = _normalise(img)
+    unenhanced = _resize(img)
+    img = _normalise(unenhanced)
 
-    return PreprocessResult(image=img, warnings=warnings)
+    return PreprocessResult(image=img, warnings=warnings, unenhanced_image=unenhanced)

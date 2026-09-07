@@ -204,10 +204,12 @@ class TestRouting:
         assert result.missing_required_fields == []
         assert getattr(getattr(result, result_attribute), identifier_attribute)
 
-    def test_scan_routes_to_driving_licence_when_passport_probe_is_unknown(
+    def test_additional_language_recovers_licence_when_english_probe_is_unknown(
         self,
         stub_ocr,
+        monkeypatch,
     ):
+        monkeypatch.setenv("DOCUMENT_OCR_KYC_LANGS", "en,devanagari")
         stub_ocr(
             [_r("MH1220110012345", 40, 20, 340, 50)],
             kyc_regions=_driving_licence_regions(),
@@ -265,7 +267,7 @@ class TestRouting:
         assert result.document_type == "npr_letter"
         assert result.missing_required_fields == ["name", "address"]
 
-    def test_positive_passport_non_biodata_probe_is_not_overridden_by_kyc(
+    def test_explicit_voter_identity_wins_over_generic_passport_back_labels(
         self,
         stub_ocr,
         monkeypatch,
@@ -280,15 +282,15 @@ class TestRouting:
             pipeline,
             "run_kyc_ocr",
             lambda *_args, **_kwargs: pytest.fail(
-                "KYC routing must not run after a positive passport probe"
+                "A strongly identified card should reuse the complete OCR read"
             ),
         )
         result = scan(b"fake")
 
         assert result.status == "success"
-        assert result.document_type == "passport"
-        assert result.page_type == "passport_non_biodata"
-        assert result.voter_id_fields is None
+        assert result.document_type == "voter_id"
+        assert result.page_type == "voter_id"
+        assert result.voter_id_fields.epic_number == "ABC1234567"
 
     def test_voter_words_in_passport_address_do_not_replace_passport(
         self,
@@ -351,7 +353,7 @@ class TestRouting:
         assert result.document_type == "passport"
         assert calls == {"default_full_page": 1}
 
-    def test_positive_passport_biodata_probe_is_not_overridden_by_kyc(
+    def test_explicit_driving_licence_wins_over_generic_biodata_labels(
         self,
         stub_ocr,
         monkeypatch,
@@ -361,17 +363,19 @@ class TestRouting:
             pipeline,
             "run_kyc_ocr",
             lambda *_args, **_kwargs: pytest.fail(
-                "KYC routing must not run after a positive passport probe"
+                "A strongly identified licence should reuse the complete OCR read"
             ),
         )
         result = scan(b"fake")
 
-        assert result.status == "failure"
-        assert result.document_type == "passport"
+        assert result.status == "success"
+        assert result.document_type == "driving_licence"
+        assert result.driving_licence_fields.dl_number == "MH1220110012345"
 
     def test_full_page_kyc_ocr_is_reachable_when_bottom_probe_is_empty(
         self, monkeypatch
     ):
+        monkeypatch.setenv("DOCUMENT_OCR_KYC_LANGS", "en,devanagari")
         image = np.zeros((1000, 800, 3), dtype=np.uint8)
         monkeypatch.setattr(
             pipeline,

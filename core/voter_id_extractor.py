@@ -155,16 +155,14 @@ def _find_holder_name(regions: list[TextRegion]) -> Optional[str]:
     # name label — bail rather than returning the relation's value.
     if _is_relation_label(label.text):
         return None
-    value = find_visual_value_right(regions, label) or find_visual_value_near(
-        regions, label
-    )
+    value = find_label_value(regions, _NAME_LABELS)
     if value is None:
         return None
     # Guard: the resolved value must not itself be a relation label or the
     # relation value bleeding up/down.
-    if _is_relation_label(value.text):
+    if _is_relation_label(value):
         return None
-    return _clean_value(value.text)
+    return _clean_value(value)
 
 
 def _find_relation(regions: list[TextRegion]) -> tuple[Optional[str], Optional[str]]:
@@ -184,12 +182,10 @@ def _find_relation(regions: list[TextRegion]) -> tuple[Optional[str], Optional[s
         letters = _ascii_letters(label.text)
         if rtype.upper() not in letters:
             continue
-        value = find_visual_value_right(regions, label) or find_visual_value_near(
-            regions, label
-        )
+        value = find_label_value(regions, labels)
         if value is None:
             continue
-        cleaned = _clean_value(value.text)
+        cleaned = _clean_value(value)
         if cleaned:
             return cleaned, rtype
     return None, None

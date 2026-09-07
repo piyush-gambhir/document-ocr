@@ -7,6 +7,23 @@ from dataclasses import dataclass
 import pycountry
 
 
+# ISO 3166-1 plus Doc 9303 Part 3, section 5 A–G (2024 consolidated edition):
+# https://www.icao.int/sites/default/files/publications/DocSeries/9303_p3_cons_en.pdf
+# Includes unspecified nationality XXX and deprecated codes for old documents.
+# Part H's IAO signs ICAO master lists; it is not a travel-document country.
+MRZ_COUNTRY_CODES = frozenset(country.alpha_3 for country in pycountry.countries) | {
+    "D", "GBD", "GBN", "GBO", "GBP", "GBS", "RKS", "EUE",
+    "UNO", "UNA", "UNK", "XBA", "XIM", "XCC", "XCE", "XCO", "XEC",
+    "XPO", "XES", "XMP", "XOM", "XDC", "XXA", "XXB", "XXC", "XXX",
+    "ANT", "NTZ", "UTO",
+}
+
+
+def is_known_mrz_country(code: str | None) -> bool:
+    """Validate an observed MRZ code without substituting a different code."""
+    return isinstance(code, str) and code.upper().rstrip("<") in MRZ_COUNTRY_CODES
+
+
 @dataclass(frozen=True)
 class DocumentProfile:
     document_type: str

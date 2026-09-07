@@ -10,8 +10,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from .document_registry import normalize_country
-from .mrz_parser import _DIGIT_CORRECTIONS, _parse_mrz_date, verify_check_digit
+from .document_registry import is_known_mrz_country, normalize_country
+from .mrz_parser import _DIGIT_CORRECTIONS, _clean_mrz_text, _parse_mrz_date, verify_check_digit
 from .ocr_engine import TextRegion
 
 
@@ -55,7 +55,7 @@ def parse_travel_mrz(regions: list[TextRegion]) -> TravelMRZResult | None:
     candidates: list[tuple[int, str, TextRegion]] = []
     for region in regions:
         for line in region.text.splitlines():
-            text = re.sub(r"\s+", "", line.upper()).replace("«", "<").replace("‹", "<").replace(">", "<")
+            text = _clean_mrz_text(line)
             if re.fullmatch(r"[A-Z0-9<]{30}|[A-Z0-9<]{36}|[A-Z0-9<]{44}", text):
                 y = min((point[1] for point in region.bbox), default=0)
                 candidates.append((y, text, region))
@@ -94,6 +94,8 @@ def _finish(document_type: str, lines: list[str], regions: list[TextRegion], fie
     issuing_country = _country(fields["country_code"])
     if issuing_country is None:
         errors.append("UNKNOWN_ISSUING_COUNTRY")
+    if "nationality" in fields and not is_known_mrz_country(fields["nationality"]):
+        errors.append("UNKNOWN_NATIONALITY")
     checks["mrz_checksums_valid"] = all(checks.values())
     checks["issuer_authenticated"] = False
     evidence = {name: _evidence(regions) for name, value in fields.items() if value is not None}

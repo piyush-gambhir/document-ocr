@@ -133,7 +133,8 @@ def test_recovered_high_passport_routes_past_background_text(prepare, monkeypatc
     prepare([background], [second, background])
     # The detector misses the name line even in the recovery band. The
     # recognition-only read returns it in crop coordinates.
-    monkeypatch.setattr(pipeline, 'run_ocr', lambda _: [])
+    monkeypatch.setattr(pipeline, 'run_ocr', lambda pixels:
+                        [second, background] if pixels.shape == (1000, 800, 3) else [])
     monkeypatch.setattr(pipeline, 'run_line_ocr', lambda _: [
         TextRegion(first.text, [[0, 0], [699, 0], [699, 35], [0, 35]], .97)])
     result = pipeline.scan(b'synthetic', document_type=hint)

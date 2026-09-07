@@ -79,7 +79,9 @@ def test_partial_anchor_extends_crop_to_read_unseen_right_hand_characters():
     anchor = region(LINE2[:28] + '<<')
 
     def read(crop):
-        assert crop.shape[1] == int(800 * 44 / 30)
+        # Recover all 44 character positions plus one character of pixel
+        # margin on either side of the truncated detector box.
+        assert crop.shape[1] == int(800 * 46 / 30)
         assert crop[:, -100:].mean() > 250
         return [region(LINE1, 20), region(LINE2, 70)]
 
@@ -136,3 +138,43 @@ def test_all_recovery_inference_is_bounded_and_partial_anchors_skip_direct_read(
     recover_passport_mrz(np.zeros((500, 900, 3), np.uint8), [region(LINE2[:28] + '<<')],
                          detector, recognizer)
     recognizer.assert_not_called()
+
+
+def test_checked_line_two_prefix_without_fillers_can_localize_recovery():
+    anchor = region(LINE2[:28])
+    detector = Mock(return_value=[region(LINE1, 20), region(LINE2, 70)])
+    recognizer = Mock()
+    result = recover_passport_mrz(np.zeros((500, 1600, 3), np.uint8),
+                                 [anchor], detector, recognizer)
+    assert parse_mrz(result).overall_checksum_valid
+    detector.assert_called_once()
+    recognizer.assert_not_called()
+
+
+def test_truncated_row_requires_all_three_observed_field_checksums():
+    for index in (9, 19, 27):
+        text = list(LINE2[:28])
+        text[index] = str((int(text[index]) + 1) % 10)
+        rows = [region(''.join(text))]
+        detector = Mock()
+        assert recover_passport_mrz(np.zeros((500, 1600, 3), np.uint8),
+                                    rows, detector) is rows
+        detector.assert_not_called()
+
+
+def test_focus_crop_reuses_new_prefix_evidence_for_only_one_final_band():
+    image = np.zeros((2000, 1600, 3), np.uint8)
+    rows = [region(text, 300 + i * 50) for i, text in enumerate(
+        ('PASSPORT', 'SURNAME', 'GIVEN NAMES', 'NATIONALITY', 'DATE OF BIRTH'))]
+    first_read = [region(LINE2[:28], y) for y in (80, 130, 180)]
+    detector = Mock(side_effect=[first_read, [region(LINE1, 20), region(LINE2, 70)]])
+    result = recover_passport_mrz(image, rows, detector)
+    assert parse_mrz(result).overall_checksum_valid
+    assert result[:len(rows)] == rows
+    assert detector.call_count == 2
+
+    # Even if the final band is unreadable, a second prefix cannot consume a
+    # third detection pass. Keep the original evidence on failed recovery.
+    detector = Mock(side_effect=[first_read, []])
+    assert recover_passport_mrz(image, rows, detector) is rows
+    assert detector.call_count == 2

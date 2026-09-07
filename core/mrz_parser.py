@@ -8,6 +8,7 @@ and validates ICAO check digits.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Optional
@@ -147,7 +148,11 @@ _MRZ_LINE1_PATTERN = re.compile(r"P[A-Z<][A-Z<]{3}[A-Z<]{35,39}")
 
 def _clean_mrz_text(raw: str) -> str:
     """Clean OCR text for MRZ matching — fix common substitution errors."""
-    text = re.sub(r"\s+", "", raw.upper())
+    # Recognizers can emit compatibility glyphs such as Roman numeral I or
+    # full-width Latin letters. Unicode defines their ASCII equivalents;
+    # unlike guessing a country or name, this does not substitute characters
+    # based on the expected document content.
+    text = re.sub(r"\s+", "", unicodedata.normalize("NFKC", raw).upper())
     # Common OCR substitutions for the '<' filler character
     text = text.replace("«", "<").replace("‹", "<").replace(">", "<")
     return text

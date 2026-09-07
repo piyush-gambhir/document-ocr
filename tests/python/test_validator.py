@@ -72,6 +72,11 @@ def _make_regions(label_text, value_text, label_y=100, value_y=150, x=50, conf=0
 # ---------------------------------------------------------------------------
 
 class TestValidation:
+    @pytest.mark.parametrize("issuer", ["", None, "<<<"])
+    def test_checksums_do_not_validate_a_missing_issuer(self, issuer):
+        result = validate(mrz=_make_mrz(country_code=issuer), regions=[])
+        assert any("COUNTRY_CODE" in error for error in result.errors)
+
     def test_mrz_none_gives_low_score(self):
         """No MRZ detected → mrz_score=0, cross_score defaults to 0.5, ocr_conf=0."""
         result = validate(mrz=None, regions=[])
@@ -284,6 +289,7 @@ class TestValidation:
         mrz = _make_mrz(country_code="ZZZ")
         result = validate(mrz=mrz, regions=[])
         assert "UNKNOWN_COUNTRY_CODE_ZZZ" in result.warnings
+        assert "UNKNOWN_COUNTRY_CODE_ZZZ" in result.errors
 
     def test_normalized_german_country_code_is_known(self):
         mrz = _make_mrz(country_code="D")

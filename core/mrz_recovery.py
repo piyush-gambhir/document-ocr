@@ -9,13 +9,33 @@ import re
 import cv2
 import numpy as np
 
-from .mrz_parser import _clean_mrz_text, parse_mrz
+from .mrz_parser import _clean_mrz_text, parse_mrz, verify_check_digit
 from .ocr_engine import TextRegion
 
 # A complete surname/given-name header with an observed padding terminator.
 _PADDED_HEADER = re.compile(r'P[A-Z<][A-Z<]{3}[A-Z]+(?:<[A-Z]+)*<<[A-Z]+(?:<[A-Z]+)*<{2,}')
 _ANCHOR = re.compile(r'[A-Z0-9<]{28,44}')
 _LINE_TWO = re.compile(r'[A-Z0-9<]{9}[0-9][A-Z<]{3}[0-9]{7}[MF<][0-9]{7}[A-Z0-9<]{16}')
+_LINE_TWO_PREFIX = re.compile(r'[A-Z0-9<]{9}[0-9][A-Z]{3}[0-9]{7}[MF<][0-9]{7}[A-Z0-9<]{0,15}')
+
+
+def _checked_line_two_prefix(text: str) -> bool:
+    """Locate a truncated row from observed fields, without filling its suffix."""
+    return bool(_LINE_TWO_PREFIX.fullmatch(text)
+                and verify_check_digit(text[:9], text[9])
+                and verify_check_digit(text[13:19], text[19])
+                and verify_check_digit(text[21:27], text[27]))
+
+
+def _anchors(regions: list[TextRegion]) -> list[TextRegion]:
+    result = []
+    for row in regions:
+        text = _clean_mrz_text(row.text)
+        if (len(row.bbox) == 4 and _ANCHOR.fullmatch(text)
+                and (text.count('<') >= 2 or _LINE_TWO.fullmatch(text) or _checked_line_two_prefix(text))
+                and (not text.startswith('P') or _LINE_TWO.fullmatch(text) or _checked_line_two_prefix(text))):
+            result.append(row)
+    return result
 
 
 def _read_crop(image, src, width, height, reader) -> list[TextRegion]:
@@ -60,10 +80,8 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
             if parsed and parsed.overall_checksum_valid:
                 return recovered
         return regions  # The two-read budget is exhausted.
-    anchors = [r for r in regions if _ANCHOR.fullmatch(_clean_mrz_text(r.text))
-               and (_clean_mrz_text(r.text).count('<') >= 2 or _LINE_TWO.fullmatch(_clean_mrz_text(r.text)))
-               and (not _clean_mrz_text(r.text).startswith('P') or _LINE_TWO.fullmatch(_clean_mrz_text(r.text)))
-               and len(r.bbox) == 4]
+    anchors = _anchors(regions)
+    band_budget = 2
     if not anchors and any(re.search(r'\bPASSPORT\b', r.text, re.I) for r in regions):
         # A small passport in a large photo can lose its entire MRZ during
         # detection downscaling. Focus on confident visible document text once.
@@ -82,8 +100,13 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
                 parsed = parse_mrz(recovered)
                 if parsed and parsed.overall_checksum_valid:
                     return recovered
+                # Detection may reveal only the beginning of the bottom row.
+                # Reuse its original-page geometry for one final band read;
+                # never insert unobserved suffix characters or check digits.
+                anchors = _anchors(recovered)
+                band_budget -= 1
     # At most two band reads, plus one recognition-only fallback per full anchor.
-    for anchor in sorted(anchors, key=lambda r: len(_clean_mrz_text(r.text)), reverse=True)[:2]:
+    for anchor in sorted(anchors, key=lambda r: len(_clean_mrz_text(r.text)), reverse=True)[:band_budget]:
         box = np.asarray(anchor.bbox, dtype=np.float32)
         if box.shape != (4, 2) or not np.isfinite(box).all():
             continue
@@ -96,8 +119,14 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
         # which still works when a document occupies a small part of a photograph.
         # A TD3 line has 44 fixed-width characters. A partial detection must not
         # clip the unseen right-hand characters from the recovery crop.
-        extension = (44 / len(_clean_mrz_text(anchor.text)) - 1) * (tr - tl)
+        anchor_text = _clean_mrz_text(anchor.text)
+        extension = (44 / len(anchor_text) - 1) * (tr - tl)
         tr, br = tr + extension, br + extension
+        if _checked_line_two_prefix(anchor_text):
+            # A truncated detector box can end inside a character. Leave one
+            # character of pixels at either edge of the predicted full row.
+            margin = (tr - tl) / 44
+            tl, bl, tr, br = tl - margin, bl - margin, tr + margin, br + margin
         full_width = float(np.linalg.norm(tr - tl))
         w = min(1600, int(full_width))
         h = max(20, int(line_height * 4 * w / full_width))
