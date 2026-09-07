@@ -10,6 +10,9 @@ and all six CORD v2 shards. Additional candidates have explicit access/terms or
 coverage-gap statuses. This is a relevant collection, not a claim to enumerate
 every OCR dataset in existence.
 
+For source readiness and collection gaps across **all 15 supported profiles**,
+see [document dataset coverage](DOCUMENT_DATASET_COVERAGE.md).
+
 ## Fixed evaluation sample
 
 We are evaluating OCR, **not training a model**. Keep the catalog as links; do not

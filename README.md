@@ -305,7 +305,9 @@ For public datasets, see [the linked catalog and fixed 40-case evaluation
 sample](benchmarks/PUBLIC_DATASETS.md). The bounded fetcher downloads only selected
 images and labels, with pinned checksums. Integrity checks are separate from OCR accuracy;
 see the [measured OCR baseline](benchmarks/PUBLIC_BASELINE.md) for current accuracy
-and failures. Further profiles need reviewed adapters before entering accuracy gates.
+and failures. The [dataset coverage map](benchmarks/DOCUMENT_DATASET_COVERAGE.md)
+links sources and identifies gaps for all 15 supported document types. Further
+profiles need reviewed adapters before entering accuracy gates.
 
 ## Privacy and security
 

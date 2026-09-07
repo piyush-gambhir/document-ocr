@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "researchDate": "2026-09-07",
+  "purpose": "Evaluation only. Links and metadata; no bulk downloads. Plans are not claims of acquired data.",
+  "sources": {
+    "midv-2020": {
+      "url": "https://zenodo.org/records/18786808",
+      "kind": "paired-images",
+      "terms": "CC-BY-SA-2.5",
+      "labels": "Template field text, MRZ and capture geometry.",
+      "verified": "Existing catalog and 16 passport baseline images; no Indian passport layout."
+    },
+    "midv-500": {
+      "url": "https://zenodo.org/records/18504926",
+      "kind": "paired-images",
+      "terms": "CC-BY-SA-2.5 with source notices",
+      "labels": "Document and capture ground truth.",
+      "verified": "Published archive list includes 48_usa_passportcard.zip; limited independent identities; no Indian passport archive."
+    },
+    "midv-lait": {
+      "url": "https://zenodo.org/records/18781343",
+      "kind": "paired-images",
+      "terms": "CC-BY-SA-2.5",
+      "labels": "Template field text and frame geometry.",
+      "verified": "Small Gujarati/Malayalam Aadhaar-layout samples retained. Synthetic script recognition does not establish all Aadhaar profile fields or valid-identifier completion."
+    },
+    "idnet": {
+      "url": "https://arxiv.org/abs/2408.01690",
+      "kind": "paired-images",
+      "terms": "Pinned Zenodo records declare CC0",
+      "labels": "Synthetic identity metadata, original annotations, fraud variants.",
+      "verified": "Eight versioned records in public_datasets.json. Five SD licence positives retained; other state layouts and state-ID routing not independently audited."
+    },
+    "symage-w9": {
+      "url": "https://huggingface.co/datasets/Symage/synthetic-us-forms-preview",
+      "kind": "paired-images",
+      "terms": "CC-BY-4.0; credit SymageDocs",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "labels": "FUNSD entities and links, token boxes/tags, field boxes.",
+      "verified": "Card lists 50 W-9 documents among 525 pages. API verifies licence and train/test Parquet files. Clean synthetic renders only; W-9 rows still need sample-level inspection."
+    },
+    "jwalit-kyc": {
+      "url": "https://huggingface.co/datasets/Jwalit/kyc-document-extraction-vlm",
+      "kind": "candidate",
+      "terms": "No dataset licence declared in inspected card/API",
+      "revision": "f22400e49ddeef5d893b103908426c53f953555c",
+      "labels": "Images and conversational extraction answers.",
+      "verified": "Card advertises Aadhaar, PAN, passport, visa and voter ID. Independent annotation provenance, per-type counts, consent and reuse rights unresolved. Model-generated answers cannot be assumed ground truth."
+    },
+    "indian-passport-arrow": {
+      "url": "https://huggingface.co/datasets/akashsalmuthe/ind_passport",
+      "kind": "candidate",
+      "terms": "No dataset licence declared in inspected API",
+      "revision": "791bb71904127c7fa51311e6c165465331f7d525",
+      "labels": "Image/text descriptions advertised; exact field and MRZ fidelity unverified.",
+      "verified": "Repository contains ind_pass.arrow. No card or licence file. Related passportDataset repo a6726f317f77091495d3e16d54dd46bc4b76c4ca also lacks licence metadata; not independent extra coverage."
+    },
+    "unidata-indian-passports": {
+      "url": "https://huggingface.co/datasets/ud-synthetic/indian-passports",
+      "kind": "metadata-only",
+      "terms": "Card CC-BY-NC-ND-4.0; full data requires provider access",
+      "revision": "87b9238f14b673b93aed64c7b824916839f6e57c",
+      "labels": "Semicolon CSV passport fields and MRZ.",
+      "verified": "Actual repository contains README and metadata/metadata_india.csv, no images. Card advertises 1000+ images but these are not the public release. Cannot run image OCR on this repository."
+    },
+    "indian-dl-synthetic": {
+      "url": "https://huggingface.co/datasets/NIDHISH1980/indian-driving-license-dataset",
+      "kind": "classification-only",
+      "terms": "CreativeML OpenRAIL-M tag; card additionally says research/educational only",
+      "revision": "f7ef95ec8cc29acba41191a9d0adfd3239babfb3",
+      "labels": "Generation prompt, state, format, lighting and condition; not field transcriptions.",
+      "verified": "30 WebP images; publisher warns generated text may be unreadable/inaccurate. Do not treat generation prompts as OCR answers."
+    },
+    "pan-kaggle": {
+      "url": "https://www.kaggle.com/datasets/sparsh2002/pan-card-dataset/versions/5",
+      "kind": "candidate",
+      "terms": "Licence and provenance unverified",
+      "labels": "Image and label directories visible; transcription semantics unverified.",
+      "verified": "96 files advertised; no description. Not admitted as field-accuracy truth."
+    },
+    "aadhaar-detection": {
+      "url": "https://universe.roboflow.com/forgery-detection/aadhar-card-entity-detection-ikl8z/dataset/1",
+      "kind": "detection-only",
+      "terms": "Publisher page advertises CC-BY-4.0; underlying-image provenance still to review",
+      "labels": "Entity object-detection annotations, not verified text values.",
+      "verified": "Resized/augmented 416px dataset; not automatically suitable for field extraction or independent identity splits."
+    },
+    "prado-india": {
+      "url": "https://www.consilium.europa.eu/prado/en/IND-AO-01001/index.html",
+      "kind": "reference-only",
+      "terms": "PRADO-specific restrictions; link only",
+      "termsUrl": "https://www.consilium.europa.eu/en/about-site/copyright/",
+      "labels": "Reference descriptions and specimen views; no structured OCR truth.",
+      "verified": "Official Indian passport version 01001 reference, first issued 2000. Automated page retrieval returned 403. Not a modern representative test set."
+    },
+    "commons-india": {
+      "url": "https://commons.wikimedia.org/wiki/Category:Passports_of_India",
+      "kind": "reference-only",
+      "terms": "Review each file licence and redactions separately",
+      "labels": "No paired extraction annotations.",
+      "verified": "Category includes blank/censored biodata pages, covers and historical documents. Censored fields cannot measure full-record positive accuracy."
+    },
+    "uscis-specimens": {
+      "url": "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents",
+      "kind": "reference-only",
+      "terms": "Review individual official specimen reuse terms",
+      "labels": "Official document references, not a paired OCR dataset.",
+      "verified": "Current page fetch returned 403. Green-card/EAD sample acquisition, edition coverage and labels remain unverified."
+    },
+    "cbp-i94": {
+      "url": "https://www.cbp.gov/sites/default/files/documents/CBP%20Form%20I-94%20English%20SAMPLE_Watermark.pdf",
+      "kind": "blank-reference",
+      "terms": "Official CBP sample; retain source and SAMPLE marking",
+      "labels": "Blank field labels and placeholder admission number; no completed-person truth.",
+      "verified": "Paper form reference. Electronic admission record coverage still needed; I-94 statistics and highway traffic datasets are unrelated."
+    },
+    "mrv-generator": {
+      "url": "https://github.com/over-geek/mrz-reader/blob/main/benchmark-dataset/README.md",
+      "kind": "generator-candidate",
+      "terms": "Generator/data terms not verified",
+      "labels": "Claims generated MRV-style images and expected outcomes.",
+      "verified": "MRV cases are unsupported-format tests in that project. Its expected routing cannot be imported as ours; not real visa coverage."
+    },
+    "nrega-metadata": {
+      "url": "https://core-stack.org/datasets/",
+      "kind": "metadata-only",
+      "terms": "Check source-specific terms",
+      "labels": "Panchayat/job-card counts and geotagged works metadata.",
+      "verified": "Not paired photographs and field labels of NREGA job cards."
+    },
+    "india-pii-text": {
+      "url": "https://maskflow.in/benchmark",
+      "kind": "text-only",
+      "terms": "Check dataset release terms separately",
+      "labels": "Synthetic text entity spans.",
+      "verified": "Useful candidate for text extraction tests only; no matching document images. Does not establish passport, PAN, DL, EPIC or NPR image accuracy."
+    }
+  },
+  "profiles": {
+    "passport": {
+      "sourceIds": [
+        "midv-2020",
+        "midv-500",
+        "indian-passport-arrow",
+        "unidata-indian-passports",
+        "prado-india",
+        "commons-india",
+        "jwalit-kyc"
+      ],
+      "status": "partial-paired",
+      "gaps": "Non-Indian biodata measured. No admitted Indian biodata/back-page image-and-truth corpus.",
+      "smallSamplePlan": "Keep 16 current passport views. Acquire 10 independently labeled Indian biodata examples and 5 back pages across holders/editions before Indian tuning; include phone captures and partial pages."
+    },
+    "pan": {
+      "sourceIds": [
+        "jwalit-kyc",
+        "pan-kaggle",
+        "india-pii-text"
+      ],
+      "status": "candidate-only",
+      "gaps": "Independent field truth, licence and source provenance not verified.",
+      "smallSamplePlan": "After admission: 5 current-layout, 5 older-layout images; number, name, relation and DOB labels; positive and invalid/partial cases."
+    },
+    "aadhaar": {
+      "sourceIds": [
+        "midv-lait",
+        "jwalit-kyc",
+        "aadhaar-detection"
+      ],
+      "status": "partial-paired",
+      "gaps": "LAIT covers script recognition, not representative valid front/back, masked, VID, QR or full profile accuracy.",
+      "smallSamplePlan": "Keep current LAIT samples; add 10 reviewed front/back/masked/e-Aadhaar cases with identity grouping and explicit checksum expectations."
+    },
+    "driving_licence": {
+      "sourceIds": [
+        "indian-dl-synthetic",
+        "india-pii-text"
+      ],
+      "status": "classification-only",
+      "gaps": "No verified Indian DL image/field corpus; diffusion metadata is not transcribed truth.",
+      "smallSamplePlan": "10 reviewed PVC/paper/digital examples across states; issue/NT/TR dates and vehicle classes; do not count synthetic prompts as labels."
+    },
+    "voter_id": {
+      "sourceIds": [
+        "jwalit-kyc",
+        "india-pii-text"
+      ],
+      "status": "candidate-only",
+      "gaps": "EPIC field labels, image provenance and reuse rights unresolved.",
+      "smallSamplePlan": "10 reviewed old/new/e-EPIC views covering age versus DOB and relation labels."
+    },
+    "nrega_job_card": {
+      "sourceIds": [
+        "nrega-metadata"
+      ],
+      "status": "no-paired-source",
+      "gaps": "Public administrative data is not photographed job-card OCR truth.",
+      "smallSamplePlan": "5 reviewed cards across layouts with full member rows, hierarchical identifier and location fields; partial/blank controls."
+    },
+    "npr_letter": {
+      "sourceIds": [],
+      "status": "no-paired-source",
+      "gaps": "No verified paired National Population Register name/address letter dataset found. NPR news/audio datasets are unrelated.",
+      "smallSamplePlan": "5 reviewed letters with resident name, address, reference/date where present and absent-field labels; requires new collection."
+    },
+    "us_driver_license": {
+      "sourceIds": [
+        "idnet"
+      ],
+      "status": "partial-paired",
+      "gaps": "Five SD examples rejected by existing resolution gate; other jurisdictions, front/back and PDF417 need coverage.",
+      "smallSamplePlan": "Keep five SD failures unchanged. Add small AZ/CA/other-state subsets from pinned sources after field/schema inspection, with barcode views where available."
+    },
+    "us_state_id": {
+      "sourceIds": [
+        "idnet",
+        "uscis-specimens"
+      ],
+      "status": "candidate-only",
+      "gaps": "Do not relabel a driver licence as a state ID. Exact non-driver images and annotations not audited.",
+      "smallSamplePlan": "Select 5 verified non-driver cards with front/back pairing; otherwise leave a coverage gap."
+    },
+    "passport_card": {
+      "sourceIds": [
+        "midv-500"
+      ],
+      "status": "paired-source-not-sampled",
+      "gaps": "US passport-card archive identified; exact view/label pairing still needs inspection; one source identity is not population coverage.",
+      "smallSamplePlan": "Select 5 capture conditions from 48_usa_passportcard.zip using bounded member ranges; group all views by identity."
+    },
+    "us_green_card": {
+      "sourceIds": [
+        "uscis-specimens"
+      ],
+      "status": "reference-only",
+      "gaps": "No verified open image/field corpus; official examples need transcription and edition/back-side review.",
+      "smallSamplePlan": "5 permitted annotated specimen/consented cases across editions; retain specimen status and rejection expectations."
+    },
+    "us_ead": {
+      "sourceIds": [
+        "uscis-specimens"
+      ],
+      "status": "reference-only",
+      "gaps": "No verified open paired corpus. I-765 application forms are not I-766 cards.",
+      "smallSamplePlan": "5 permitted annotated front/back cases covering category, USCIS/card numbers and dates; distinguish EAD from green card."
+    },
+    "visa": {
+      "sourceIds": [
+        "jwalit-kyc",
+        "mrv-generator"
+      ],
+      "status": "candidate-only",
+      "gaps": "No admitted MRV-A/MRV-B image/field set. Generator outcomes may deliberately reject MRV.",
+      "smallSamplePlan": "5 MRV-A plus 5 MRV-B reviewed examples, including partial MRZ; do not substitute TD3 passports."
+    },
+    "us_i94": {
+      "sourceIds": [
+        "cbp-i94"
+      ],
+      "status": "blank-reference",
+      "gaps": "Official blank paper form is not positive extraction truth; no verified filled electronic/paper dataset.",
+      "smallSamplePlan": "5 reviewed completed specimen cases covering numeric dates and D/S, plus the blank form as a negative control."
+    },
+    "us_w9": {
+      "sourceIds": [
+        "symage-w9"
+      ],
+      "status": "paired-source-not-sampled",
+      "gaps": "Synthetic clean render only; no noisy scans/handwriting. Need inspect exact field linking before adapter.",
+      "smallSamplePlan": "Select 5 held-out W-9 rows by form_id=irs_w9_standard_2024 using bounded viewer requests; inspect SSN/EIN and missing-value cases; no full Parquet download."
+    }
+  }
+}
