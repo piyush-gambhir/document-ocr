@@ -147,3 +147,33 @@ class TestNonLatinDetection:
         """Empty text should return False (no division by zero)."""
         regions = [TextRegion(text="", bbox=[], confidence=0.9)]
         assert _is_likely_non_latin(regions) is False
+
+
+def test_line_recognition_leaves_cached_detector_enabled(clean_ocr_cache):
+    model = MagicMock()
+    model.use_det = True
+    model.recognize_txt.return_value.txts = ('  EXAMPLE  ',)
+    model.recognize_txt.return_value.scores = (.98,)
+    ocr_engine._ocr_instances['en'] = model
+    image = np.zeros((32, 400, 3), np.uint8)
+
+    result = ocr_engine.run_line_ocr(image)
+    assert result == [TextRegion('EXAMPLE', [[0, 0], [399, 0], [399, 31], [0, 31]], .98)]
+    assert model.recognize_txt.call_args.args[0][0] is image
+    model.assert_not_called()
+    assert model.use_det is True
+
+    # A later full-page request still uses the normal cached model path.
+    model.return_value.boxes = None
+    ocr_engine.run_ocr(image)
+    model.assert_called_once_with(image)
+    assert model.use_det is True
+
+
+@pytest.mark.parametrize('texts,scores', [(None, None), ((), ()), (('   ',), (.98,))])
+def test_empty_line_recognition_returns_no_regions(clean_ocr_cache, texts, scores):
+    model = MagicMock()
+    model.recognize_txt.return_value.txts = texts
+    model.recognize_txt.return_value.scores = scores
+    ocr_engine._ocr_instances['en'] = model
+    assert ocr_engine.run_line_ocr(np.zeros((32, 400, 3), np.uint8)) == []

@@ -57,3 +57,15 @@ def test_long_footer_strings_without_td3_header_are_not_mrz():
         _make_region("DEF456" * 6 + "<<<<<<<<", 440),
     ])
     assert result.document_type == "unknown"
+
+
+def test_valid_mrz_above_background_text_is_still_biodata():
+    regions = [
+        _make_region('P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<', 200),
+        _make_region('L898902C36UTO7408122F1204159ZE184226B<<<<<10', 240),
+        _make_region('Text on the desk below the passport', 950),
+    ]
+    assert classify_passport_page(regions).page_type == 'passport_biodata'
+    # A damaged pair outside the expected area does not gain strong evidence.
+    regions[1].text = regions[1].text[:-1] + '9'
+    assert classify_passport_page(regions).page_type == 'unknown'

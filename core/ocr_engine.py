@@ -141,6 +141,21 @@ def _is_likely_non_latin(regions: list[TextRegion]) -> bool:
 # Public API
 # ---------------------------------------------------------------------------
 
+def run_line_ocr(image: np.ndarray) -> list[TextRegion]:
+    """Recognize one already-localized Latin text line without running detection.
+
+    Calling the recognizer directly avoids changing the cached RapidOCR object's
+    persistent ``use_det`` flag, which would break subsequent full-page scans.
+    """
+    result = _get_ocr("en").recognize_txt([image])
+    if not result.txts or not result.scores or not result.txts[0].strip():
+        return []
+    height, width = image.shape[:2]
+    return [TextRegion(result.txts[0].strip(),
+                       [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
+                       float(result.scores[0]))]
+
+
 def run_ocr(
     image: np.ndarray,
     *,

@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from .mrz_parser import _find_mrz_lines
+from .mrz_parser import _find_mrz_lines, parse_mrz
 from .ocr_engine import TextRegion
 
 _BIODATA_HINTS = [
@@ -128,4 +128,10 @@ def _has_mrz_like_lines(regions: list[TextRegion]) -> bool:
     ]
     # Optional data may occupy all of line two: it need not contain fillers.
     # Require a paired TD3 header instead of counting arbitrary long strings.
-    return _find_mrz_lines(bottom_regions) is not None
+    if _find_mrz_lines(bottom_regions) is not None:
+        return True
+    # A passport may sit high in a larger photograph, with background text
+    # below it. Strong MRZ evidence should not depend on its position in that
+    # photograph. Keep checksum validation for this location-independent path.
+    mrz = parse_mrz(regions)
+    return bool(mrz and mrz.overall_checksum_valid)

@@ -25,7 +25,7 @@ from .mrz_parser import MRZResult, parse_mrz
 from .mrz_recovery import recover_passport_mrz
 from .npr_extractor import NprLetterFields, extract_npr_letter
 from .nrega_extractor import NregaFields, extract_nrega
-from .ocr_engine import TextRegion, run_ocr
+from .ocr_engine import TextRegion, run_line_ocr, run_ocr
 from .page_classifier import classify_passport_page
 from .pan_extractor import PanFields, extract_pan
 from .preprocessor import ImageQualityError, PreprocessResult, preprocess
@@ -187,12 +187,12 @@ def _scan_page(prep, start, document_type, country, include_evidence, *, native=
         prep.warnings.append("PDF_NATIVE_TEXT_NOT_VISUALLY_VERIFIED")
     needs_full = bool(full or barcodes or document_type or country or include_evidence)
     if needs_full:
-        full = full if full is not None else recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr)
+        full = full if full is not None else recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr, run_line_ocr)
         result = _structured(full, prep, start, document_type=document_type, country=country, barcodes=barcodes)
         if result is None:
             result = _scan_non_passport(prep, start, full_regions=full, try_structured=False)
         if source == "pdf_text" and (result.document_type == "unknown" or "DOCUMENT_TYPE_NOT_CONFIRMED" in result.errors):
-            full = recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr)
+            full = recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr, run_line_ocr)
             source = "ocr"
             result = _structured(full, prep, start, document_type=document_type, country=country, barcodes=barcodes)
             if result is None:
@@ -241,7 +241,7 @@ def _scan_prepared(prep, start):
         # all useful text elsewhere, especially with an explicitly configured
         # Indic recognition model. Confirm a strongly identified KYC document
         # from the full page before preserving the existing no-text failure.
-        full_kyc_regions = recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr)
+        full_kyc_regions = recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr, run_line_ocr)
         if full_kyc_regions:
             structured = _structured(full_kyc_regions, prep, start)
             if structured is not None:
@@ -281,7 +281,7 @@ def _scan_passport(prep, classification, regions, start, *, full_page_regions=No
     # The crop establishes routing; the full page supplies visual fields and
     # cross-checks even when the cropped MRZ already has valid check digits.
     if full_page_regions is None:
-        full_page_regions = recover_passport_mrz(prep.image, run_ocr(prep.image), run_ocr)
+        full_page_regions = recover_passport_mrz(prep.image, run_ocr(prep.image), run_ocr, run_line_ocr)
     structured = _structured(full_page_regions, prep, start)
     if structured is not None:
         return structured
@@ -414,7 +414,7 @@ def _scan_non_passport(
 ) -> DocumentScanResult:
     """Classify and extract a non-passport KYC document from full-page OCR."""
     if full_regions is None:
-        full_regions = recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr)
+        full_regions = recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr, run_line_ocr)
     if not full_regions:
         return DocumentScanResult(
             status="failure",

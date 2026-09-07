@@ -122,3 +122,22 @@ def test_checksum_valid_impossible_date_cannot_be_success(prepare):
     assert result.mrz_valid  # checksums and calendar validity are distinct
     assert result.status == 'failure'
     assert 'INVALID_DATE_OF_BIRTH' in result.errors
+
+
+@pytest.mark.parametrize('hint', [None, 'passport'])
+def test_recovered_high_passport_routes_past_background_text(prepare, monkeypatch, hint):
+    first, second = mrz_regions()
+    first.bbox = [[40, 183], [740, 183], [740, 213], [40, 213]]
+    second.bbox = [[40, 220], [740, 220], [740, 250], [40, 250]]
+    background = region('Background writing', 950)
+    prepare([background], [second, background])
+    # The detector misses the name line even in the recovery band. The
+    # recognition-only read returns it in crop coordinates.
+    monkeypatch.setattr(pipeline, 'run_ocr', lambda _: [])
+    monkeypatch.setattr(pipeline, 'run_line_ocr', lambda _: [
+        TextRegion(first.text, [[0, 0], [699, 0], [699, 35], [0, 35]], .97)])
+    result = pipeline.scan(b'synthetic', document_type=hint)
+    assert result.status == 'success'
+    assert result.page_type == 'passport_biodata'
+    assert result.mrz_raw == (first.text, second.text)
+    assert result.fields.passport_number == 'L898902C3'
