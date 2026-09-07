@@ -215,6 +215,11 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
     name_parts = name_raw.split("<<", 1)
     surname_raw = name_parts[0] if name_parts else ""
     given_raw = name_parts[1] if len(name_parts) > 1 else ""
+    # Within given names a single filler separates components. A double filler
+    # starts padding; OCR noise later in that padding is not an extra name.
+    given_value, _, padding = given_raw.partition("<<")
+    if padding.replace("<", ""):
+        errors.append("MRZ_NAME_PADDING_NOISE")
 
     # --- Line 2 ---
     # Pos 0-8:   passport number (9 chars)
@@ -276,7 +281,7 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
         document_type=MRZField(value=doc_type_raw.replace("<", "").strip() or "P", raw=doc_type_raw),
         country_code=MRZField(value=country_raw.replace("<", ""), raw=country_raw),
         surname=MRZField(value=_clean_name(surname_raw), raw=surname_raw),
-        given_names=MRZField(value=_clean_name(given_raw), raw=given_raw),
+        given_names=MRZField(value=_clean_name(given_value), raw=given_raw),
         passport_number=MRZField(
             value=pn_raw.replace("<", "").strip(),
             raw=pn_raw,

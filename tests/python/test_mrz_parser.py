@@ -166,3 +166,19 @@ class TestParseMRZ:
         result = _parse(LINE2.replace("<", ">"), LINE1.replace("<", "‹") + "\t\n")
         assert result.given_names.value == "ANNA MARIA"
         assert result.overall_checksum_valid
+
+
+def test_padding_noise_is_not_an_extra_given_name_and_raw_is_preserved():
+    noisy = LINE1[:35] + 'ZZ' + LINE1[37:]
+    result = _parse(line1=noisy)
+    assert result.given_names.value == 'ANNA MARIA'
+    assert result.raw_lines[0] == noisy
+    assert 'MRZ_NAME_PADDING_NOISE' in result.errors
+    assert result.overall_checksum_valid  # Line-one names have no check digit.
+
+
+def test_single_fillers_preserve_all_given_name_components():
+    line = 'P<UTOERIKSSON<<ANNA<MARIA<ROSE'.ljust(44, '<')
+    result = _parse(line1=line)
+    assert result.given_names.value == 'ANNA MARIA ROSE'
+    assert 'MRZ_NAME_PADDING_NOISE' not in result.errors
