@@ -1,6 +1,14 @@
 name: OCR regression evaluation
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'core/**'
+      - 'benchmarks/**'
+      - 'requirements.lock'
+      - 'pyproject.toml'
+      - '.github/workflows/ocr-evaluation.yml'
   pull_request:
     paths:
       - 'core/**'
@@ -23,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      OCR_BASE_REF: ${{ github.event.pull_request.base.sha || inputs.base_ref }}
+      OCR_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || inputs.base_ref }}
     steps:
       - uses: actions/checkout@v6
         with:
