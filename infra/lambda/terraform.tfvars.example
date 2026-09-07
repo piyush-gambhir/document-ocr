@@ -1,0 +1,6 @@
+region = "ap-south-1"
+image_uri = "123456789012.dkr.ecr.ap-south-1.amazonaws.com/existing-repo@sha256:REPLACE"
+languages = "en"
+# input_bucket = "your-private-documents"
+input_prefix = "uploads/"
+max_concurrency = 10

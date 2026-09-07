@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "document-ocr",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "secrets": { "required": ["API_TOKEN"] },
+  "vars": {
+    "DOCUMENT_OCR_KYC_LANGS": "en",
+    "CONTAINER_INSTANCES": "2",
+    "CONTAINER_IDLE_TIMEOUT": "10m"
+  },
+  "containers": [{
+    "class_name": "OcrContainer",
+    "image": "../docker/Dockerfile",
+    "image_build_context": "../..",
+    "image_vars": { "DOCUMENT_OCR_KYC_LANGS": "en" },
+    "instance_type": "standard-2",
+    "max_instances": 2
+  }],
+  "durable_objects": {
+    "bindings": [{ "name": "OCR", "class_name": "OcrContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OcrContainer"] }]
+}

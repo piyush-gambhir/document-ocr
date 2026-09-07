@@ -5,7 +5,7 @@
 # Reads credentials from .env.deploy.<env> (gitignored).
 # See .env.deploy.example for the full list.
 #
-# Cloud Run / GCP path is stubbed below; uncomment once a GCP project is chosen.
+# For Cloud Run, Lambda, Cloudflare or a server, use the kits in HOSTING.md.
 
 set -euo pipefail
 
@@ -13,6 +13,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 ENV="${1:-production}"
+case "$ENV" in production|development) ;; *) printf 'Expected production or development\n' >&2; exit 1;; esac
 DEPLOY_ENV_FILE=".env.deploy.${ENV}"
 
 if [[ ! -f "$DEPLOY_ENV_FILE" ]]; then
@@ -25,6 +26,10 @@ set -a
 # shellcheck disable=SC1090
 source "$DEPLOY_ENV_FILE"
 set +a
+source "$ROOT_DIR/deploy/common.sh"
+hosting_defaults
+require_command docker
+docker buildx version >/dev/null
 
 : "${DOCKERHUB_USERNAME:?set DOCKERHUB_USERNAME in ${DEPLOY_ENV_FILE}}"
 : "${DOCKERHUB_TOKEN:?set DOCKERHUB_TOKEN in ${DEPLOY_ENV_FILE}}"
@@ -42,12 +47,13 @@ if [[ "$ENV" == "production" ]]; then
 fi
 
 echo "==> Logging into Docker Hub as ${DOCKERHUB_USERNAME}"
-echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+printf '%s' "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 echo "==> Building multi-arch image: ${SHA_TAG}, ${LATEST_TAG}"
 docker buildx build \
   --platform "${BUILD_PLATFORMS:-linux/amd64,linux/arm64}" \
   --file "$DOCKERFILE_PATH" \
+  --build-arg "DOCUMENT_OCR_KYC_LANGS=$DOCUMENT_OCR_KYC_LANGS" \
   --tag "$SHA_TAG" \
   --tag "$LATEST_TAG" \
   --push \
@@ -56,19 +62,3 @@ docker buildx build \
 echo "==> Pushed:"
 echo "    $SHA_TAG"
 echo "    $LATEST_TAG"
-
-# --------------------------------------------------------------------------
-# Cloud Run path — uncomment once GCP_PROJECT is chosen and gcloud is set up.
-#
-# : "${GCP_PROJECT:?set GCP_PROJECT in ${DEPLOY_ENV_FILE}}"
-# : "${GCP_REGION:?set GCP_REGION in ${DEPLOY_ENV_FILE}}"
-# : "${GCP_CONFIG:?set GCP_CONFIG in ${DEPLOY_ENV_FILE}}"
-#
-# gcloud config configurations activate "$GCP_CONFIG"
-# gcloud run deploy "document-ocr-${ENV}" \
-#   --image "$SHA_TAG" \
-#   --region "$GCP_REGION" \
-#   --project "$GCP_PROJECT" \
-#   --platform managed \
-#   --no-allow-unauthenticated
-# --------------------------------------------------------------------------

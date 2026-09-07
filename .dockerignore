@@ -1,0 +1,17 @@
+# Directory exceptions are followed by child exclusions for legacy Docker too.
+**
+!requirements.lock
+!core/
+core/**
+!core/*.py
+!core/review.html
+!deploy/
+deploy/**
+!deploy/docker/
+deploy/docker/**
+!deploy/docker/Dockerfile
+!deploy/docker/server.py
+!deploy/lambda/
+deploy/lambda/**
+!deploy/lambda/Dockerfile.lambda
+!deploy/lambda/handler.py

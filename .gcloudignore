@@ -1,0 +1,14 @@
+# Cloud Build receives only OCR source and its container build definition.
+**
+!requirements.lock
+!.dockerignore
+!core/
+!core/**/*.py
+!core/review.html
+!deploy/
+!deploy/docker/
+!deploy/docker/Dockerfile
+!deploy/docker/Dockerfile.dockerignore
+!deploy/docker/server.py
+!deploy/cloudrun/
+!deploy/cloudrun/cloudbuild.yaml

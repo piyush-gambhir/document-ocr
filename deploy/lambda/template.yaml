@@ -1,29 +1,59 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: document-ocr — passport / KYC OCR pipeline on AWS Lambda (container image)
-
-Globals:
-  Function:
-    Timeout: 60
-    MemorySize: 2048
-
+Description: Document OCR image Lambda with IAM invocation and optional S3 input
+Parameters:
+  KycLanguages:
+    Type: String
+    Default: en
+  ImageUri:
+    Type: String
+    Default: ''
+  InputBucket:
+    Type: String
+    Default: ''
+  InputPrefix:
+    Type: String
+    Default: uploads/
+    AllowedPattern: '[A-Za-z0-9._/-]+'
+  ReservedConcurrency:
+    Type: Number
+    Default: 10
+    MinValue: 1
+Conditions:
+  HasInputBucket: !Not [!Equals [!Ref InputBucket, '']]
+  HasImage: !Not [!Equals [!Ref ImageUri, '']]
 Resources:
   DocumentOcrFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      Dockerfile: Dockerfile.lambda
+      Dockerfile: deploy/lambda/Dockerfile.lambda
       DockerContext: ../..
       DockerTag: document-ocr-lambda
+      DockerBuildArgs:
+        DOCUMENT_OCR_KYC_LANGS: !Ref KycLanguages
     Properties:
       PackageType: Image
-      Architectures:
-        - x86_64
-      # IAM-authenticated direct invoke is the supported default. Add an API
-      # Gateway event explicitly only when an authentication layer is present.
-
+      ImageUri: !If [HasImage, !Ref ImageUri, !Ref 'AWS::NoValue']
+      Architectures: [x86_64]
+      MemorySize: 2048
+      Timeout: 120
+      ReservedConcurrentExecutions: !Ref ReservedConcurrency
+      Environment:
+        Variables:
+          DOCUMENT_OCR_KYC_LANGS: !Ref KycLanguages
+          DOCUMENT_OCR_S3_BUCKET: !Ref InputBucket
+          DOCUMENT_OCR_S3_PREFIX: !Ref InputPrefix
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - !If
+          - HasInputBucket
+          - Statement:
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${InputBucket}/${InputPrefix}*'
+          - !Ref 'AWS::NoValue'
 Outputs:
   FunctionName:
-    Description: Lambda function name (use with the SDK's mode:'lambda')
     Value: !Ref DocumentOcrFunction
   FunctionArn:
     Value: !GetAtt DocumentOcrFunction.Arn

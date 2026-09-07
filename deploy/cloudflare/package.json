@@ -1,0 +1,23 @@
+{
+  "name": "document-ocr-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "bash deploy.sh",
+    "typecheck": "tsc --noEmit",
+    "check": "wrangler deploy --dry-run --containers-rollout=none --outdir .wrangler/dry-run",
+    "types": "wrangler types",
+    "test": "vitest run",
+    "check:image": "wrangler deploy --dry-run --outdir .wrangler/dry-run"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7",
+    "wrangler": "4.129.0"
+  }
+}

@@ -1,0 +1,7 @@
+project_id = "your-project"
+region = "asia-south1"
+image_uri = "asia-south1-docker.pkg.dev/your-project/your-existing-repo/document-ocr@sha256:REPLACE"
+invoker_members = ["serviceAccount:caller@your-project.iam.gserviceaccount.com"]
+# api_token_secret = "document-ocr-api-token"
+languages = "en"
+profile = "economy"

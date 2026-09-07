@@ -1,40 +1,11 @@
-# AWS Lambda container image for the document OCR pipeline.
-#
-# Build & deploy via SAM (deploy/lambda/template.yaml) or manually:
-#   docker build -f deploy/lambda/Dockerfile.lambda -t document-ocr-lambda .
-#   # tag + push to ECR, then point a Lambda function (PackageType: Image) at it.
 FROM public.ecr.aws/lambda/python:3.12
-
-# System libraries OpenCV needs (the Lambda base image is minimal).
 RUN microdnf install -y mesa-libGL glib2 libgomp && microdnf clean all
-
-# Fast dependency install with uv.
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-
-# Install dependencies from pyproject.toml (single source of truth).
-# LICENSE and README.md must come along: pyproject declares
-# `license = { file = "LICENSE" }` and `readme = "README.md"`, and hatchling
-# reads both while resolving metadata, so the build fails without them.
-COPY pyproject.toml LICENSE README.md ${LAMBDA_TASK_ROOT}/
+COPY requirements.lock ${LAMBDA_TASK_ROOT}/requirements.lock
+RUN python -m pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.lock
 COPY core/ ${LAMBDA_TASK_ROOT}/core/
-RUN uv pip install --system --no-cache -e "${LAMBDA_TASK_ROOT}"
-
-# Pre-download RapidOCR PP-OCRv5 models at build time so cold starts don't
-# block on a network fetch (and so MODEL_INIT_FAILED can't happen at runtime
-# due to an unreachable model source).
-ENV RAPIDOCR_HOME=${LAMBDA_TASK_ROOT}/.rapidocr
-RUN python -c "\
-from rapidocr import RapidOCR, LangRec, ModelType, OCRVersion; \
-RapidOCR(params={ \
-    'Global.use_cls': False, \
-    'Det.model_type': ModelType.MOBILE, \
-    'Det.ocr_version': OCRVersion.PPOCRV5, \
-    'Rec.lang_type': LangRec.EN, \
-    'Rec.model_type': ModelType.MOBILE, \
-    'Rec.ocr_version': OCRVersion.PPOCRV5, \
-})"
-
-# Handler module + entrypoint.
+ARG DOCUMENT_OCR_KYC_LANGS=en
+ENV DOCUMENT_OCR_KYC_LANGS=${DOCUMENT_OCR_KYC_LANGS} PYTHONDONTWRITEBYTECODE=1
+# Lambda has a read-only root filesystem: package every selected model now.
+RUN python -m core.model_setup
 COPY deploy/lambda/handler.py ${LAMBDA_TASK_ROOT}/handler.py
-
 CMD ["handler.handler"]

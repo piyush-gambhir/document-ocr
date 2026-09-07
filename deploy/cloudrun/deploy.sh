@@ -1,92 +1,71 @@
 #!/usr/bin/env bash
-# Deploy document-ocr to Google Cloud Run.
-#
-# Run as `bash deploy/cloudrun/deploy.sh [production|development]`.
-#
-# Builds the container from deploy/docker/Dockerfile, pushes it to Google
-# Artifact Registry, then deploys it to Cloud Run via the service.yaml manifest.
-#
-# Reads credentials from .env.deploy.<env> (gitignored). See .env.deploy.example
-# for the required GCP_* values.
-#
-# Prerequisites: gcloud CLI authenticated (`gcloud auth login`), Docker, and an
-# Artifact Registry repo named `document-ocr` in the target region.
-
 set -euo pipefail
-
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
-
-ENV="${1:-production}"
-DEPLOY_ENV_FILE=".env.deploy.${ENV}"
-
-if [[ ! -f "$DEPLOY_ENV_FILE" ]]; then
-  echo "error: ${DEPLOY_ENV_FILE} not found in $(pwd)" >&2
-  echo "       copy .env.deploy.example to ${DEPLOY_ENV_FILE} and fill in the GCP_* values." >&2
-  exit 1
+source deploy/common.sh
+if [[ $# -gt 0 ]]; then
+  [[ "$1" == production || "$1" == development ]] || { printf 'Optional argument must be production or development\n' >&2; exit 1; }
+  set -a
+  source ".env.deploy.$1"
+  set +a
 fi
-
-set -a
-# shellcheck disable=SC1090
-source "$DEPLOY_ENV_FILE"
-set +a
-
-: "${GCP_PROJECT:?set GCP_PROJECT in ${DEPLOY_ENV_FILE}}"
-: "${GCP_REGION:?set GCP_REGION in ${DEPLOY_ENV_FILE}}"
-
-SERVICE_NAME="${CLOUD_RUN_SERVICE:-document-ocr}"
+hosting_defaults
+require_command gcloud
+require_command python3
+: "${GCP_PROJECT:?Set GCP_PROJECT}"
+export GCP_REGION="${GCP_REGION:-asia-south1}"
 AR_REPO="${GCP_AR_REPO:-document-ocr}"
-IMAGE_BASE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${AR_REPO}/document-ocr"
+export DOCUMENT_OCR_SERVICE_ACCOUNT="${DOCUMENT_OCR_SERVICE_ACCOUNT:-${DOCUMENT_OCR_NAME:0:23}-ocr-sa@${GCP_PROJECT}.iam.gserviceaccount.com}"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
-GIT_SHA="$(git rev-parse --short HEAD 2>/dev/null || echo manual)"
-UTC_DATE="$(date -u +%Y%m%d)"
-IMAGE_TAG="${IMAGE_BASE}:${ENV}-${UTC_DATE}-${GIT_SHA}"
-
-if [[ -n "${GCP_CONFIG:-}" ]]; then
-  gcloud config configurations activate "$GCP_CONFIG"
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com iam.googleapis.com secretmanager.googleapis.com --project "$GCP_PROJECT" --quiet
+# List succeeds or the script fails; permission failures never mean "not found".
+ACCOUNTS="$(gcloud iam service-accounts list --project "$GCP_PROJECT" --filter="email=${DOCUMENT_OCR_SERVICE_ACCOUNT}" --format='value(email)')"
+if [[ -z "$ACCOUNTS" ]]; then
+  gcloud iam service-accounts create "${DOCUMENT_OCR_SERVICE_ACCOUNT%%@*}" --project "$GCP_PROJECT" --display-name 'Document OCR runtime' --quiet
+fi
+if [[ -n "${GCP_API_TOKEN_SECRET:-}" ]]; then
+  gcloud secrets add-iam-policy-binding "$GCP_API_TOKEN_SECRET" --project "$GCP_PROJECT" --member="serviceAccount:${DOCUMENT_OCR_SERVICE_ACCOUNT}" --role=roles/secretmanager.secretAccessor --quiet >/dev/null
 fi
 
-echo "==> Configuring docker auth for Artifact Registry"
-gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
-
-echo "==> Building and pushing ${IMAGE_TAG}"
-docker build --file deploy/docker/Dockerfile --tag "$IMAGE_TAG" .
-docker push "$IMAGE_TAG"
-
-echo "==> Deploying to Cloud Run service '${SERVICE_NAME}'"
-# Render the service manifest with the freshly-pushed image, then apply it.
-RENDERED="$(mktemp)"
-trap 'rm -f "$RENDERED"' EXIT
-sed -e "s|IMAGE_PLACEHOLDER|${IMAGE_TAG}|" \
-    -e "s|name: document-ocr|name: ${SERVICE_NAME}|" \
-    deploy/cloudrun/service.yaml > "$RENDERED"
-
-gcloud run services replace "$RENDERED" \
-  --region "$GCP_REGION" \
-  --project "$GCP_PROJECT"
-
-if [[ "${ALLOW_UNAUTHENTICATED:-false}" == "true" ]]; then
-  echo "==> Enabling unauthenticated invocation (explicit opt-in)"
-  gcloud run services add-iam-policy-binding "$SERVICE_NAME" \
-    --region "$GCP_REGION" \
-    --project "$GCP_PROJECT" \
-    --member="allUsers" \
-    --role="roles/run.invoker" \
-    --quiet
-else
-  echo "==> Enforcing authenticated invocation"
-  gcloud run services remove-iam-policy-binding "$SERVICE_NAME" \
-    --region "$GCP_REGION" \
-    --project "$GCP_PROJECT" \
-    --member="allUsers" \
-    --role="roles/run.invoker" \
-    --quiet 2>/dev/null || true
+make_private() {
+  gcloud run services get-iam-policy "$DOCUMENT_OCR_NAME" --region "$GCP_REGION" --project "$GCP_PROJECT" --format=json > "$TMP_DIR/policy.json"
+  python3 - "$TMP_DIR/policy.json" <<'PY'
+import json, sys
+path = sys.argv[1]
+with open(path) as source:
+    policy = json.load(source)
+for binding in policy.get('bindings', []):
+    if binding.get('role') == 'roles/run.invoker':
+        binding['members'] = [member for member in binding.get('members', []) if member not in {'allUsers', 'allAuthenticatedUsers'}]
+policy['bindings'] = [binding for binding in policy.get('bindings', []) if binding.get('members')]
+with open(path, 'w') as target:
+    json.dump(policy, target)
+PY
+  gcloud run services set-iam-policy "$DOCUMENT_OCR_NAME" "$TMP_DIR/policy.json" --region "$GCP_REGION" --project "$GCP_PROJECT" --quiet >/dev/null
+}
+EXISTING="$(gcloud run services list --region "$GCP_REGION" --project "$GCP_PROJECT" --filter="metadata.name=${DOCUMENT_OCR_NAME}" --format='value(metadata.name)')"
+if [[ -n "$EXISTING" ]]; then
+  make_private
+  gcloud run services update "$DOCUMENT_OCR_NAME" --invoker-iam-check --region "$GCP_REGION" --project "$GCP_PROJECT" --quiet
 fi
 
-URL="$(gcloud run services describe "$SERVICE_NAME" \
-  --region "$GCP_REGION" --project "$GCP_PROJECT" \
-  --format='value(status.url)')"
-
-echo "==> Deployed: ${URL}"
-echo "    Access is authenticated by default. Use a Google identity token or"
-echo "    explicitly set ALLOW_UNAUTHENTICATED=true behind your own auth layer."
+if [[ -z "${IMAGE_URI:-}" ]]; then
+  REPOSITORIES="$(gcloud artifacts repositories list --project "$GCP_PROJECT" --location "$GCP_REGION" --filter="name:${AR_REPO}" --format='value(name)')"
+  if [[ "$REPOSITORIES" != *"/repositories/${AR_REPO}"* ]]; then
+    gcloud artifacts repositories create "$AR_REPO" --repository-format=docker --location "$GCP_REGION" --project "$GCP_PROJECT" --quiet
+  fi
+  export IMAGE_URI="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${AR_REPO}/${DOCUMENT_OCR_NAME}:$(date -u +%Y%m%d%H%M%S)"
+  gcloud builds submit . --project "$GCP_PROJECT" --region "$GCP_REGION" --config deploy/cloudrun/cloudbuild.yaml --substitutions="^|^_IMAGE_URI=${IMAGE_URI}|_KYC_LANGS=${DOCUMENT_OCR_KYC_LANGS}" --quiet
+fi
+export IMAGE_URI
+python3 deploy/cloudrun/render_service.py > "$TMP_DIR/service.json"
+gcloud run services replace "$TMP_DIR/service.json" --region "$GCP_REGION" --project "$GCP_PROJECT" --quiet
+make_private
+if [[ -n "${GCP_INVOKER_MEMBER:-}" ]]; then
+  [[ "$GCP_INVOKER_MEMBER" != allUsers && "$GCP_INVOKER_MEMBER" != allAuthenticatedUsers ]] || { printf 'A named IAM invoker is required\n' >&2; exit 1; }
+  gcloud run services add-iam-policy-binding "$DOCUMENT_OCR_NAME" --member "$GCP_INVOKER_MEMBER" --role roles/run.invoker --region "$GCP_REGION" --project "$GCP_PROJECT" --quiet >/dev/null
+fi
+URL="$(gcloud run services describe "$DOCUMENT_OCR_NAME" --region "$GCP_REGION" --project "$GCP_PROJECT" --format='value(status.url)')"
+printf 'Deployed private Cloud Run service: %s\nUse an audience-matched Google ID token; see HOSTING.md.\n' "$URL"

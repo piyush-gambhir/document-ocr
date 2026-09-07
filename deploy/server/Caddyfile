@@ -1,0 +1,5 @@
+{$DOMAIN} {
+    # Caddy obtains and renews HTTPS certificates automatically.
+    reverse_proxy ocr:8000
+    header Cache-Control "no-store"
+}
