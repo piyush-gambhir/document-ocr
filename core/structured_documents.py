@@ -42,7 +42,7 @@ class StructuredExtraction:
 _US_STATES = {item.code.split("-")[1]: item.name.upper() for item in pycountry.subdivisions.get(country_code="US")}
 _FIELD_LABEL = re.compile(
     r"^(?:\d{1,2}[a-z]?\s+)?(?:3[ab]\b|surname|family name|given names?|first name|middle name|date of birth|birth date|dob|"
-    r"date of (?:issue|expiry)|exp(?:iry|iration)?(?: date)?|issue(?:d| date)?|sex|nationality|"
+    r"date of (?:issue|expiry)|expires(?:\s*on)?|exp(?:iry|iration)?(?: date)?|iss|issue(?:d| date)?|sex|nationality|"
     r"uscis|card (?:number|expires)|category|country of birth|resident since|valid from|"
     r"class of admission|admit until|admission.*record number|passport number|"
     r"name(?: of entity/individual)?|business name|address|city|social security number|employer identification number)\b",
@@ -134,15 +134,39 @@ def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
             for candidate in regions:
                 if candidate is region or not candidate.bbox or _FIELD_LABEL.match(candidate.text):
                     continue
-                c_left, c_top, _, c_bottom = bounds(candidate)
+                c_left, c_top, c_right, c_bottom = bounds(candidate)
                 if c_bottom - c_top > height * 2:
                     # Large background words/watermarks can overlap a small
                     # label without being that field's value.
                     continue
                 overlap = min(bottom, c_bottom) - max(top, c_top)
-                if overlap >= height * 0.5 and 0 <= c_left - right < 450:
-                    nearby.append((c_left - right, candidate))
-                elif -max(5, height * .35) <= c_top - bottom < max(90, height * 3) and abs(c_left - left) < 220:
+                gap = c_left - right
+                # A long horizontal value can have a slightly different OCR
+                # angle from its short label. Its furthest corner exaggerates
+                # vertical overlap; the top-edge centre follows the text row.
+                value_top = sum(-(p[0] - origin[0]) * uy + (p[1] - origin[1]) * ux
+                                for p in candidate.bbox[:2]) / 2
+                # OCR boxes can overlap even when the printed value is to
+                # the right. Limit tolerance to a small part of the label,
+                # and require the value's centre beyond the label's edge.
+                overlap_allowance = min(height * .75, (right - left) * .25)
+                same_row = (overlap >= height * .5
+                            and -overlap_allowance <= gap < 450
+                            and (c_left + c_right) / 2 > right)
+                if same_row:
+                    crossed_label = any(
+                        other is not region
+                        and other is not candidate
+                        and other.bbox
+                        and _FIELD_LABEL.match(other.text)
+                        and (left + right) / 2 < bounds(other)[0] < (c_left + c_right) / 2
+                        and min(bottom, bounds(other)[3]) - max(top, bounds(other)[1]) >= height * .5
+                        for other in regions
+                    )
+                    if crossed_label:
+                        continue
+                    nearby.append((max(gap, 0), candidate))
+                elif -max(5, height * .35) <= value_top - bottom < max(90, height * 3) and abs(c_left - left) < 220:
                     # A blank field must not borrow the value belonging to the
                     # next labeled field underneath it (for example W-9 lines
                     # 1 and 2). A label in the same column closes this field.
@@ -150,13 +174,13 @@ def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
                         other is not region
                         and other.bbox
                         and _FIELD_LABEL.match(other.text)
-                        and bottom - 5 <= bounds(other)[1] <= c_top
+                        and bottom - 5 <= bounds(other)[1] <= value_top
                         and abs(bounds(other)[0] - left) < 220
                         for other in regions
                     )
                     if crossed_label:
                         continue
-                    nearby.append((500 + max(c_top - bottom, 0) + abs(c_left - left), candidate))
+                    nearby.append((500 + max(value_top - bottom, 0) + abs(c_left - left), candidate))
             for _, candidate in sorted(nearby, key=lambda item: item[0]):
                 yield candidate.text, candidate
 
@@ -189,7 +213,7 @@ def _state(text: str) -> str | None:
     for code, name in _US_STATES.items():
         if re.search(r"\b" + re.escape(name) + r"\b", upper):
             return code
-    match = re.search(r"\bUSA\s+([A-Z]{2})\b", upper)
+    match = re.search(r"\bUSA\s*([A-Z]{2})\b", upper)
     if match and match[1] in _US_STATES:
         return match[1]
     return None
@@ -286,7 +310,7 @@ def _identity_visual(result: StructuredExtraction, regions: list[TextRegion]) ->
     else:
         _visual(result, regions, "given_names", (r"given names?", r"first(?: \(given\))? name", r"FN"), _person_name)
     _visual(result, regions, "date_of_birth", (r"(?:USA\s*)?date of birth", r"birth date(?: \([^)]*\))?", r"DOB"), _us_date)
-    _visual(result, regions, "expiry_date", (r"card expires", r"expires(?: on)?", r"date of expiry", r"expiration date", r"expiry date", r"EXP"), _us_date)
+    _visual(result, regions, "expiry_date", (r"card expires", r"expires(?:\s*on)?", r"date of expiry", r"expiration date", r"expiry date", r"EXP"), _us_date)
     _visual(result, regions, "sex", (r"sex",), lambda value: value.upper() if value.upper() in ("M", "F", "X") else None)
 
 

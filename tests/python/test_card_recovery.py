@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
-from core.card_recovery import _card_text_box, _read_box, recover_card_fields
+from core.card_recovery import _card_text_box, _read_box, _read_expiry_date, recover_card_fields
 from core.ocr_engine import TextRegion
 from core.structured_documents import extract_structured_document
 
@@ -131,3 +131,145 @@ def test_unrelated_reread_watermarks_cannot_replace_previously_correct_names():
     result = extract_structured_document(output)
     assert result.complete and result.fields['surname'] == 'EXAMPLE'
     assert all(row.text != 'EXEMPLAR' for row in output)
+
+
+def truncated_expiry():
+    rows = card()
+    rows[-1].text = '01 JAN 203'
+    return rows
+
+
+def test_truncated_expiry_uses_one_observed_box_and_preserves_existing_evidence():
+    rows = truncated_expiry()
+    before = extract_structured_document(rows)
+    reader = Mock(return_value=[row('01 JAN 2030', x=0, y=0, width=197, height=19)])
+    detector = Mock()
+    image = np.zeros((1000, 1200, 3), np.uint8)
+    output = recover_card_fields(image, rows, detector, reader)
+    after = extract_structured_document(output)
+    assert after.complete and after.fields['expiry_date'] == '2030-01-01'
+    assert output[:len(rows)] == rows
+    assert all(after.fields[key] == value for key, value in before.fields.items())
+    assert all(after.field_evidence[key] == value for key, value in before.field_evidence.items())
+    assert after.field_evidence['expiry_date'][0]['bbox'] == [[421, 435], [619, 435], [619, 455], [421, 455]]
+    assert reader.call_args.args[0].shape[:2] == (20, 198)
+    reader.assert_called_once()
+    detector.assert_not_called()
+
+
+@pytest.mark.parametrize('second,confidence,accepted', [
+    ('01 JAN 2030', .94, True), ('01 JAN 2031', .99, False),
+    ('01 JAN 2030', .89, False), ('01 JAN 203', .99, False),
+])
+def test_denoised_date_requires_agreement_and_high_confidence(second, confidence, accepted):
+    rows = truncated_expiry()
+    reader = Mock(side_effect=[
+        [row('01 JAN 2030', x=0, y=0, width=197, height=19, confidence=.86)],
+        [row(second, x=0, y=0, width=197, height=19, confidence=confidence)],
+    ])
+    detector = Mock(return_value=[])
+    output = recover_card_fields(np.zeros((1000, 1200, 3), np.uint8), rows, detector, reader)
+    assert (output is not rows) is accepted
+    assert reader.call_count == 2
+    assert detector.call_count == (0 if accepted else 1)
+    if accepted:
+        assert extract_structured_document(output).field_evidence['expiry_date'][0]['confidence'] == .94
+
+
+@pytest.mark.parametrize('text,confidence', [('02 JAN 2030', .99), ('01 JAN 203', .99), ('01 JAN 2030', .79)])
+def test_unresolved_or_changed_date_prefix_skips_second_read(text, confidence):
+    rows = truncated_expiry()
+    reader = Mock(return_value=[row(text, confidence=confidence)])
+    output = recover_card_fields(np.zeros((1000, 1200, 3), np.uint8), rows, Mock(return_value=[]), reader)
+    assert output is rows
+    reader.assert_called_once()
+
+
+@pytest.mark.parametrize('mutation', ['ambiguous_date', 'ambiguous_label', 'wrong_column', 'outside_image', 'low_label_confidence'])
+def test_expiry_reread_rejects_ambiguous_or_unsafe_geometry(mutation):
+    rows = truncated_expiry()
+    if mutation == 'ambiguous_date':
+        rows.append(row('01 JAN 202', x=430, y=455))
+    elif mutation == 'ambiguous_label':
+        rows.append(row('Expires', x=430, y=460))
+    elif mutation == 'wrong_column':
+        rows[-1] = row('01 JAN 203', x=100, y=435)
+    elif mutation == 'outside_image':
+        rows[-2] = row('Expires', x=1090, y=410)
+        rows[-1] = row('01 JAN 203', x=1090, y=435)
+    else:
+        rows[-2].confidence = .89
+    reader = Mock()
+    output = recover_card_fields(np.zeros((1000, 1200, 3), np.uint8), rows, Mock(return_value=[]), reader)
+    assert output is rows
+    reader.assert_not_called()
+
+
+@pytest.mark.parametrize('raw_text,raw_confidence,accepted', [
+    ('01 JAN 2030', .97, True), ('02 JAN 2030', .99, False), ('01 JAN 2030', .89, False),
+])
+def test_raw_plane_reread_requires_same_prefix_and_high_confidence(raw_text, raw_confidence, accepted):
+    rows = truncated_expiry()
+    image = np.zeros((1000, 1200, 3), np.uint8)
+    original = np.full_like(image, 255)
+    reader = Mock(side_effect=[
+        [row('01 JAN 203', x=0, y=0, width=197, height=19, confidence=.95)],
+        [row(raw_text, x=0, y=0, width=197, height=19, confidence=raw_confidence)],
+    ])
+    detector = Mock(return_value=[])
+    output = recover_card_fields(image, rows, detector, reader, unenhanced_image=original)
+    assert (output is not rows) is accepted
+    assert reader.call_count == 2
+    assert reader.call_args_list[0].args[0].max() == 0
+    assert reader.call_args_list[1].args[0].min() == 255
+    if accepted:
+        assert extract_structured_document(output).fields['expiry_date'] == '2030-01-01'
+        detector.assert_not_called()
+
+
+def test_raw_plane_with_different_geometry_cannot_supply_evidence():
+    rows = truncated_expiry()
+    reader = Mock(return_value=[row('01 JAN 203', confidence=.95)])
+    image = np.zeros((1000, 1200, 3), np.uint8)
+    output = recover_card_fields(image, rows, Mock(return_value=[]), reader,
+                                 unenhanced_image=np.zeros((800, 1200, 3), np.uint8))
+    assert output is rows
+    reader.assert_called_once()
+
+
+def test_conflicting_complete_reads_cannot_fall_through_to_a_third_raw_read():
+    rows = truncated_expiry()
+    reader = Mock(side_effect=[
+        [row('01 JAN 2030', confidence=.86)], [row('01 JAN 2031', confidence=.99)],
+    ])
+    image = np.zeros((1000, 1200, 3), np.uint8)
+    output = recover_card_fields(image, rows, Mock(return_value=[]), reader,
+                                 unenhanced_image=np.ones_like(image))
+    assert output is rows
+    assert reader.call_count == 2
+
+
+def test_long_expiry_box_can_overlap_a_slightly_tilted_label():
+    rows = truncated_expiry()
+    rows[-2].bbox = [[430, 410], [610, 418], [610, 448], [430, 440]]
+    rows[-1].bbox = [[440, 442], [710, 442], [710, 483], [440, 483]]
+    reader = Mock(return_value=[row('01 JAN 2030', x=0, y=0, width=296, height=40)])
+    output = _read_expiry_date(np.zeros((1000, 1200, 3), np.uint8), rows, reader)
+    assert len(output) == 1 and output[0].text == '01 JAN 2030'
+    reader.assert_called_once()
+
+
+def test_tilted_label_recovery_reaches_the_structured_expiry_field():
+    rows = truncated_expiry()
+    rows[-2].bbox = [[430, 410], [610, 418], [610, 448], [430, 440]]
+    rows[-1].bbox = [[440, 442], [710, 442], [710, 483], [440, 483]]
+    before = extract_structured_document(rows)
+    reader = Mock(return_value=[row('01 JAN 2030', x=0, y=0, width=296, height=40)])
+    detector = Mock()
+    output = recover_card_fields(np.zeros((1000, 1200, 3), np.uint8), rows, detector, reader)
+    after = extract_structured_document(output)
+    assert after.complete and after.fields['expiry_date'] == '2030-01-01'
+    assert all(after.fields[key] == value for key, value in before.fields.items())
+    assert all(after.field_evidence[key] == value for key, value in before.field_evidence.items())
+    reader.assert_called_once()
+    detector.assert_not_called()

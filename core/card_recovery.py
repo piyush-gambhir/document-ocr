@@ -7,12 +7,14 @@ import cv2
 import numpy as np
 
 from .ocr_engine import TextRegion
-from .structured_documents import extract_structured_document
+from .structured_documents import _us_date, extract_structured_document
 
 _FIELD_LABELS = {
     'document_number': re.compile(r'^(?:passport\s*(?:card[\s\'’]*)?(?:number|no\.?)|card (?:number|no\.?))(?![A-Za-z])', re.I),
-    'expiry_date': re.compile(r'^(?:card expires|expires(?: on)?|date of expiry|expiration date|expiry date|EXP)(?![A-Za-z])', re.I),
+    'expiry_date': re.compile(r'^(?:card expires|expires(?:\s*on)?|date of expiry|expiration date|expiry date|EXP)(?![A-Za-z])', re.I),
 }
+
+_TRUNCATED_DATE = re.compile(r'(?:\d{1,2}\s*[A-Za-z]{3,9}\s*\d{1,3}|\d{1,2}[-/]\d{1,2}[-/]\d{1,3})')
 
 
 def _read_box(image, corners, width, height, reader) -> list[TextRegion]:
@@ -80,7 +82,99 @@ def _card_text_box(image, regions):
     return None
 
 
-def recover_card_fields(image, regions: list[TextRegion], ocr, recognize_line) -> list[TextRegion]:
+def _expiry_date_region(regions):
+    """Select one truncated date directly below one confident expiry label."""
+    labels = [row for row in regions if row.confidence >= .9
+              and _FIELD_LABELS['expiry_date'].fullmatch(row.text.strip())]
+    if len(labels) != 1:
+        return None
+    label = np.asarray(labels[0].bbox, np.float32)
+    if label.shape != (4, 2) or not np.isfinite(label).all():
+        return None
+    along = label[1] - label[0]
+    width = np.linalg.norm(along)
+    if width < 20:
+        return None
+    along /= width
+    axes = np.array([along, [-along[1], along[0]]])
+    local_label = (label - label[0]) @ axes.T
+    height = np.ptp(local_label[:, 1])
+    if height < 8:
+        return None
+    candidates = []
+    for row in regions:
+        if not _TRUNCATED_DATE.fullmatch(row.text.strip()) or _us_date(row.text) is not None:
+            continue
+        points = np.asarray(row.bbox, np.float32)
+        if points.shape != (4, 2) or not np.isfinite(points).all():
+            continue
+        direction = points[1] - points[0]
+        length = np.linalg.norm(direction)
+        local = (points - label[0]) @ axes.T
+        left, top = local.min(axis=0)
+        right, bottom = local.max(axis=0)
+        # Compare the top-edge centers. Taking the extreme corner exaggerates
+        # overlap when a long date and its short label have slightly different
+        # detected angles despite sharing the same printed baseline.
+        gap = local[:2, 1].mean() - local_label[:, 1].max()
+        if (length > 0 and direction @ along / length >= .98
+                and abs(left) <= max(20, height * 2)
+                and -.25 * height <= gap <= 2.5 * height
+                and .65 * height <= bottom - top <= 2.5 * height
+                and 0 < right - left <= width * 3):
+            candidates.append(row)
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def _read_expiry_date(image, regions, recognize_line, unenhanced_image=None):
+    """At most two direct reads, with agreement required for denoise recovery."""
+    anchor = _expiry_date_region(regions)
+    if anchor is None:
+        return []
+    tl, tr, br, bl = np.asarray(anchor.bbox, np.float32)
+    along = tr - tl
+    corners = np.array([tl - .05 * along, tr + .05 * along,
+                        br + .05 * along, bl - .05 * along])
+    h, w = image.shape[:2]
+    if (corners[:, 0].min() < 0 or corners[:, 1].min() < 0
+            or corners[:, 0].max() >= w or corners[:, 1].max() >= h):
+        return []
+    width, height = int(np.linalg.norm(along) * 1.1), int(np.linalg.norm(bl - tl))
+    prefix = re.sub(r'[\s/-]', '', anchor.text).upper()
+
+    def valid(read):
+        # Preserve all characters already observed in the truncated date. The
+        # missing suffix must come from pixels and parse as a complete date.
+        return (len(read) == 1 and _us_date(read[0].text) is not None
+                and re.sub(r'[\s/-]', '', read[0].text).upper().startswith(prefix))
+
+    direct = _read_box(image, corners, width, height, recognize_line)
+    if not valid(direct):
+        # A security background can obscure the final digit after CLAHE. Keep
+        # the exact observed prefix, and reread the same coordinates once in
+        # the original-color plane. Never run both this and denoise recovery.
+        if (len(direct) == 1 and direct[0].confidence >= .9
+                and re.sub(r'[\s/-]', '', direct[0].text).upper() == prefix
+                and unenhanced_image is not None and unenhanced_image is not image
+                and unenhanced_image.shape == image.shape):
+            original = _read_box(unenhanced_image, corners, width, height, recognize_line)
+            if valid(original) and original[0].confidence >= .9:
+                return original
+        return []
+    if direct[0].confidence >= .9:
+        return direct
+    if direct[0].confidence < .8:
+        return []
+    denoised = _read_box(image, corners, width, height,
+                         lambda crop: recognize_line(cv2.medianBlur(crop, 3)))
+    if (valid(denoised) and denoised[0].confidence >= .9
+            and _us_date(denoised[0].text) == _us_date(direct[0].text)):
+        return denoised
+    return []
+
+
+def recover_card_fields(image, regions: list[TextRegion], ocr, recognize_line, *,
+                        unenhanced_image=None) -> list[TextRegion]:
     before = extract_structured_document(regions)
     if (before is None or before.document_type != 'passport_card' or before.issuing_country != 'US'
             or before.complete or before.errors or len(before.fields) < 3
@@ -95,6 +189,14 @@ def recover_card_fields(image, regions: list[TextRegion], ocr, recognize_line) -
                             for key in after.fields.keys() - before.fields.keys()))
 
     output = list(regions)
+    if before.missing_required_fields == ['expiry_date']:
+        # No detector rerun: one observed date box, at most two direct reads.
+        # Cards missing other fields keep the existing number/cluster budget.
+        date_read = _read_expiry_date(image, regions, recognize_line, unenhanced_image)
+        if date_read:
+            candidate = output + date_read
+            if acceptable(extract_structured_document(candidate)):
+                return candidate
     if 'document_number' not in before.fields:
         # Locate an observed card-number label fragment. The fresh pixel read
         # must contain the exact label; its spelling is never patched in code.

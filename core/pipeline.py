@@ -32,7 +32,7 @@ from .nrega_extractor import NregaFields, extract_nrega
 from .ocr_engine import TextRegion, run_line_ocr, run_ocr
 from .page_classifier import classify_passport_page
 from .pan_extractor import PanFields, extract_pan
-from .preprocessor import ImageQualityError, PreprocessResult, preprocess
+from .preprocessor import ImageQualityError, PreprocessResult, enhance_contrast, preprocess
 from .document_registry import validate_document_hint
 from .barcodes import decode_barcodes
 from .document_input import input_bytes, pdf_pages
@@ -183,6 +183,12 @@ def _structured(regions, prep, start, *, document_type=None, country=None, barco
     )
 
 
+def _prepare_pdf_ocr(prep):
+    # PDF text and previews use the rendered coordinate plane. Enhance colors
+    # only; perspective correction or resizing here would invalidate boxes.
+    return PreprocessResult(enhance_contrast(prep.image), prep.warnings, prep.image)
+
+
 def _scan_page(prep, start, document_type, country, include_evidence, *, native=None):
     barcodes = decode_barcodes(prep.image)
     full = None
@@ -193,20 +199,25 @@ def _scan_page(prep, start, document_type, country, include_evidence, *, native=
         full = native
         source = "pdf_text"
         prep.warnings.append("PDF_NATIVE_TEXT_NOT_VISUALLY_VERIFIED")
+    if native is not None and source == "ocr":
+        prep = _prepare_pdf_ocr(prep)
     needs_full = bool(full or barcodes or document_type or country or include_evidence)
     if needs_full:
         full = full if full is not None else recover_passport_mrz(prep.image,
             recover_travel_mrz(prep.image, run_kyc_ocr(prep.image), run_line_ocr), run_ocr, run_line_ocr)
         full = recover_form_fields(prep.image, full, run_line_ocr) if source == "ocr" else full
-        full = recover_card_fields(prep.image, full, run_ocr, run_line_ocr) if source == "ocr" else full
+        full = recover_card_fields(prep.image, full, run_ocr, run_line_ocr,
+                                   unenhanced_image=prep.unenhanced_image) if source == "ocr" else full
         result = _structured(full, prep, start, document_type=document_type, country=country, barcodes=barcodes)
         if result is None:
             result = _scan_non_passport(prep, start, full_regions=full, try_structured=False)
         if source == "pdf_text" and (result.document_type == "unknown" or "DOCUMENT_TYPE_NOT_CONFIRMED" in result.errors):
+            prep = _prepare_pdf_ocr(prep)
             full = recover_passport_mrz(prep.image,
                 recover_travel_mrz(prep.image, run_kyc_ocr(prep.image), run_line_ocr), run_ocr, run_line_ocr)
             full = recover_form_fields(prep.image, full, run_line_ocr)
-            full = recover_card_fields(prep.image, full, run_ocr, run_line_ocr)
+            full = recover_card_fields(prep.image, full, run_ocr, run_line_ocr,
+                                       unenhanced_image=prep.unenhanced_image)
             source = "ocr"
             result = _structured(full, prep, start, document_type=document_type, country=country, barcodes=barcodes)
             if result is None:
@@ -258,7 +269,8 @@ def _scan_prepared(prep, start):
     initial_read = run_kyc_ocr if english_only else run_ocr
     full = recover_travel_mrz(prep.image, initial_read(prep.image), run_line_ocr)
     full = recover_form_fields(prep.image, full, run_line_ocr)
-    full = recover_card_fields(prep.image, full, run_ocr, run_line_ocr)
+    full = recover_card_fields(prep.image, full, run_ocr, run_line_ocr,
+                               unenhanced_image=prep.unenhanced_image)
     structured = _structured(full, prep, start)
     if structured is not None:
         return structured

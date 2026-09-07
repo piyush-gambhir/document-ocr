@@ -226,7 +226,11 @@ def _resize(img: np.ndarray) -> np.ndarray:
 
 def _normalise(img: np.ndarray) -> np.ndarray:
     """Downscale to standard width (if larger) and apply CLAHE contrast enhancement."""
-    img = _resize(img)
+    return enhance_contrast(_resize(img))
+
+
+def enhance_contrast(img: np.ndarray) -> np.ndarray:
+    """Enhance contrast without resizing or moving any evidence coordinates."""
 
     # CLAHE on L channel in LAB
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
