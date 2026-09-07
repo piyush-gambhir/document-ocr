@@ -1049,6 +1049,15 @@
           "checksum": "md5:4bd9a9a684f485771bcbd180824043c1"
         }
       ]
+    },
+    {
+      "id": "symage-us-forms",
+      "source": "https://huggingface.co/datasets/Symage/synthetic-us-forms-preview",
+      "release": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "license": "cc-by-4.0",
+      "access": "open",
+      "notes": "Attribution: Symage, Inc. / SymageDocs (https://symagedocs.ai). Synthetic identities and renderer-captured FUNSD field links; clean forms only. Six W-9s and four unrelated form controls are pinned as individual viewer rows. No parquet shard downloads.",
+      "assets": []
     }
   ]
 }

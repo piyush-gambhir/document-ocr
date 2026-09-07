@@ -1,0 +1,724 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Additional fixed evaluation cases; no training. Use alongside original public_samples.json.",
+  "selection": "Frozen before OCR: identity 41 (next archive member after 00) of four MIDV-2020 passport layouts, photo and rotated scan; MIDV-500 passport-card template and first TA/HS/CS frames; Symage test rows 60-65 (W-9), 30/50/70/85 (1040/CMS1500/I9/invoice controls). No selection by OCR outcome.",
+  "files": [
+    {
+      "path": "midv-2020/scan_rotated.tar/images/aze_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 467724800,
+      "length": 1345075,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1345075,
+      "sha256": "46762a99aab97c4411ff02eceb9432532331a57ce5a20ad8b672bf89a0c095fe"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 1776128,
+      "length": 477862,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 477862,
+      "sha256": "a34746b3015ebada46ebc3fcb71fd5fbf8c6363093fe839a56d92ef25ac94c05"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/aze_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 1705559040,
+      "length": 8594341,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 8594341,
+      "sha256": "2aa2fff3dc0211d6d39f63fb5e31edd6a0f7008dc28d4659d848e8351fd11438"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/grc_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 697527808,
+      "length": 1314290,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1314290,
+      "sha256": "b2ff4d06dcd4e8dbaa535c026dcbba9f12664e58dfa3a7338b502728a36d11bd"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 1315840,
+      "length": 459498,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 459498,
+      "sha256": "7f7dfb45f12a2d2b42353b93fda22940834cd8fa6b8adb86bfd79be8f8ebf375"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/grc_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 2522013184,
+      "length": 4660988,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 4660988,
+      "sha256": "113cd9caf87e79c6e265b018fdef4e804f44eb900c77b0acfa63df0713680782"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/lva_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 40406016,
+      "length": 1152363,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1152363,
+      "sha256": "b5333d300a1f044d70b1fcbba0bf2fb585265591bf2fece34f6d3c9771b31125"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 878080,
+      "length": 437094,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 437094,
+      "sha256": "23615f944fc47d93b48be98cffeaaf477a49a9ee035b32fd143b07738c3033fa"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/lva_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 136352256,
+      "length": 6400590,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 6400590,
+      "sha256": "048174d6f98aaf1e1e8eeb2ff9e62e16283996f5c3d76201a8ce82c2f36e45ad"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/srb_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 931056128,
+      "length": 1700911,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1700911,
+      "sha256": "bdb7e4dc811b962f5a78860a6252fa23b7e43e5863323213b6544409263a9cb5"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 2864128,
+      "length": 477762,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 477762,
+      "sha256": "b6d56603895a8d512777187215b788536636b0fd7b4b42b5618bcfec61593de2"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/srb_passport/41.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 3332160512,
+      "length": 6003362,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 6003362,
+      "sha256": "6f5b020dfc5ec7b8650f75da03fa0ad7de23dbfa286477cb02bb20ddc2f0dd98"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/48_usa_passportcard.json",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 583095501,
+      "length": 385,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 1272,
+      "sha256": "bc17190dce0e8cc71a8b11ab0f7f9ed5eb5826ed7bf08c30db6746095018b807"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/48_usa_passportcard.tif",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 581445631,
+      "length": 1610728,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 1974016,
+      "sha256": "ec54b9d15781a65981d1fa491457503782d3681cc7231f1fff5db357179e66f9"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/TA/TA48_01.tif",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 225888534,
+      "length": 2248010,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 3116689,
+      "sha256": "364a675edc53fff571111c193410d028d6dcc4411668655f30922959217c2b2f"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/TA/TA48_01.json",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 583074626,
+      "length": 54,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 58,
+      "sha256": "9551aaee3789beea8b528e8cfeed1ff58cda71673d6829f8c7cb6fb8ba4c7d53"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/HS/HS48_01.tif",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 169200046,
+      "length": 1617829,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 2917832,
+      "sha256": "b9703a454ee9e4cfd734122fa7dcbdf98dda0f391ca92bc06c198ad0a2b05afa"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/HS/HS48_01.json",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 583067379,
+      "length": 51,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 60,
+      "sha256": "d10c71043878489fb686f7aa453a0f001557d6251c2f4eb52b6d491cbcf12f16"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/CS/CS48_01.tif",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 566535216,
+      "length": 2039976,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 3000610,
+      "sha256": "c60e9202292c87fe4626a6284a19dc2ea758f574129322d85aae687ae2acac89"
+    },
+    {
+      "path": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/CS/CS48_01.json",
+      "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+      "archiveChecksum": "md5:29af327a390d9ecdc500c52e698ee4a3",
+      "offset": 583103412,
+      "length": 53,
+      "archiveBytes": 687339681,
+      "compression": "deflate",
+      "bytes": 58,
+      "sha256": "745ce74a8af15c7882efdf702132248ea583a0b3e39fbda63f9c0053b5ac67f9"
+    },
+    {
+      "path": "symage-us-forms/test/60.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=60&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1130118,
+      "sha256": "c95167d87cd838c41ba81459f42740ab66f99e4d6349c1680ecfe1baf5c13952"
+    },
+    {
+      "path": "symage-us-forms/test/60.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=60&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 57189,
+      "sha256": "dce3f39ccbb4839e8e4853d8847641cb7a261ff5c178045d1faf062c59c7db2f"
+    },
+    {
+      "path": "symage-us-forms/test/61.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=61&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1127777,
+      "sha256": "6f3fb3cf698069c9e9cf9188e852c38c53923308b0adbb2e8b2033d5acb5680d"
+    },
+    {
+      "path": "symage-us-forms/test/61.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=61&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 57069,
+      "sha256": "a30129dfb697ceead7804a89ed3d45fd3b5fe7a01521d7a238c5ed571f6c3fd0"
+    },
+    {
+      "path": "symage-us-forms/test/62.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=62&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1128025,
+      "sha256": "9bb9a99cee16776067e1be9fc09f43ceb74ff06f87ff646b7a647b4b25bce3ba"
+    },
+    {
+      "path": "symage-us-forms/test/62.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=62&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 57071,
+      "sha256": "8e3ac12895f3fc74557f7320911ac0012f2879acc0587f436e1db30ea4ccb172"
+    },
+    {
+      "path": "symage-us-forms/test/63.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=63&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1127545,
+      "sha256": "42b37aae0f5660930c2ec0977f3b7753ffc34f92d00b782510af6c15e4e8d640"
+    },
+    {
+      "path": "symage-us-forms/test/63.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=63&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 57073,
+      "sha256": "b3983ece344ca1f1999c5b1c672ad01d0d0601d784474c6bb0bf01a382ef58f2"
+    },
+    {
+      "path": "symage-us-forms/test/64.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=64&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1130439,
+      "sha256": "c757f66fbf0fa4db760dfa7554f39f32d989dd2bdefac744c63f7b74ab81308c"
+    },
+    {
+      "path": "symage-us-forms/test/64.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=64&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 57175,
+      "sha256": "2d74eaee973631c6b0618c6e58e59da3007c74aa2778110fc7791cccec18e5e5"
+    },
+    {
+      "path": "symage-us-forms/test/65.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=65&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1128566,
+      "sha256": "297c060767afd18d607699e29bddf911ec261def1169133e957343a0b382e62f"
+    },
+    {
+      "path": "symage-us-forms/test/65.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=65&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 57134,
+      "sha256": "9cb700ca0e014938f0c9d806c3206acedb6ce536cc9155e1d07021cb28f969ca"
+    },
+    {
+      "path": "symage-us-forms/test/30.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=30&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1026588,
+      "sha256": "1c8fbb9f321d60b992ac91615339e32d63853f6e76086f6bc8fcbc4ffaf3a1fa"
+    },
+    {
+      "path": "symage-us-forms/test/30.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=30&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 44232,
+      "sha256": "03120694cc28207ee7c8f4d163059791b8f0f54d14bac63b5271fdfffd7cba5e"
+    },
+    {
+      "path": "symage-us-forms/test/50.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=50&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1086313,
+      "sha256": "49c6959ad5bf96d1c720c1ff235bde89304448c7d9f21880bc77818cb1a16978"
+    },
+    {
+      "path": "symage-us-forms/test/50.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=50&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 83884,
+      "sha256": "f667312b64254e57d3716c38ad2e273d98e4368fa7ec35c10f3f7cb9764c1036"
+    },
+    {
+      "path": "symage-us-forms/test/70.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=70&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 1009201,
+      "sha256": "178bea2e19027bb61ca7142eda3f086b36c3229f8c549b9ccf29f98f867dae0c"
+    },
+    {
+      "path": "symage-us-forms/test/70.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=70&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 7596,
+      "sha256": "180577724084aa1ba5865d49a1c2146e32cf7b4320ed1f2f356a4b2677daa590"
+    },
+    {
+      "path": "symage-us-forms/test/85.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=85&length=1",
+      "kind": "symage-row",
+      "column": "image",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 370863,
+      "sha256": "f326d3d7a9c11af1f026171d71d7d5e25c8b8ec176e967a4d70db1816a8e5b71"
+    },
+    {
+      "path": "symage-us-forms/test/85.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=Symage%2Fsynthetic-us-forms-preview&config=default&split=test&offset=85&length=1",
+      "kind": "symage-row",
+      "column": "truth",
+      "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
+      "bytes": 17438,
+      "sha256": "4ac9c9ac48566e8dada17e90467ac20875e382728690c727e872874adb54f2e3"
+    }
+  ],
+  "cases": [
+    {
+      "id": "midv-2020/aze_passport/41/scan_rotated",
+      "group": "midv-2020/aze_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/aze_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-2020/aze_passport/41/photo",
+      "group": "midv-2020/aze_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/aze_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-2020/grc_passport/41/scan_rotated",
+      "group": "midv-2020/grc_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/grc_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-2020/grc_passport/41/photo",
+      "group": "midv-2020/grc_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/grc_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-2020/lva_passport/41/scan_rotated",
+      "group": "midv-2020/lva_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/lva_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-2020/lva_passport/41/photo",
+      "group": "midv-2020/lva_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/lva_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-2020/srb_passport/41/scan_rotated",
+      "group": "midv-2020/srb_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/srb_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-2020/srb_passport/41/photo",
+      "group": "midv-2020/srb_passport/41",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/srb_passport/41.jpg",
+      "truth": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "truthSelector": {
+        "viaFilename": "41.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport",
+      "profile": "passport",
+      "split": "expansion"
+    },
+    {
+      "id": "midv-500/passportcard/template/01",
+      "group": "midv-500/passportcard/48",
+      "dataset": "midv-500",
+      "profile": "passport_card",
+      "image": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/48_usa_passportcard.tif",
+      "truth": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/48_usa_passportcard.json",
+      "capture": "template",
+      "scope": "US passport card source specimen",
+      "split": "expansion",
+      "fieldMapping": {
+        "documentNumber": "field01",
+        "surname": "field03",
+        "givenNames": "field04",
+        "sex": "field05",
+        "dateOfBirth": "field06",
+        "expiryDate": "field09"
+      },
+      "dateFormat": "%d %b %Y"
+    },
+    {
+      "id": "midv-500/passportcard/TA/01",
+      "group": "midv-500/passportcard/48",
+      "dataset": "midv-500",
+      "profile": "passport_card",
+      "image": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/TA/TA48_01.tif",
+      "truth": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/48_usa_passportcard.json",
+      "capture": "TA",
+      "scope": "US passport card source specimen",
+      "split": "expansion",
+      "geometry": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/TA/TA48_01.json",
+      "fieldMapping": {
+        "documentNumber": "field01",
+        "surname": "field03",
+        "givenNames": "field04",
+        "sex": "field05",
+        "dateOfBirth": "field06",
+        "expiryDate": "field09"
+      },
+      "dateFormat": "%d %b %Y"
+    },
+    {
+      "id": "midv-500/passportcard/HS/01",
+      "group": "midv-500/passportcard/48",
+      "dataset": "midv-500",
+      "profile": "passport_card",
+      "image": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/HS/HS48_01.tif",
+      "truth": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/48_usa_passportcard.json",
+      "capture": "HS",
+      "scope": "US passport card source specimen",
+      "split": "expansion",
+      "geometry": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/HS/HS48_01.json",
+      "fieldMapping": {
+        "documentNumber": "field01",
+        "surname": "field03",
+        "givenNames": "field04",
+        "sex": "field05",
+        "dateOfBirth": "field06",
+        "expiryDate": "field09"
+      },
+      "dateFormat": "%d %b %Y"
+    },
+    {
+      "id": "midv-500/passportcard/CS/01",
+      "group": "midv-500/passportcard/48",
+      "dataset": "midv-500",
+      "profile": "passport_card",
+      "image": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/images/CS/CS48_01.tif",
+      "truth": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/48_usa_passportcard.json",
+      "capture": "CS",
+      "scope": "US passport card source specimen",
+      "split": "expansion",
+      "geometry": "midv-500/48_usa_passportcard.zip/48_usa_passportcard/ground_truth/CS/CS48_01.json",
+      "fieldMapping": {
+        "documentNumber": "field01",
+        "surname": "field03",
+        "givenNames": "field04",
+        "sex": "field05",
+        "dateOfBirth": "field06",
+        "expiryDate": "field09"
+      },
+      "dateFormat": "%d %b %Y"
+    },
+    {
+      "id": "symage-us-forms/test/60",
+      "group": "symage-us-forms/930000",
+      "dataset": "symage-us-forms",
+      "profile": "us_w9",
+      "formId": "irs_w9_standard_2024",
+      "image": "symage-us-forms/test/60.jpg",
+      "truth": "symage-us-forms/test/60.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/61",
+      "group": "symage-us-forms/930005",
+      "dataset": "symage-us-forms",
+      "profile": "us_w9",
+      "formId": "irs_w9_standard_2024",
+      "image": "symage-us-forms/test/61.jpg",
+      "truth": "symage-us-forms/test/61.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/62",
+      "group": "symage-us-forms/930010",
+      "dataset": "symage-us-forms",
+      "profile": "us_w9",
+      "formId": "irs_w9_standard_2024",
+      "image": "symage-us-forms/test/62.jpg",
+      "truth": "symage-us-forms/test/62.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/63",
+      "group": "symage-us-forms/930015",
+      "dataset": "symage-us-forms",
+      "profile": "us_w9",
+      "formId": "irs_w9_standard_2024",
+      "image": "symage-us-forms/test/63.jpg",
+      "truth": "symage-us-forms/test/63.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/64",
+      "group": "symage-us-forms/930020",
+      "dataset": "symage-us-forms",
+      "profile": "us_w9",
+      "formId": "irs_w9_standard_2024",
+      "image": "symage-us-forms/test/64.jpg",
+      "truth": "symage-us-forms/test/64.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/65",
+      "group": "symage-us-forms/930025",
+      "dataset": "symage-us-forms",
+      "profile": "us_w9",
+      "formId": "irs_w9_standard_2024",
+      "image": "symage-us-forms/test/65.jpg",
+      "truth": "symage-us-forms/test/65.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/30",
+      "group": "symage-us-forms/910000",
+      "dataset": "symage-us-forms",
+      "profile": "negative_control",
+      "formId": "irs_f1040_modern_2024",
+      "image": "symage-us-forms/test/30.jpg",
+      "truth": "symage-us-forms/test/30.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/50",
+      "group": "symage-us-forms/920000",
+      "dataset": "symage-us-forms",
+      "profile": "negative_control",
+      "formId": "cms_1500_standard_02_12",
+      "image": "symage-us-forms/test/50.jpg",
+      "truth": "symage-us-forms/test/50.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/70",
+      "group": "symage-us-forms/940000",
+      "dataset": "symage-us-forms",
+      "profile": "negative_control",
+      "formId": "i9_standard_2024",
+      "image": "symage-us-forms/test/70.jpg",
+      "truth": "symage-us-forms/test/70.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    },
+    {
+      "id": "symage-us-forms/test/85",
+      "group": "symage-us-forms/950000",
+      "dataset": "symage-us-forms",
+      "profile": "negative_control",
+      "formId": "invoice_classic",
+      "image": "symage-us-forms/test/85.jpg",
+      "truth": "symage-us-forms/test/85.json",
+      "capture": "render",
+      "scope": "synthetic form; viewer derivative; publisher renderer annotations",
+      "split": "expansion"
+    }
+  ]
+}

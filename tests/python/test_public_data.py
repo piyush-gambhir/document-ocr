@@ -120,3 +120,25 @@ def test_cached_corrupt_sample_is_not_silently_replaced(tmp_path):
     with patch.object(data, 'fetch_bytes') as fetch:
         assert data.main(['fetch-samples', '--root', str(tmp_path), '--manifest', str(path)]) == 1
         fetch.assert_not_called()
+
+
+def test_expansion_manifest_is_bounded_and_has_no_original_identity_overlap(tmp_path):
+    from benchmarks.multidoc_accuracy import EXPANSION
+    original = json.loads(data.SAMPLES.read_text())
+    expansion = json.loads(EXPANSION.read_text())
+    data.validate_manifest(expansion, tmp_path)
+    assert len(expansion['cases']) == 22
+    assert not {c['group'] for c in original['cases']} & {c['group'] for c in expansion['cases']}
+    assert sum(f['bytes'] for f in expansion['files']) < data.MAX_BYTES
+
+
+def test_symage_row_truth_and_revision_are_pinned_without_shard_download():
+    row = {'id': 'opaque', 'identity_id': 1, 'form_id': 'w9', 'page': 0,
+           'funsd_json': '[]', 'image': {'src': 'https://datasets-server.huggingface.co/--/rev/--/image.jpg'}}
+    source = {'rows': [{'row': row, 'truncated_cells': []}]}
+    rec = {**record(), 'kind': 'symage-row', 'column': 'truth', 'revision': 'rev'}
+    with patch.object(data, 'read_url', return_value=json.dumps(source).encode()) as read:
+        truth = json.loads(data.fetch_bytes(rec, {}))
+        assert truth['funsd_json'] == '[]'
+        assert 'image' not in truth
+        read.assert_called_once()

@@ -1,0 +1,32 @@
+{
+  "minimumRepeats": 3,
+  "maxWarmP95Ms": 2500,
+  "maxLatencyIncreaseFraction": 0.2,
+  "latencyNoiseFloorMs": 100,
+  "profiles": {
+    "passport": {
+      "minimumCases": 24,
+      "fieldAccuracy": 0.95,
+      "completeRecordAccuracy": 0.9,
+      "acceptedPositiveAccuracy": 0.9
+    },
+    "us_driver_license": {
+      "minimumCases": 5,
+      "fieldAccuracy": 0.95,
+      "completeRecordAccuracy": 0.9,
+      "acceptedPositiveAccuracy": 0.9
+    },
+    "passport_card": {
+      "minimumCases": 4,
+      "fieldAccuracy": 0.95,
+      "completeRecordAccuracy": 0.9,
+      "acceptedPositiveAccuracy": 0.9
+    },
+    "us_w9": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.95,
+      "completeRecordAccuracy": 0.9,
+      "acceptedPositiveAccuracy": 0.9
+    }
+  }
+}

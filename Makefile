@@ -42,3 +42,7 @@ sync:
 
 docker-build:
 	docker build -f deploy/docker/Dockerfile -t passport-ocr .
+
+.PHONY: benchmark-public
+benchmark-public:
+	uv run --no-sync python -m benchmarks.multidoc_accuracy --output "$(or $(OCR_REPORT),benchmark-data/multidoc/report.json)" $(if $(OCR_BASELINE),--baseline "$(OCR_BASELINE)",)

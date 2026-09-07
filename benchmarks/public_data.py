@@ -50,20 +50,26 @@ def read_url(url: str, limit: int, *, offset: int | None = None, total: int | No
 
 
 def fetch_bytes(record: dict, rows: dict) -> bytes:
-    if record.get('kind') == 'cord-row':
+    if record.get('kind') == 'direct':
+        return read_url(record['url'], record['bytes'])
+    if record.get('kind') in {'cord-row', 'symage-row'}:
         url = record['url']
         if url not in rows:
             result = json.loads(read_url(url, 1024**2))
             if len(result['rows']) != 1 or result['rows'][0].get('truncated_cells'):
-                raise ValueError('CORD row missing or truncated')
+                raise ValueError('dataset row missing or truncated')
             rows[url] = result['rows'][0]['row']
         row = rows[url]
         if record['column'] == 'truth':
+            if record['kind'] == 'symage-row':
+                return json.dumps({key: row[key] for key in
+                                   ('id', 'identity_id', 'form_id', 'page', 'funsd_json')},
+                                  sort_keys=True, separators=(',', ':')).encode()
             return json.dumps(json.loads(row['ground_truth']), sort_keys=True, separators=(',', ':')).encode()
         src = row['image']['src']
         parsed = urllib.parse.urlsplit(src)
         if parsed.hostname != 'datasets-server.huggingface.co' or f"/--/{record['revision']}/--/" not in parsed.path:
-            raise ValueError('CORD viewer revision/host changed; explicitly review sample updates')
+                raise ValueError('dataset viewer revision/host changed; explicitly review sample updates')
         return read_url(src, record['bytes'])
     raw = read_url(record['url'], record['length'], offset=record['offset'], total=record['archiveBytes'])
     if record['compression'] == 'stored':
@@ -90,13 +96,13 @@ def validate_manifest(manifest: dict, root: Path) -> None:
         raise ValueError('sample exceeds the fixed 100 MiB limit')
     for f in files:
         sample_path(root, f['path'])
-        if f.get('kind') != 'cord-row':
+        if f.get('kind') not in {'cord-row', 'symage-row', 'direct'}:
             if not (0 < f['length'] <= MAX_BYTES and 0 <= f['offset'] < f['archiveBytes']
                     and f['offset'] + f['length'] <= f['archiveBytes']):
                 raise ValueError('invalid archive range')
-    # Include a bounded row metadata allowance for each unique CORD request.
+    # Include a bounded metadata allowance for each unique dataset row request.
     transfer = sum(f.get('length', f['bytes']) for f in files)
-    transfer += len({f['url'] for f in files if f.get('kind') == 'cord-row'}) * 1024**2
+    transfer += len({f['url'] for f in files if f.get('kind') in {'cord-row', 'symage-row'}}) * 1024**2
     if transfer > MAX_BYTES:
         raise ValueError('sample transfers exceed the fixed 100 MiB limit')
     ids = set()
@@ -135,6 +141,9 @@ def inspect_samples(manifest: dict, root: Path) -> dict:
         elif case['dataset'] == 'idnet-part3':
             if not truth.get('license_number'):
                 raise ValueError('missing IDNet licence truth')
+        elif case['dataset'] == 'symage-us-forms':
+            if truth['form_id'] != case['formId'] or not json.loads(truth['funsd_json']):
+                raise ValueError('missing or mismatched form annotations')
         if 'geometry' in case:
             json.loads(sample_path(root, case['geometry']).read_text())
         counts[case['dataset']] = counts.get(case['dataset'], 0) + 1
