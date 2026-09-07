@@ -1,5 +1,8 @@
 # Measured passport OCR improvements
 
+For the latest results and the fixes to the remaining Greece and Latvia photo
+failures, see the [passport recovery follow-up](MRZ_RECOVERY_FOLLOWUP.md).
+
 Date: 2026-09-07. The unchanged 40-image public sample was run through the local
 OCR pipeline before and after targeted MRZ changes. The original core was
 exported from commit `e0765fd`; both runs used the same scoring code, corpus,

@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "beforeCoreSha256": "b37c10cfb2a679007a63680e9c7535184fd408bc891b92aff6e9eebdeddd3a58",
+  "afterCoreSha256": "1d08fc5a652666a05b81dea993d23ffa4ff4017eb5f54143c8339b1b636cd335",
+  "manifestSha256": "8e2f9b60cedaeacf3af5e836a59234f2c597e203e1cb1484d540b24d0a047ca6",
+  "passed": true,
+  "improvedCaseIds": [
+    "midv-2020/grc_passport/00/photo",
+    "midv-2020/lva_passport/00/photo"
+  ],
+  "regressedCaseIds": [],
+  "improvements": [
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:surname"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:givenNames"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:passportNumber"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:countryCode"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:nationality"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:dateOfBirth"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:sex"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "field:expiryDate"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "mrzExact"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/grc_passport/00/photo",
+      "metric": "statusSuccess"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:surname"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:givenNames"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:passportNumber"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:countryCode"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:nationality"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:dateOfBirth"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:sex"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "field:expiryDate"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "mrzExact"
+    },
+    {
+      "mode": "auto",
+      "id": "midv-2020/lva_passport/00/photo",
+      "metric": "statusSuccess"
+    }
+  ],
+  "regressions": [],
+  "passportBefore": {
+    "cases": 16,
+    "identityGroups": 4,
+    "statuses": {
+      "success": 14,
+      "failure": 1,
+      "unsupported_page": 1
+    },
+    "runtimeErrors": 0,
+    "fieldMatches": 112,
+    "fieldExpectations": 128,
+    "fieldAccuracy": 0.875,
+    "allScoredFieldsExact": 14,
+    "scoredCases": 16,
+    "perField": {
+      "surname": {
+        "matches": 14,
+        "total": 16
+      },
+      "givenNames": {
+        "matches": 14,
+        "total": 16
+      },
+      "passportNumber": {
+        "matches": 14,
+        "total": 16
+      },
+      "countryCode": {
+        "matches": 14,
+        "total": 16
+      },
+      "nationality": {
+        "matches": 14,
+        "total": 16
+      },
+      "dateOfBirth": {
+        "matches": 14,
+        "total": 16
+      },
+      "sex": {
+        "matches": 14,
+        "total": 16
+      },
+      "expiryDate": {
+        "matches": 14,
+        "total": 16
+      }
+    },
+    "mrzMatches": 13,
+    "mrzExpectations": 16,
+    "medianMs": 722.49,
+    "p95Ms": 1425.6
+  },
+  "passportAfter": {
+    "cases": 16,
+    "identityGroups": 4,
+    "statuses": {
+      "success": 16
+    },
+    "runtimeErrors": 0,
+    "fieldMatches": 128,
+    "fieldExpectations": 128,
+    "fieldAccuracy": 1.0,
+    "allScoredFieldsExact": 16,
+    "scoredCases": 16,
+    "perField": {
+      "surname": {
+        "matches": 16,
+        "total": 16
+      },
+      "givenNames": {
+        "matches": 16,
+        "total": 16
+      },
+      "passportNumber": {
+        "matches": 16,
+        "total": 16
+      },
+      "countryCode": {
+        "matches": 16,
+        "total": 16
+      },
+      "nationality": {
+        "matches": 16,
+        "total": 16
+      },
+      "dateOfBirth": {
+        "matches": 16,
+        "total": 16
+      },
+      "sex": {
+        "matches": 16,
+        "total": 16
+      },
+      "expiryDate": {
+        "matches": 16,
+        "total": 16
+      }
+    },
+    "mrzMatches": 15,
+    "mrzExpectations": 16,
+    "medianMs": 825.21,
+    "p95Ms": 1336.57
+  },
+  "latencyNote": "Single-pass observations; latency is reported but not gated."
+}
