@@ -23,6 +23,7 @@ from .kyc_validation import (
 )
 from .mrz_parser import MRZResult, parse_mrz
 from .mrz_recovery import recover_passport_mrz
+from .form_recovery import recover_form_fields
 from .npr_extractor import NprLetterFields, extract_npr_letter
 from .nrega_extractor import NregaFields, extract_nrega
 from .ocr_engine import TextRegion, run_line_ocr, run_ocr
@@ -188,6 +189,7 @@ def _scan_page(prep, start, document_type, country, include_evidence, *, native=
     needs_full = bool(full or barcodes or document_type or country or include_evidence)
     if needs_full:
         full = full if full is not None else recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr, run_line_ocr)
+        full = recover_form_fields(prep.image, full, run_line_ocr) if source == "ocr" else full
         result = _structured(full, prep, start, document_type=document_type, country=country, barcodes=barcodes)
         if result is None:
             result = _scan_non_passport(prep, start, full_regions=full, try_structured=False)
@@ -235,6 +237,23 @@ def _scan_page(prep, start, document_type, country, include_evidence, *, native=
 
 
 def _scan_prepared(prep, start):
+    if prep.image.shape[0] > prep.image.shape[1] * 1.2:
+        # Long forms otherwise pay for most of the page twice. Read the full
+        # page once; retain the crop as a fallback when MRZ evidence is weak.
+        full = recover_form_fields(prep.image, run_ocr(prep.image), run_line_ocr)
+        structured = _structured(full, prep, start)
+        if structured is not None:
+            return structured
+        full = recover_passport_mrz(prep.image, full, run_ocr, run_line_ocr)
+        mrz = parse_mrz(full)
+        probe = full if mrz and mrz.overall_checksum_valid else _extract_targeted_regions(prep.image)
+        page = classify_passport_page(probe)
+        if page.page_type in {"passport_biodata", "passport_non_biodata"}:
+            return _scan_passport(prep, page, probe, start, full_page_regions=full)
+        from .kyc_ocr import configured_kyc_languages
+        if len(full) < 3 or configured_kyc_languages():
+            full = recover_passport_mrz(prep.image, run_kyc_ocr(prep.image), run_ocr, run_line_ocr)
+        return _scan_non_passport(prep, start, full_regions=full)
     regions = _extract_targeted_regions(prep.image)
     if not regions:
         # The cheap probe uses a bottom crop. A non-passport document can have

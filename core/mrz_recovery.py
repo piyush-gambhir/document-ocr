@@ -44,10 +44,44 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
     existing = parse_mrz(regions)
     if existing and existing.overall_checksum_valid and 'MRZ_NAME_PADDING_NOISE' not in existing.errors:
         return regions
+    long_rows = [r for r in regions if len(r.text) >= 8 and len(r.bbox) == 4]
+    vertical_rows = [r for r in long_rows if
+                     abs(r.bbox[1][1] - r.bbox[0][1]) > 2 * abs(r.bbox[1][0] - r.bbox[0][0])
+                     or (max(p[1] for p in r.bbox) - min(p[1] for p in r.bbox)) >
+                     2 * (max(p[0] for p in r.bbox) - min(p[0] for p in r.bbox))]
+    if len(vertical_rows) >= 4 and len(vertical_rows) / len(long_rows) >= .6:
+        # Sideways lines cannot reliably be recognized or paired in page-Y
+        # order. Try each quarter-turn, keeping original-page evidence boxes.
+        h, w = image.shape[:2]
+        corners = [(0, 0), (w - 1, 0), (w - 1, h - 1), (0, h - 1)]
+        for order in ((3, 0, 1, 2), (1, 2, 3, 0)):
+            recovered = _read_crop(image, [corners[i] for i in order], h, w, ocr)
+            parsed = parse_mrz(recovered)
+            if parsed and parsed.overall_checksum_valid:
+                return recovered
+        return regions  # The two-read budget is exhausted.
     anchors = [r for r in regions if _ANCHOR.fullmatch(_clean_mrz_text(r.text))
                and (_clean_mrz_text(r.text).count('<') >= 2 or _LINE_TWO.fullmatch(_clean_mrz_text(r.text)))
                and (not _clean_mrz_text(r.text).startswith('P') or _LINE_TWO.fullmatch(_clean_mrz_text(r.text)))
                and len(r.bbox) == 4]
+    if not anchors and any(re.search(r'\bPASSPORT\b', r.text, re.I) for r in regions):
+        # A small passport in a large photo can lose its entire MRZ during
+        # detection downscaling. Focus on confident visible document text once.
+        body = [r for r in regions if len(r.text) >= 4 and r.confidence >= .85 and len(r.bbox) == 4]
+        if len(body) >= 5:
+            points = np.asarray([p for r in body for p in r.bbox], np.float32)
+            left, top = points.min(axis=0)
+            right, bottom = points.max(axis=0)
+            bw, bh = right - left, bottom - top
+            h, w = image.shape[:2]
+            x1, y1 = max(0, int(left - bw * .2)), max(0, int(top - bh * .15))
+            x2, y2 = min(w, int(right + bw * .2)), min(h, int(bottom + bh * .4))
+            if bw >= 200 and bh >= 100 and 0 < (x2 - x1) * (y2 - y1) < w * h * .75:
+                recovered = _read_crop(image, [(x1, y1), (x2, y1), (x2, y2), (x1, y2)],
+                                       x2 - x1, y2 - y1, ocr)
+                parsed = parse_mrz(recovered)
+                if parsed and parsed.overall_checksum_valid:
+                    return recovered
     # At most two band reads, plus one recognition-only fallback per full anchor.
     for anchor in sorted(anchors, key=lambda r: len(_clean_mrz_text(r.text)), reverse=True)[:2]:
         box = np.asarray(anchor.bbox, dtype=np.float32)

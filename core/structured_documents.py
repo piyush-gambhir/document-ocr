@@ -8,6 +8,7 @@ another. These extraction checks do not authenticate a document or its holder.
 from __future__ import annotations
 
 import re
+import math
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Callable
@@ -40,7 +41,7 @@ class StructuredExtraction:
 
 _US_STATES = {item.code.split("-")[1]: item.name.upper() for item in pycountry.subdivisions.get(country_code="US")}
 _FIELD_LABEL = re.compile(
-    r"^(?:\d+\s+)?(?:surname|family name|given names?|first name|middle name|date of birth|birth date|dob|"
+    r"^(?:\d{1,2}[a-z]?\s+)?(?:3[ab]\b|surname|family name|given names?|first name|middle name|date of birth|birth date|dob|"
     r"date of (?:issue|expiry)|exp(?:iry|iration)?(?: date)?|issue(?:d| date)?|sex|nationality|"
     r"uscis|card (?:number|expires)|category|country of birth|resident since|valid from|"
     r"class of admission|admit until|admission.*record number|passport number|"
@@ -55,6 +56,8 @@ def _compact(value: str) -> str:
 
 def _us_date(value: str) -> str | None:
     value = value.strip().replace(".", "/")
+    # OCR often joins a printed month to its neighbouring day or year.
+    value = re.sub(r"(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", " ", value)
     for fmt in ("%m/%d/%Y", "%m-%d-%Y", "%Y-%m-%d", "%m%d%Y", "%d %b %Y", "%d %B %Y", "%d-%b-%Y"):
         try:
             return datetime.strptime(value, fmt).date().isoformat()
@@ -70,6 +73,10 @@ def _name(value: str) -> str | None:
     if re.search(r"\b(?:required|enter|instructions|certification|requester|taxpayer|identification|security)\b|shown on|line [0-9]", value, re.I):
         return None
     return value
+
+
+def _person_name(value: str) -> str | None:
+    return _name(value) if not re.search(r"[0-9]", value) else None
 
 
 def _pattern(pattern: str) -> Callable[[str], str | None]:
@@ -95,7 +102,7 @@ def _evidence(region: TextRegion, text: str | None = None) -> dict:
 def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
     """Yield explicit inline values, then spatially adjacent non-label regions."""
     for label in labels:
-        expression = re.compile(r"^\s*(?:" + label + r")(?![A-Za-z])\s*[:#]?\s*", re.I)
+        expression = re.compile(r"^\s*(?:[0-9]{1,2}[a-z]?\s+)?(?:" + label + r")(?![A-Za-z])\s*[:#]?\s*", re.I)
         for region in regions:
             match = expression.match(region.text)
             if not match:
@@ -105,22 +112,34 @@ def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
                 yield inline, region
             if not region.bbox:
                 continue
-            left = min(point[0] for point in region.bbox)
-            right = max(point[0] for point in region.bbox)
-            top = min(point[1] for point in region.bbox)
-            bottom = max(point[1] for point in region.bbox)
+            origin, end = region.bbox[:2]
+            dx, dy = end[0] - origin[0], end[1] - origin[1]
+            length = math.hypot(dx, dy)
+            if length < 1:
+                continue
+            ux, uy = dx / length, dy / length
+
+            def bounds(other):
+                xs = [(p[0] - origin[0]) * ux + (p[1] - origin[1]) * uy for p in other.bbox]
+                ys = [-(p[0] - origin[0]) * uy + (p[1] - origin[1]) * ux for p in other.bbox]
+                return min(xs), min(ys), max(xs), max(ys)
+
+            # Match fields in the label's own axes, including tilted photos.
+            left, top, right, bottom = bounds(region)
             height = max(bottom - top, 1)
             nearby = []
             for candidate in regions:
                 if candidate is region or not candidate.bbox or _FIELD_LABEL.match(candidate.text):
                     continue
-                c_left = min(point[0] for point in candidate.bbox)
-                c_top = min(point[1] for point in candidate.bbox)
-                c_bottom = max(point[1] for point in candidate.bbox)
+                c_left, c_top, _, c_bottom = bounds(candidate)
+                if c_bottom - c_top > height * 2:
+                    # Large background words/watermarks can overlap a small
+                    # label without being that field's value.
+                    continue
                 overlap = min(bottom, c_bottom) - max(top, c_top)
                 if overlap >= height * 0.5 and 0 <= c_left - right < 450:
                     nearby.append((c_left - right, candidate))
-                elif -5 <= c_top - bottom < max(90, height * 3) and abs(c_left - left) < 220:
+                elif -max(5, height * .35) <= c_top - bottom < max(90, height * 3) and abs(c_left - left) < 220:
                     # A blank field must not borrow the value belonging to the
                     # next labeled field underneath it (for example W-9 lines
                     # 1 and 2). A label in the same column closes this field.
@@ -128,8 +147,8 @@ def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
                         other is not region
                         and other.bbox
                         and _FIELD_LABEL.match(other.text)
-                        and bottom - 5 <= min(point[1] for point in other.bbox) <= c_top
-                        and abs(min(point[0] for point in other.bbox) - left) < 220
+                        and bottom - 5 <= bounds(other)[1] <= c_top
+                        and abs(bounds(other)[0] - left) < 220
                         for other in regions
                     )
                     if crossed_label:
@@ -167,6 +186,9 @@ def _state(text: str) -> str | None:
     for code, name in _US_STATES.items():
         if re.search(r"\b" + re.escape(name) + r"\b", upper):
             return code
+    match = re.search(r"\bUSA\s+([A-Z]{2})\b", upper)
+    if match and match[1] in _US_STATES:
+        return match[1]
     return None
 
 
@@ -186,7 +208,8 @@ def _detect_text_type(regions: list[TextRegion]) -> tuple[str | None, str | None
         return "passport_card", None
     if re.search(r"\bI[ -]?94\b", text) and "CLASS OF ADMISSION" in text and re.search(r"ADMISSION.*RECORD NUMBER|CUSTOMS AND BORDER|HOMELAND SECURITY", text):
         return "us_i94", None
-    if re.search(r"\bW[ -]?9\b", text) and "REQUEST FOR TAXPAYER IDENTIFICATION NUMBER" in text:
+    if (re.search(r"\bW[ -]?9\b", text) and "REQUEST FOR TAXPAYER" in text
+            and "IDENTIFICATION NUMBER AND CERTIFICATION" in text):
         return "us_w9", None
     return None, None
 
@@ -248,15 +271,19 @@ def _extract_aamva(barcodes: list[BarcodeResult]) -> StructuredExtraction | None
 
 
 def _identity_visual(result: StructuredExtraction, regions: list[TextRegion]) -> None:
-    _visual(result, regions, "surname", (r"surname", r"family name", r"last name", r"LN"))
+    _visual(result, regions, "surname", (r"surname", r"family name", r"last name", r"LN"), _person_name)
     if result.document_type in ("us_driver_license", "us_state_id"):
-        _visual(result, regions, "given_names", (r"given names?", r"FN"))
-        _visual(result, regions, "first_name", (r"first name",))
-        _visual(result, regions, "middle_names", (r"middle names?",))
+        _visual(result, regions, "given_names", (r"given names?", r"FN"), _person_name)
+        _visual(result, regions, "first_name", (r"first name",), _person_name)
+        _visual(result, regions, "middle_names", (r"middle names?",), _person_name)
+        if not result.fields.get("surname"):
+            _visual(result, regions, "surname", (r"1",), _person_name)
+        if not result.fields.get("given_names"):
+            _visual(result, regions, "given_names", (r"2",), _person_name)
     else:
-        _visual(result, regions, "given_names", (r"given names?", r"first(?: \(given\))? name", r"FN"))
+        _visual(result, regions, "given_names", (r"given names?", r"first(?: \(given\))? name", r"FN"), _person_name)
     _visual(result, regions, "date_of_birth", (r"date of birth", r"birth date(?: \([^)]*\))?", r"DOB"), _us_date)
-    _visual(result, regions, "expiry_date", (r"card expires", r"date of expiry", r"expiration date", r"expiry date", r"EXP"), _us_date)
+    _visual(result, regions, "expiry_date", (r"card expires", r"expires on", r"date of expiry", r"expiration date", r"expiry date", r"EXP"), _us_date)
     _visual(result, regions, "sex", (r"sex",), lambda value: value.upper() if value.upper() in ("M", "F", "X") else None)
 
 
@@ -265,9 +292,9 @@ def _extract_visual(result: StructuredExtraction, regions: list[TextRegion]) -> 
     if kind in ("us_driver_license", "us_state_id", "passport_card", "us_green_card", "us_ead", "visa"):
         _identity_visual(result, regions)
     if kind in ("us_driver_license", "us_state_id", "passport_card"):
-        labels = (r"passport (?:card )?(?:number|no\.?)", r"card (?:number|no\.?)") if kind == "passport_card" else (r"(?:driver(?:'s)? license|license|licence|identification|id|dl)\s*(?:number|no\.?|#)", r"DL", r"ID")
+        labels = (r"passport\s*(?:card[\s'’]*)?(?:number|no\.?)", r"card (?:number|no\.?)") if kind == "passport_card" else (r"(?:driver(?:'s)? license|license|licence|lic\.?|identification|id|dl)\s*(?:number|no\.?|#)", r"DL", r"ID")
         _visual(result, regions, "document_number", labels, _document_number)
-        _visual(result, regions, "issue_date", (r"date of issue", r"issued", r"ISS"), _us_date)
+        _visual(result, regions, "issue_date", (r"date of issue", r"issued(?: on)?", r"ISS"), _us_date)
         _visual(result, regions, "address", (r"address",), lambda value: value.strip() if re.search(r"[0-9]", value) else None)
     elif kind in ("us_green_card", "us_ead"):
         _visual(result, regions, "uscis_number", (r"USCIS\s*#?", r"A[ -]?(?:number|#)"), _pattern(r"[0-9]{9}"))
@@ -287,7 +314,7 @@ def _extract_visual(result: StructuredExtraction, regions: list[TextRegion]) -> 
         _visual(result, regions, "country_of_citizenship", (r"country of citizenship",), _name)
     elif kind == "us_w9":
         _visual(result, regions, "name", (r"1\s+name(?: of entity/individual)?(?:\s*\([^)]*\))?", r"name(?:\s*\([^)]*\))?"))
-        _visual(result, regions, "business_name", (r"2\s+business name(?:/disregarded entity name)?(?:,?\s+if different from above)?", r"business name"))
+        _visual(result, regions, "business_name", (r"(?:2\s+)?business name(?:/disregarded entity name)?(?:,?\s+if different from above)?",))
         _visual(result, regions, "address", (r"5\s+address(?:\s*\([^)]*\))?", r"address"), lambda value: value.strip() if re.search(r"[0-9]", value) else None)
         _visual(result, regions, "city_state_postal_code", (r"6\s+city,?\s+state,?\s+and ZIP code", r"city,?\s+state,?\s+and ZIP code"), lambda value: value.strip() if re.search(r"\b[0-9]{5}(?:-[0-9]{4})?\b", value) else None)
         for labels, id_type in (((r"social security number", r"SSN"), "ssn"), ((r"employer identification number", r"EIN"), "ein")):
@@ -296,6 +323,18 @@ def _extract_visual(result: StructuredExtraction, regions: list[TextRegion]) -> 
                 if re.fullmatch(r"[0-9]{9}", digits) and digits != "000000000":
                     _put(result, "taxpayer_id", digits, _evidence(region, raw))
                     _put(result, "taxpayer_id_type", id_type, _evidence(region, raw))
+                    break
+
+    if kind == "passport_card" and not result.fields.get("date_of_birth"):
+        # Some cards print sex and DOB on one baseline; OCR can merge both
+        # values into a single region. Require both labels and a strict date.
+        has_sex = any(re.fullmatch(r"sex", r.text.strip(), re.I) for r in regions)
+        if has_sex:
+            for raw, region in _label_values(regions, (r"date of birth",)):
+                match = re.fullmatch(r"([MFX])\s*(\d{1,2}\s*[A-Za-z]{3,9}\s*\d{4})", raw)
+                if match and (birth := _us_date(match[2])):
+                    _put(result, "date_of_birth", birth, _evidence(region))
+                    _put(result, "sex", match[1], _evidence(region))
                     break
 
 

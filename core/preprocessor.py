@@ -95,7 +95,11 @@ def _load_pdf_first_page(source: Union[str, bytes, Path]) -> np.ndarray:
 
 def _check_resolution(img: np.ndarray) -> None:
     h, w = img.shape[:2]
-    if min(h, w) < MIN_RESOLUTION:
+    # Card scans can retain readable text at ~800 x 480. Keep the existing
+    # general threshold while admitting a bounded compact-card size; blur and
+    # extraction completeness still have to pass independently.
+    compact_card = min(h, w) >= 450 and max(h, w) >= 750
+    if min(h, w) < MIN_RESOLUTION and not compact_card:
         raise ImageQualityError("RESOLUTION_TOO_LOW")
 
 
@@ -257,6 +261,8 @@ def preprocess(
     glare_warning = _check_glare(img)
 
     corners, warnings = _detect_document(img)
+    if min(img.shape[:2]) < MIN_RESOLUTION:
+        warnings.append("COMPACT_CARD_RESOLUTION")
 
     if glare_warning:
         warnings.append(glare_warning)

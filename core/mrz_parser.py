@@ -170,6 +170,27 @@ def _find_mrz_lines(regions: list[TextRegion]) -> Optional[tuple[str, str]]:
         line2 = mrz_regions[index + 1][1]
         if _MRZ_LINE1_PATTERN.fullmatch(line1) and not _MRZ_LINE1_PATTERN.fullmatch(line2):
             return (_pad_to_44(line1), _pad_to_44(line2))
+    # Re-read text can be mapped back to a sideways document in the source
+    # photograph. Use the header's local axes instead of global page Y there.
+    for header in regions:
+        first = _clean_mrz_text(header.text)
+        if not _MRZ_LINE1_PATTERN.fullmatch(first) or len(header.bbox) != 4:
+            continue
+        tl, tr, br, bl = header.bbox
+        ux, uy = tr[0] - tl[0], tr[1] - tl[1]
+        vx, vy = bl[0] - tl[0], bl[1] - tl[1]
+        width, height = (ux * ux + uy * uy) ** .5, (vx * vx + vy * vy) ** .5
+        if width < 100 or height < 5 or abs(uy) <= abs(ux):
+            continue
+        cx, cy = sum(p[0] for p in header.bbox) / 4, sum(p[1] for p in header.bbox) / 4
+        for row in regions:
+            second = _clean_mrz_text(row.text)
+            if row is header or not _MRZ_PATTERN.fullmatch(second) or _MRZ_LINE1_PATTERN.fullmatch(second) or len(row.bbox) != 4:
+                continue
+            dx, dy = sum(p[0] for p in row.bbox) / 4 - cx, sum(p[1] for p in row.bbox) / 4 - cy
+            across, below = abs((dx * ux + dy * uy) / width), (dx * vx + dy * vy) / height
+            if across < width * .15 and height * .5 < below < height * 4:
+                return (_pad_to_44(first), _pad_to_44(second))
     return None
 
 
