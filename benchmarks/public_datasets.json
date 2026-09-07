@@ -1,0 +1,1054 @@
+{
+  "schemaVersion": 1,
+  "researchDate": "2026-09-07",
+  "datasets": [
+    {
+      "id": "midv-2020",
+      "source": "https://zenodo.org/records/18786808",
+      "release": "18786808",
+      "license": "cc-by-sa-2.5",
+      "access": "open",
+      "notes": "Synthetic identities; group by document across templates, scans, photos and clips. Author-linked Zenodo archive replaces older gated university route.",
+      "assets": [
+        {
+          "name": "clips.tar",
+          "url": "https://zenodo.org/api/records/18786808/files/clips.tar/content",
+          "bytes": 10303651840,
+          "checksum": "md5:752dc7770ef555d4e16273045c2f1726"
+        },
+        {
+          "name": "license.txt",
+          "url": "https://zenodo.org/api/records/18786808/files/license.txt/content",
+          "bytes": 439,
+          "checksum": "md5:2b7400d830c39eb792908265c936565d"
+        },
+        {
+          "name": "md5.txt",
+          "url": "https://zenodo.org/api/records/18786808/files/md5.txt/content",
+          "bytes": 397,
+          "checksum": "md5:4879102697f5ff6759948bc9419990d7"
+        },
+        {
+          "name": "photo.tar",
+          "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+          "bytes": 4002467840,
+          "checksum": "md5:e716b2044a0af872cb21c9dc2f51d752"
+        },
+        {
+          "name": "readme.txt",
+          "url": "https://zenodo.org/api/records/18786808/files/readme.txt/content",
+          "bytes": 9782,
+          "checksum": "md5:ab2d0515859133b61f640630f2179a52"
+        },
+        {
+          "name": "scan_rotated.tar",
+          "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+          "bytes": 1122682880,
+          "checksum": "md5:3db227b453121b7e0a8c152e79988edf"
+        },
+        {
+          "name": "scan_upright.tar",
+          "url": "https://zenodo.org/api/records/18786808/files/scan_upright.tar/content",
+          "bytes": 1149143040,
+          "checksum": "md5:f6e0aeb6981a89aa2dfc717575fcea28"
+        },
+        {
+          "name": "templates.tar",
+          "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+          "bytes": 863293440,
+          "checksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a"
+        }
+      ]
+    },
+    {
+      "id": "midv-500",
+      "source": "https://zenodo.org/records/18504926",
+      "release": "18504926",
+      "license": "cc-by-sa-2.5",
+      "access": "open",
+      "notes": "50 source documents, many capture frames. Retain individual source notices from documents.pdf; do not treat frames as independent identities.",
+      "assets": [
+        {
+          "name": "01_alb_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/01_alb_id.zip/content",
+          "bytes": 656880207,
+          "checksum": "md5:0e18ba8c816b6c3bcd7af609e4b70af6"
+        },
+        {
+          "name": "02_aut_drvlic_new.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/02_aut_drvlic_new.zip/content",
+          "bytes": 674079799,
+          "checksum": "md5:d54004a483a0b26b842b39878872f460"
+        },
+        {
+          "name": "03_aut_id_old.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/03_aut_id_old.zip/content",
+          "bytes": 645877825,
+          "checksum": "md5:5a9dcaf027c34cafa57eb4078df3fd33"
+        },
+        {
+          "name": "04_aut_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/04_aut_id.zip/content",
+          "bytes": 651513883,
+          "checksum": "md5:d27014072a5429cb007c6cfb55639e8b"
+        },
+        {
+          "name": "05_aze_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/05_aze_passport.zip/content",
+          "bytes": 644034818,
+          "checksum": "md5:233313db9d1103e83ce01bb826d726c0"
+        },
+        {
+          "name": "06_bra_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/06_bra_passport.zip/content",
+          "bytes": 657617118,
+          "checksum": "md5:b99e29a34221935dee8ac8c9c94cd4d0"
+        },
+        {
+          "name": "07_chl_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/07_chl_id.zip/content",
+          "bytes": 647281994,
+          "checksum": "md5:c8bf265a10e784bd7f478e1f0a4f7145"
+        },
+        {
+          "name": "08_chn_homereturn.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/08_chn_homereturn.zip/content",
+          "bytes": 640308928,
+          "checksum": "md5:7d9de4645db026eac02ab117e46047e3"
+        },
+        {
+          "name": "09_chn_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/09_chn_id.zip/content",
+          "bytes": 600568779,
+          "checksum": "md5:ed9fe56e2b1ef6aceda3b44a7adb28e7"
+        },
+        {
+          "name": "10_cze_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/10_cze_id.zip/content",
+          "bytes": 655693200,
+          "checksum": "md5:d08dc2f8aca0661ea43461d8f83ab1e6"
+        },
+        {
+          "name": "11_cze_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/11_cze_passport.zip/content",
+          "bytes": 672633048,
+          "checksum": "md5:959dc7028bad0209cbff3ab9913422c4"
+        },
+        {
+          "name": "12_deu_drvlic_new.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/12_deu_drvlic_new.zip/content",
+          "bytes": 667683650,
+          "checksum": "md5:12d0c95347559d6e20f0e3e4b1961bef"
+        },
+        {
+          "name": "13_deu_drvlic_old.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/13_deu_drvlic_old.zip/content",
+          "bytes": 682063718,
+          "checksum": "md5:1ff67ffa8e3c0cad91e4bd08e02910b8"
+        },
+        {
+          "name": "14_deu_id_new.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/14_deu_id_new.zip/content",
+          "bytes": 656674646,
+          "checksum": "md5:5b373f95b7e59979b9f1c4769f848f56"
+        },
+        {
+          "name": "15_deu_id_old.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/15_deu_id_old.zip/content",
+          "bytes": 695072104,
+          "checksum": "md5:b1cabc2c8acfcd28be86b0688bae8416"
+        },
+        {
+          "name": "16_deu_passport_new.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/16_deu_passport_new.zip/content",
+          "bytes": 646969754,
+          "checksum": "md5:1ceecfc3ce9551d33eada0b6b9a794ae"
+        },
+        {
+          "name": "17_deu_passport_old.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/17_deu_passport_old.zip/content",
+          "bytes": 669115787,
+          "checksum": "md5:db7a3b8c82155db88bce85930db8ef73"
+        },
+        {
+          "name": "18_dza_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/18_dza_passport.zip/content",
+          "bytes": 655585543,
+          "checksum": "md5:0a840a61302c7e0f041c50758a9b36ee"
+        },
+        {
+          "name": "19_esp_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/19_esp_drvlic.zip/content",
+          "bytes": 627785318,
+          "checksum": "md5:d1568191b70150654b1bd9474b5189f2"
+        },
+        {
+          "name": "20_esp_id_new.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/20_esp_id_new.zip/content",
+          "bytes": 670605451,
+          "checksum": "md5:3ae0f67c6edbeddc3408259439df2365"
+        },
+        {
+          "name": "21_esp_id_old.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/21_esp_id_old.zip/content",
+          "bytes": 668553073,
+          "checksum": "md5:315072d639629689fc89ccdf700a39ec"
+        },
+        {
+          "name": "22_est_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/22_est_id.zip/content",
+          "bytes": 669133386,
+          "checksum": "md5:3d9ea5d738ff16b9efbbf5f5f1ba2d6a"
+        },
+        {
+          "name": "23_fin_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/23_fin_drvlic.zip/content",
+          "bytes": 652256559,
+          "checksum": "md5:6a93dd8e407c3b765033b889fc14bdee"
+        },
+        {
+          "name": "24_fin_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/24_fin_id.zip/content",
+          "bytes": 667455128,
+          "checksum": "md5:03316a1ab6426d74d299707ad413a6bb"
+        },
+        {
+          "name": "25_grc_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/25_grc_passport.zip/content",
+          "bytes": 643820907,
+          "checksum": "md5:0f4fb3d85fa8e9a39351e2c06fe14d0c"
+        },
+        {
+          "name": "26_hrv_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/26_hrv_drvlic.zip/content",
+          "bytes": 644230584,
+          "checksum": "md5:8a7f6e4f5b06965b718c2424d8d63f0e"
+        },
+        {
+          "name": "27_hrv_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/27_hrv_passport.zip/content",
+          "bytes": 671403385,
+          "checksum": "md5:4a66aae758754d1dc865397067cb5ae9"
+        },
+        {
+          "name": "28_hun_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/28_hun_passport.zip/content",
+          "bytes": 662003620,
+          "checksum": "md5:32475ae99775e8d7d26c6f557517691d"
+        },
+        {
+          "name": "29_irn_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/29_irn_drvlic.zip/content",
+          "bytes": 666236646,
+          "checksum": "md5:cc631a24818af357e470c8b1df8203ea"
+        },
+        {
+          "name": "30_ita_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/30_ita_drvlic.zip/content",
+          "bytes": 652889263,
+          "checksum": "md5:1a186a5681673b3c4216cf24830866a8"
+        },
+        {
+          "name": "31_jpn_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/31_jpn_drvlic.zip/content",
+          "bytes": 665521832,
+          "checksum": "md5:e6bd118dfb8f05937bcbea9b1a57f9dc"
+        },
+        {
+          "name": "32_lva_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/32_lva_passport.zip/content",
+          "bytes": 643355324,
+          "checksum": "md5:d904a86bb63262ada1b27d990f6d89e7"
+        },
+        {
+          "name": "33_mac_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/33_mac_id.zip/content",
+          "bytes": 677373043,
+          "checksum": "md5:df410aa79100471078e18e1abb690dae"
+        },
+        {
+          "name": "34_mda_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/34_mda_passport.zip/content",
+          "bytes": 632396779,
+          "checksum": "md5:efc0c34f4e10e3b0e34d5494eda3d7cb"
+        },
+        {
+          "name": "35_nor_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/35_nor_drvlic.zip/content",
+          "bytes": 663731394,
+          "checksum": "md5:89bc022b72c8234cc311da0bbb49da8a"
+        },
+        {
+          "name": "36_pol_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/36_pol_drvlic.zip/content",
+          "bytes": 678234232,
+          "checksum": "md5:83157f0e3beaa86b9a60c1eaf05e7cb6"
+        },
+        {
+          "name": "37_prt_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/37_prt_id.zip/content",
+          "bytes": 627256245,
+          "checksum": "md5:a3fa80b954ed5144b33c669f0bb166e3"
+        },
+        {
+          "name": "38_rou_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/38_rou_drvlic.zip/content",
+          "bytes": 642135530,
+          "checksum": "md5:a93babebc3367a8cc57cd56d898374a7"
+        },
+        {
+          "name": "39_rus_internalpassport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/39_rus_internalpassport.zip/content",
+          "bytes": 634778529,
+          "checksum": "md5:c94992a091bf092e0c90e6b1b6c910a6"
+        },
+        {
+          "name": "40_srb_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/40_srb_id.zip/content",
+          "bytes": 674450031,
+          "checksum": "md5:1ff779aad1f8879e707b9b2f1b7178b2"
+        },
+        {
+          "name": "41_srb_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/41_srb_passport.zip/content",
+          "bytes": 670143584,
+          "checksum": "md5:686c79fa1359df838e45ecfa3b7a3520"
+        },
+        {
+          "name": "42_svk_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/42_svk_id.zip/content",
+          "bytes": 692178299,
+          "checksum": "md5:92472acb0a9ca0a8abebb978dc3fb9da"
+        },
+        {
+          "name": "43_tur_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/43_tur_id.zip/content",
+          "bytes": 625011919,
+          "checksum": "md5:a8be4581d60a1efcb6c91e097c306de6"
+        },
+        {
+          "name": "44_ukr_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/44_ukr_id.zip/content",
+          "bytes": 629512052,
+          "checksum": "md5:29dc41f421803e7ca191c1f04cde1c7f"
+        },
+        {
+          "name": "45_ukr_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/45_ukr_passport.zip/content",
+          "bytes": 625109669,
+          "checksum": "md5:346d16906b5cecf29eb0ee18e67bd7bf"
+        },
+        {
+          "name": "46_ury_passport.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/46_ury_passport.zip/content",
+          "bytes": 643740868,
+          "checksum": "md5:32a500bf2718a688e265202b651b800f"
+        },
+        {
+          "name": "47_usa_bordercrossing.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/47_usa_bordercrossing.zip/content",
+          "bytes": 691058718,
+          "checksum": "md5:42535771b3ea5183d09c91c5eca03fcd"
+        },
+        {
+          "name": "48_usa_passportcard.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/48_usa_passportcard.zip/content",
+          "bytes": 687339681,
+          "checksum": "md5:29af327a390d9ecdc500c52e698ee4a3"
+        },
+        {
+          "name": "49_usa_ssn82.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/49_usa_ssn82.zip/content",
+          "bytes": 670229110,
+          "checksum": "md5:74ecd3a3a122ddf32cca89e7042dc4dd"
+        },
+        {
+          "name": "50_xpo_id.zip",
+          "url": "https://zenodo.org/api/records/18504926/files/50_xpo_id.zip/content",
+          "bytes": 663418630,
+          "checksum": "md5:13e1268d3bf6be864800104598a1704e"
+        },
+        {
+          "name": "documents.pdf",
+          "url": "https://zenodo.org/api/records/18504926/files/documents.pdf/content",
+          "bytes": 151708,
+          "checksum": "md5:86796ab3a63f0e22488aa69158de4992"
+        },
+        {
+          "name": "license.txt",
+          "url": "https://zenodo.org/api/records/18504926/files/license.txt/content",
+          "bytes": 258,
+          "checksum": "md5:5f5b0f281520e050c425aca82c53d1cc"
+        },
+        {
+          "name": "md5.txt",
+          "url": "https://zenodo.org/api/records/18504926/files/md5.txt/content",
+          "bytes": 2618,
+          "checksum": "md5:bc213eaceaaf733ec66a8e5f7d8f852c"
+        },
+        {
+          "name": "readme.txt",
+          "url": "https://zenodo.org/api/records/18504926/files/readme.txt/content",
+          "bytes": 6697,
+          "checksum": "md5:58fbe87f93fa4ebc8f2893df7fe619f7"
+        }
+      ]
+    },
+    {
+      "id": "midv-2019",
+      "source": "https://zenodo.org/records/18761371",
+      "release": "18761371",
+      "license": "cc-by-sa-2.5",
+      "access": "open",
+      "notes": "Additional captures of MIDV-500 identities; must share group IDs with MIDV-500.",
+      "assets": [
+        {
+          "name": "01_alb_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/01_alb_id.zip/content",
+          "bytes": 801710841,
+          "checksum": "md5:615b3fdf45242e3ade248727dbb1d235"
+        },
+        {
+          "name": "02_aut_drvlic_new.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/02_aut_drvlic_new.zip/content",
+          "bytes": 788920976,
+          "checksum": "md5:883a780225a21e8fcad7409ea2a13a77"
+        },
+        {
+          "name": "03_aut_id_old.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/03_aut_id_old.zip/content",
+          "bytes": 776967565,
+          "checksum": "md5:5933e92053dd631a80a5eb42ade9bd1f"
+        },
+        {
+          "name": "04_aut_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/04_aut_id.zip/content",
+          "bytes": 781963683,
+          "checksum": "md5:12b831bbb65967ccbdf606b97507a441"
+        },
+        {
+          "name": "05_aze_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/05_aze_passport.zip/content",
+          "bytes": 742769109,
+          "checksum": "md5:545b76b9302065a15b6c60a672ddaf25"
+        },
+        {
+          "name": "06_bra_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/06_bra_passport.zip/content",
+          "bytes": 795681853,
+          "checksum": "md5:dcf29e59c70f0b7c947635711c75e1c0"
+        },
+        {
+          "name": "07_chl_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/07_chl_id.zip/content",
+          "bytes": 754959630,
+          "checksum": "md5:ad50c92a316fc3aed9b87714d5e446a1"
+        },
+        {
+          "name": "08_chn_homereturn.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/08_chn_homereturn.zip/content",
+          "bytes": 745293628,
+          "checksum": "md5:bfb1cf099136ba806f7e4b87e20cfbcd"
+        },
+        {
+          "name": "09_chn_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/09_chn_id.zip/content",
+          "bytes": 748488834,
+          "checksum": "md5:aca8602b88d369bb64bf76a858b726c7"
+        },
+        {
+          "name": "10_cze_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/10_cze_id.zip/content",
+          "bytes": 740296673,
+          "checksum": "md5:c79e3145dd9325183ee4b0d52cdf55e2"
+        },
+        {
+          "name": "11_cze_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/11_cze_passport.zip/content",
+          "bytes": 806182476,
+          "checksum": "md5:52f40cf605991bbb184a96242254f191"
+        },
+        {
+          "name": "12_deu_drvlic_new.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/12_deu_drvlic_new.zip/content",
+          "bytes": 766423438,
+          "checksum": "md5:096978aeb00e27e4a11e5761ba764c3e"
+        },
+        {
+          "name": "13_deu_drvlic_old.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/13_deu_drvlic_old.zip/content",
+          "bytes": 831706793,
+          "checksum": "md5:7283cf937de0c93bbf2ca6008063e383"
+        },
+        {
+          "name": "14_deu_id_new.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/14_deu_id_new.zip/content",
+          "bytes": 795714601,
+          "checksum": "md5:bdb10a24d89030bcaf4e64fbf7403b47"
+        },
+        {
+          "name": "15_deu_id_old.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/15_deu_id_old.zip/content",
+          "bytes": 792027301,
+          "checksum": "md5:7cf18ffa8c24c7be86ed013d0c0cd8a7"
+        },
+        {
+          "name": "16_deu_passport_new.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/16_deu_passport_new.zip/content",
+          "bytes": 778486459,
+          "checksum": "md5:5a93561c9ff5e97d803e0644a263e32b"
+        },
+        {
+          "name": "17_deu_passport_old.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/17_deu_passport_old.zip/content",
+          "bytes": 797088471,
+          "checksum": "md5:bd4b9b9e8194e7a70c12cbf97ee10b49"
+        },
+        {
+          "name": "18_dza_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/18_dza_passport.zip/content",
+          "bytes": 811370659,
+          "checksum": "md5:7d5452b7f2f462ca6397bad4f050bdf7"
+        },
+        {
+          "name": "19_esp_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/19_esp_drvlic.zip/content",
+          "bytes": 786746802,
+          "checksum": "md5:cb14f68c4efc6017711e01e3a310a1e0"
+        },
+        {
+          "name": "20_esp_id_new.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/20_esp_id_new.zip/content",
+          "bytes": 804485313,
+          "checksum": "md5:51b6972f564fa6904c4f1e060567c9b5"
+        },
+        {
+          "name": "21_esp_id_old.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/21_esp_id_old.zip/content",
+          "bytes": 809265565,
+          "checksum": "md5:b751b028a97e3e766418fe1e8c7be0ef"
+        },
+        {
+          "name": "22_est_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/22_est_id.zip/content",
+          "bytes": 789767136,
+          "checksum": "md5:48f0e097d7a6db4ef5a7131f07ee9af3"
+        },
+        {
+          "name": "23_fin_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/23_fin_drvlic.zip/content",
+          "bytes": 782048844,
+          "checksum": "md5:43142c6aca860b6e4e9eb7abc90d9ad3"
+        },
+        {
+          "name": "24_fin_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/24_fin_id.zip/content",
+          "bytes": 809709127,
+          "checksum": "md5:9fd23ab5017229ef58361f485af29d11"
+        },
+        {
+          "name": "25_grc_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/25_grc_passport.zip/content",
+          "bytes": 789284588,
+          "checksum": "md5:29578551dbebb62856ff8a5eeede8deb"
+        },
+        {
+          "name": "26_hrv_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/26_hrv_drvlic.zip/content",
+          "bytes": 765137873,
+          "checksum": "md5:a39e8f7c04e98bb759fe589a174b2e79"
+        },
+        {
+          "name": "27_hrv_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/27_hrv_passport.zip/content",
+          "bytes": 808577321,
+          "checksum": "md5:f7dbdcd0c0fd53d65fb035419b5fe73e"
+        },
+        {
+          "name": "28_hun_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/28_hun_passport.zip/content",
+          "bytes": 819674414,
+          "checksum": "md5:2449d6775942416eb1ab4406e92ae146"
+        },
+        {
+          "name": "29_irn_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/29_irn_drvlic.zip/content",
+          "bytes": 761754511,
+          "checksum": "md5:be3a9758875199de15c37e06ecbe6c75"
+        },
+        {
+          "name": "30_ita_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/30_ita_drvlic.zip/content",
+          "bytes": 739699241,
+          "checksum": "md5:f2838cc4634792cf929a433550f45d84"
+        },
+        {
+          "name": "31_jpn_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/31_jpn_drvlic.zip/content",
+          "bytes": 810119808,
+          "checksum": "md5:3d3b27532f054225992b673a939e849a"
+        },
+        {
+          "name": "32_lva_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/32_lva_passport.zip/content",
+          "bytes": 778277302,
+          "checksum": "md5:69173fd8fa9c815f4cab54efbee79a36"
+        },
+        {
+          "name": "33_mac_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/33_mac_id.zip/content",
+          "bytes": 789287895,
+          "checksum": "md5:9051457088e372637e8b849ac35e16f7"
+        },
+        {
+          "name": "34_mda_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/34_mda_passport.zip/content",
+          "bytes": 790753492,
+          "checksum": "md5:76b242256e414682fa74d21f5d12d4d4"
+        },
+        {
+          "name": "35_nor_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/35_nor_drvlic.zip/content",
+          "bytes": 771128473,
+          "checksum": "md5:ea52b695875133c4b36b8467b0766e3d"
+        },
+        {
+          "name": "36_pol_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/36_pol_drvlic.zip/content",
+          "bytes": 828357482,
+          "checksum": "md5:76ffbf88311b84b964c18c5478f327ed"
+        },
+        {
+          "name": "37_prt_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/37_prt_id.zip/content",
+          "bytes": 778500875,
+          "checksum": "md5:88bdf5e94a07927a17b84b7c9ce40771"
+        },
+        {
+          "name": "38_rou_drvlic.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/38_rou_drvlic.zip/content",
+          "bytes": 766633354,
+          "checksum": "md5:3779e8eb33a5ba17116ae5f8aa40f884"
+        },
+        {
+          "name": "39_rus_internalpassport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/39_rus_internalpassport.zip/content",
+          "bytes": 736762909,
+          "checksum": "md5:0f2262502855850c355b5da3e0ea7f6a"
+        },
+        {
+          "name": "40_srb_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/40_srb_id.zip/content",
+          "bytes": 799067035,
+          "checksum": "md5:d4ff0121dd77763878548bc72e25ff4c"
+        },
+        {
+          "name": "41_srb_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/41_srb_passport.zip/content",
+          "bytes": 774776209,
+          "checksum": "md5:78ee542fe764c6b536a107f10dec96db"
+        },
+        {
+          "name": "42_svk_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/42_svk_id.zip/content",
+          "bytes": 798961637,
+          "checksum": "md5:8206305019a9564bbeb948761d7d99cd"
+        },
+        {
+          "name": "43_tur_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/43_tur_id.zip/content",
+          "bytes": 746883989,
+          "checksum": "md5:bf85d4fef7f11da846efae0f547c0c00"
+        },
+        {
+          "name": "44_ukr_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/44_ukr_id.zip/content",
+          "bytes": 747759904,
+          "checksum": "md5:5b71a746ec3b17d6e44b83fb113a6dad"
+        },
+        {
+          "name": "45_ukr_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/45_ukr_passport.zip/content",
+          "bytes": 793576889,
+          "checksum": "md5:ec9d9130436f1a88eb301a398b172e00"
+        },
+        {
+          "name": "46_ury_passport.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/46_ury_passport.zip/content",
+          "bytes": 787293362,
+          "checksum": "md5:48f5ac53196f8fc7affec385a19de83f"
+        },
+        {
+          "name": "47_usa_bordercrossing.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/47_usa_bordercrossing.zip/content",
+          "bytes": 771901424,
+          "checksum": "md5:5463f99cff129b979784af8b8d193e31"
+        },
+        {
+          "name": "48_usa_passportcard.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/48_usa_passportcard.zip/content",
+          "bytes": 800183148,
+          "checksum": "md5:b336af825e8ac10f38efe5da7e9e69e9"
+        },
+        {
+          "name": "49_usa_ssn82.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/49_usa_ssn82.zip/content",
+          "bytes": 850853483,
+          "checksum": "md5:92986b4d3dc787d1edb9975537f6bf95"
+        },
+        {
+          "name": "50_xpo_id.zip",
+          "url": "https://zenodo.org/api/records/18761371/files/50_xpo_id.zip/content",
+          "bytes": 785863906,
+          "checksum": "md5:04ac5f3a393a81ddda584e5749b1f380"
+        },
+        {
+          "name": "license.txt",
+          "url": "https://zenodo.org/api/records/18761371/files/license.txt/content",
+          "bytes": 258,
+          "checksum": "md5:5f5b0f281520e050c425aca82c53d1cc"
+        },
+        {
+          "name": "md5.txt",
+          "url": "https://zenodo.org/api/records/18761371/files/md5.txt/content",
+          "bytes": 2619,
+          "checksum": "md5:a096453d8ba881ed79e42b854c18282c"
+        },
+        {
+          "name": "readme.txt",
+          "url": "https://zenodo.org/api/records/18761371/files/readme.txt/content",
+          "bytes": 5988,
+          "checksum": "md5:8013aac3434b6d89a8e0a357d6a6e82d"
+        }
+      ]
+    },
+    {
+      "id": "midv-lait",
+      "source": "https://zenodo.org/records/18781343",
+      "release": "18781343",
+      "license": "cc-by-sa-2.5",
+      "access": "open",
+      "notes": "Perso-Arabic, Thai and Indian scripts; script coverage does not imply PAN/Aadhaar field coverage.",
+      "assets": [
+        {
+          "name": "dataset.zip",
+          "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+          "bytes": 775264434,
+          "checksum": "md5:591618f576e32730097a66efc04daf9d"
+        },
+        {
+          "name": "license.txt",
+          "url": "https://zenodo.org/api/records/18781343/files/license.txt/content",
+          "bytes": 258,
+          "checksum": "md5:5f5b0f281520e050c425aca82c53d1cc"
+        },
+        {
+          "name": "midv-lait.pdf",
+          "url": "https://zenodo.org/api/records/18781343/files/midv-lait.pdf/content",
+          "bytes": 71025,
+          "checksum": "md5:9fb400b831ce7caf60f669b89c073826"
+        },
+        {
+          "name": "readme.txt",
+          "url": "https://zenodo.org/api/records/18781343/files/readme.txt/content",
+          "bytes": 4342,
+          "checksum": "md5:d20e33493752ffc6004afde3af31e41c"
+        }
+      ]
+    },
+    {
+      "id": "idnet-us-part4",
+      "source": "https://zenodo.org/records/13852757",
+      "release": "13852757",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "AZ and WI layouts only in this part. Start with positive images; variant-specific metadata is needed for manipulated images. Other parts are cataloged separately.",
+      "assets": [
+        {
+          "name": "AZ.zip",
+          "url": "https://zenodo.org/api/records/13852757/files/AZ.zip/content",
+          "bytes": 13330665727,
+          "checksum": "md5:d51cdee3f3aaf4592039ba6623af7df3"
+        },
+        {
+          "name": "WI.zip",
+          "url": "https://zenodo.org/api/records/13852757/files/WI.zip/content",
+          "bytes": 35753736368,
+          "checksum": "md5:38bf864f9657f1f81276895f6b58ade0"
+        }
+      ]
+    },
+    {
+      "id": "cord-v2",
+      "source": "https://github.com/clovaai/cord",
+      "release": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "license": "CC-BY-4.0",
+      "access": "open",
+      "notes": "All 1000 public receipts, official 800/100/100 splits. Labels cover selected semantic regions, not necessarily every printed word. Not an identity extraction benchmark.",
+      "assets": [
+        {
+          "name": "data/test-00000-of-00001-9c204eb3f4e11791.parquet",
+          "url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4b758a71d6473b8d085751692da2fef98/data/test-00000-of-00001-9c204eb3f4e11791.parquet",
+          "bytes": 234202795,
+          "checksum": "sha256:51c65f1788faff392abe2a0b55b023eb23e9be551c509138eaa3a832514224e7"
+        },
+        {
+          "name": "data/train-00000-of-00004-b4aaeceff1d90ecb.parquet",
+          "url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4b758a71d6473b8d085751692da2fef98/data/train-00000-of-00004-b4aaeceff1d90ecb.parquet",
+          "bytes": 490224630,
+          "checksum": "sha256:da3994eee1bf9bd3c57f0d53a72c3a6812c8696c5ba26245987949ddf73483cc"
+        },
+        {
+          "name": "data/train-00001-of-00004-7dbbe248962764c5.parquet",
+          "url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4b758a71d6473b8d085751692da2fef98/data/train-00001-of-00004-7dbbe248962764c5.parquet",
+          "bytes": 441418432,
+          "checksum": "sha256:cce4def16a0d6a6c75f80be712f7494c56c318a8829b712f5c62650155c9e58e"
+        },
+        {
+          "name": "data/train-00002-of-00004-688fe1305a55e5cc.parquet",
+          "url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4b758a71d6473b8d085751692da2fef98/data/train-00002-of-00004-688fe1305a55e5cc.parquet",
+          "bytes": 443802181,
+          "checksum": "sha256:591e2db8fe8b1d364b054f46e8c375b7f00e72578914ba46a573b6858162cab2"
+        },
+        {
+          "name": "data/train-00003-of-00004-2d0cd200555ed7fd.parquet",
+          "url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4b758a71d6473b8d085751692da2fef98/data/train-00003-of-00004-2d0cd200555ed7fd.parquet",
+          "bytes": 455555434,
+          "checksum": "sha256:1ffd9de8d6fbcee7630fd4cdfedff05b9b7fabc0fae4fc17557c5fe7cf178748"
+        },
+        {
+          "name": "data/validation-00000-of-00001-cc3c5779fe22e8ca.parquet",
+          "url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4b758a71d6473b8d085751692da2fef98/data/validation-00000-of-00001-cc3c5779fe22e8ca.parquet",
+          "bytes": 242080800,
+          "checksum": "sha256:0d0f6dac11fdcc549de2746aa9f53136a3bc22a2a1aff2b0b847f7622ad60c15"
+        }
+      ]
+    },
+    {
+      "id": "docile",
+      "source": "https://docile.rossum.ai/",
+      "license": "research access terms",
+      "access": "access-required",
+      "notes": "Requires dataset token. Request annotated-trainval first. Precomputed DocTR OCR is not independent ground truth; hidden test labels require official evaluation.",
+      "assets": []
+    },
+    {
+      "id": "funsd",
+      "source": "https://guillaumejaume.github.io/FUNSD/work/",
+      "license": "non-commercial research terms",
+      "access": "terms-review",
+      "notes": "199 scanned forms. Official terms restrict use to non-commercial research/education and require separate underlying image rights assessment. Not automatically included in product CI.",
+      "assets": []
+    },
+    {
+      "id": "xfund",
+      "source": "https://github.com/doc-analysis/XFUND",
+      "license": "CC-BY-NC-SA-4.0",
+      "access": "terms-review",
+      "notes": "Forms in seven languages; not enabled in product CI without a compatible use determination.",
+      "assets": []
+    },
+    {
+      "id": "sroie",
+      "source": "https://rrc.cvc.uab.es/?ch=13&com=downloads",
+      "license": "not verified",
+      "access": "access-required",
+      "notes": "Official download page timed out during research. Do not substitute a third-party mirror with an assumed license.",
+      "assets": []
+    },
+    {
+      "id": "sidtd",
+      "source": "https://doi.org/10.1038/s41597-024-04160-9",
+      "license": "dataset terms not verified",
+      "access": "terms-review",
+      "notes": "Forgery dataset derived from MIDV-2020. Fraud labels are not transcription labels. Overlaps MIDV identities; keep separate from initial OCR gate.",
+      "assets": []
+    },
+    {
+      "id": "indian-kyc",
+      "source": "https://arxiv.org/abs/2205.02543",
+      "license": "not verified",
+      "access": "coverage-gap",
+      "notes": "No verified openly licensed matched-image/field corpus for all Indian KYC profiles found. Indic synthetic text benchmarks do not establish PAN/Aadhaar extraction accuracy.",
+      "assets": []
+    },
+    {
+      "id": "idnet-part3",
+      "source": "https://zenodo.org/records/13852734",
+      "release": "13852734",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "Synthetic identity documents. Pin this exact release: jurisdictions moved between parts across versions. Positive image metadata and fraud variants need separate adapters.",
+      "assets": [
+        {
+          "name": "ESP.zip",
+          "url": "https://zenodo.org/api/records/13852734/files/ESP.zip/content",
+          "bytes": 7452492734,
+          "checksum": "md5:23983141cf450ed04e46c452d0e64e9e"
+        },
+        {
+          "name": "FIN.zip",
+          "url": "https://zenodo.org/api/records/13852734/files/FIN.zip/content",
+          "bytes": 6115584619,
+          "checksum": "md5:f18dc187a29f8866038aebcbf542a8ea"
+        },
+        {
+          "name": "LVA.zip",
+          "url": "https://zenodo.org/api/records/13852734/files/LVA.zip/content",
+          "bytes": 24120362305,
+          "checksum": "md5:29a6a9dab04351f646136429b4575d2c"
+        },
+        {
+          "name": "SD.zip",
+          "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+          "bytes": 4873473984,
+          "checksum": "md5:bf3f6cb72220771a633c4e8b29f9704d"
+        },
+        {
+          "name": "SVK.zip",
+          "url": "https://zenodo.org/api/records/13852734/files/SVK.zip/content",
+          "bytes": 6011219229,
+          "checksum": "md5:f96921efd9d4409cd86b8a8d60b6b26f"
+        }
+      ]
+    },
+    {
+      "id": "idnet-part6",
+      "source": "https://zenodo.org/records/13855175",
+      "release": "13855175",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "Synthetic identity documents. Pin this exact release: jurisdictions moved between parts across versions. Positive image metadata and fraud variants need separate adapters.",
+      "assets": [
+        {
+          "name": "NC.zip",
+          "url": "https://zenodo.org/api/records/13855175/files/NC.zip/content",
+          "bytes": 38310096927,
+          "checksum": "md5:06adfb1ebf7aa19b305a6f32739da8f4"
+        },
+        {
+          "name": "NV.zip",
+          "url": "https://zenodo.org/api/records/13855175/files/NV.zip/content",
+          "bytes": 11094846320,
+          "checksum": "md5:6f53811219d91458a8d9098e1da0aca6"
+        }
+      ]
+    },
+    {
+      "id": "idnet-part5",
+      "source": "https://zenodo.org/records/13855052",
+      "release": "13855052",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "Synthetic identity documents. Pin this exact release: jurisdictions moved between parts across versions. Positive image metadata and fraud variants need separate adapters.",
+      "assets": [
+        {
+          "name": "PA.zip",
+          "url": "https://zenodo.org/api/records/13855052/files/PA.zip/content",
+          "bytes": 45812261206,
+          "checksum": "md5:c5ead80609fc8c6e6b5e8396c4a96d73"
+        }
+      ]
+    },
+    {
+      "id": "idnet-part7",
+      "source": "https://zenodo.org/records/13854938",
+      "release": "13854938",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "Synthetic identity documents. Pin this exact release: jurisdictions moved between parts across versions. Positive image metadata and fraud variants need separate adapters.",
+      "assets": [
+        {
+          "name": "GRC.zip",
+          "url": "https://zenodo.org/api/records/13854938/files/GRC.zip/content",
+          "bytes": 8920410935,
+          "checksum": "md5:d25faae6d3caa0224403756784b864af"
+        },
+        {
+          "name": "RUS.zip",
+          "url": "https://zenodo.org/api/records/13854938/files/RUS.zip/content",
+          "bytes": 8416767797,
+          "checksum": "md5:15d2304c23c49ba2c656a8cf76e007a3"
+        },
+        {
+          "name": "WV.zip",
+          "url": "https://zenodo.org/api/records/13854938/files/WV.zip/content",
+          "bytes": 31575693479,
+          "checksum": "md5:a51cbc873c5cddd1b28b242f8bb96496"
+        }
+      ]
+    },
+    {
+      "id": "idnet-part8",
+      "source": "https://zenodo.org/records/13852274",
+      "release": "13852274",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "Synthetic identity documents. Pin this exact release: jurisdictions moved between parts across versions. Positive image metadata and fraud variants need separate adapters.",
+      "assets": [
+        {
+          "name": "DC.zip",
+          "url": "https://zenodo.org/api/records/13852274/files/DC.zip/content",
+          "bytes": 20136316173,
+          "checksum": "md5:46324ed9ea63054ddaa65c32262f63ad"
+        },
+        {
+          "name": "UT.zip",
+          "url": "https://zenodo.org/api/records/13852274/files/UT.zip/content",
+          "bytes": 28224677698,
+          "checksum": "md5:00db5ed37840f20bf981130e5ae9af6b"
+        }
+      ]
+    },
+    {
+      "id": "idnet-part1",
+      "source": "https://zenodo.org/records/13854897",
+      "release": "13854897",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "Synthetic identity documents. Pin this exact release: jurisdictions moved between parts across versions. Positive image metadata and fraud variants need separate adapters.",
+      "assets": [
+        {
+          "name": "ALB.zip",
+          "url": "https://zenodo.org/api/records/13854897/files/ALB.zip/content",
+          "bytes": 25619026853,
+          "checksum": "md5:9d74027b06d6081c9a31c2d5a077c447"
+        },
+        {
+          "name": "CA.zip",
+          "url": "https://zenodo.org/api/records/13854897/files/CA.zip/content",
+          "bytes": 19715843032,
+          "checksum": "md5:ad885762c3ab902b280307817c726842"
+        },
+        {
+          "name": "EST.zip",
+          "url": "https://zenodo.org/api/records/13854897/files/EST.zip/content",
+          "bytes": 3228642990,
+          "checksum": "md5:3f2c587de100e502ee294ee8df23934b"
+        }
+      ]
+    },
+    {
+      "id": "idnet-part2",
+      "source": "https://zenodo.org/records/13852263",
+      "release": "13852263",
+      "license": "cc-zero",
+      "access": "open",
+      "notes": "Synthetic identity documents. Pin this exact release: jurisdictions moved between parts across versions. Positive image metadata and fraud variants need separate adapters.",
+      "assets": [
+        {
+          "name": "AZE.zip",
+          "url": "https://zenodo.org/api/records/13852263/files/AZE.zip/content",
+          "bytes": 14876756221,
+          "checksum": "md5:961fb2b8328c548e581b3799b24c1752"
+        },
+        {
+          "name": "SRB.zip",
+          "url": "https://zenodo.org/api/records/13852263/files/SRB.zip/content",
+          "bytes": 34394333847,
+          "checksum": "md5:4bd9a9a684f485771bcbd180824043c1"
+        }
+      ]
+    }
+  ]
+}

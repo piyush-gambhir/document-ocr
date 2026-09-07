@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "manifestSha256": "8e2f9b60cedaeacf3af5e836a59234f2c597e203e1cb1484d540b24d0a047ca6",
+  "cases": 40,
+  "identityGroups": 18,
+  "files": 62,
+  "bytes": 60034236,
+  "datasets": {
+    "midv-2020": 24,
+    "midv-lait": 8,
+    "idnet-part3": 5,
+    "cord-v2": 3
+  },
+  "integrity": "passed",
+  "ocrMeasured": false
+}

@@ -1,0 +1,230 @@
+{
+  "dataset": "cord-v2",
+  "release": "7f0115a4b758a71d6473b8d085751692da2fef98",
+  "measurement": "dataset-integrity-only",
+  "images": 1000,
+  "splits": {
+    "test": 100,
+    "train": 800,
+    "validation": 100
+  },
+  "annotatedWords": 23909,
+  "blankWordAnnotations": 0,
+  "outOfBoundsWordAnnotations": 19,
+  "categories": {
+    "menu.cnt": 2333,
+    "menu.discountprice": 111,
+    "menu.etc": 9,
+    "menu.itemsubtotal": 7,
+    "menu.nm": 2573,
+    "menu.num": 109,
+    "menu.price": 2559,
+    "menu.sub.cnt": 191,
+    "menu.sub.nm": 404,
+    "menu.sub.price": 157,
+    "menu.sub.unitprice": 14,
+    "menu.unitprice": 738,
+    "menu.vatyn": 3,
+    "sub_total.discount_price": 81,
+    "sub_total.etc": 127,
+    "sub_total.othersvc_price": 2,
+    "sub_total.service_price": 123,
+    "sub_total.subtotal_price": 674,
+    "sub_total.tax_price": 454,
+    "total.cashprice": 659,
+    "total.changeprice": 622,
+    "total.creditcardprice": 156,
+    "total.emoneyprice": 53,
+    "total.menuqty_cnt": 288,
+    "total.menutype_cnt": 53,
+    "total.total_etc": 35,
+    "total.total_price": 978,
+    "void_menu.nm": 1,
+    "void_menu.price": 1
+  },
+  "duplicateImages": [
+    {
+      "id": "train:109",
+      "previousId": "train:58",
+      "crossSplit": false
+    },
+    {
+      "id": "train:285",
+      "previousId": "train:265",
+      "crossSplit": false
+    }
+  ],
+  "annotationIssues": [
+    {
+      "id": "test:34",
+      "issues": [
+        {
+          "line": 9,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 10,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "test:79",
+      "issues": [
+        {
+          "line": 8,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:219",
+      "issues": [
+        {
+          "line": 30,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:222",
+      "issues": [
+        {
+          "line": 0,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 2,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 3,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:354",
+      "issues": [
+        {
+          "line": 8,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 9,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:496",
+      "issues": [
+        {
+          "line": 15,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:508",
+      "issues": [
+        {
+          "line": 19,
+          "word": 1,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:530",
+      "issues": [
+        {
+          "line": 7,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 8,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 9,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:676",
+      "issues": [
+        {
+          "line": 4,
+          "word": 1,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 5,
+          "word": 1,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:714",
+      "issues": [
+        {
+          "line": 9,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    },
+    {
+      "id": "train:734",
+      "issues": [
+        {
+          "line": 9,
+          "word": 0,
+          "outOfBounds": true,
+          "blank": false
+        },
+        {
+          "line": 9,
+          "word": 1,
+          "outOfBounds": true,
+          "blank": false
+        }
+      ]
+    }
+  ],
+  "readyForUnmodifiedRegionEvaluation": false,
+  "notes": "Selected semantic regions only; do not use these annotations as a full-page transcript. Dataset validation does not establish receipt extraction support or OCR accuracy."
+}

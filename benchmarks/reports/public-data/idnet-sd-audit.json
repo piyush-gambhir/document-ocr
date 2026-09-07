@@ -1,0 +1,28 @@
+{
+  "dataset": "idnet-sd",
+  "catalogDataset": "idnet-part3",
+  "release": "13852734",
+  "measurement": "dataset-integrity-only",
+  "positiveImagePairs": 5979,
+  "originalAnnotationRecords": 5979,
+  "basicFieldAnnotations": {
+    "address": 5979,
+    "birthday": 5979,
+    "class": 5979,
+    "ethnicity": 5979,
+    "expire_date": 5979,
+    "eye_color": 5979,
+    "gender": 5979,
+    "hair_color": 5979,
+    "height": 5979,
+    "is_donor": 5979,
+    "is_veteran": 5979,
+    "issue_date": 5979,
+    "license_number": 5979,
+    "name": 5979,
+    "weight": 5979
+  },
+  "imageErrors": [],
+  "readyForUnmodifiedImageEvaluation": true,
+  "notes": "Only original/positive images were decoded and paired with both metadata sources. The full archive CRC was checked, but fraud variants were not admitted to extraction evaluation. Metadata-to-visible-field semantics still need profile-specific adapter review."
+}

@@ -301,6 +301,11 @@ and annotation workflow.
 `benchmark-data/` is ignored by Git. Never commit identity documents or
 personal data. See [CONTRIBUTING.md](CONTRIBUTING.md) for fixture rules.
 
+For public datasets, see [the linked catalog and fixed 40-case evaluation
+sample](benchmarks/PUBLIC_DATASETS.md). The bounded fetcher downloads only selected
+images and labels, with pinned checksums. Integrity checks are separate from OCR accuracy;
+the public image regression workflow requires reviewed adapters and labels first.
+
 ## Privacy and security
 
 Local Python and npm-local modes process documents on the same machine and do

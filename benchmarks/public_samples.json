@@ -1,0 +1,1099 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Fixed evaluation smoke sample; no training and no population accuracy claim.",
+  "selection": "Version 1: first identity (00) of six MIDV layouts, first identity/frame of four LAIT layouts, five lexicographically first SD positives, first three CORD test rows. Frozen before OCR measurement; never select by model performance.",
+  "files": [
+    {
+      "path": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 1776128,
+      "length": 477862,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 477862,
+      "sha256": "a34746b3015ebada46ebc3fcb71fd5fbf8c6363093fe839a56d92ef25ac94c05"
+    },
+    {
+      "path": "midv-2020/templates.tar/images/aze_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 299545600,
+      "length": 1451659,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 1451659,
+      "sha256": "9978e9da28fb983020bfaaac385acd27e6ddedb2fe4b588d2ee849aaf6969bce"
+    },
+    {
+      "path": "midv-2020/scan_upright.tar/images/aze_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_upright.tar/content",
+      "archiveChecksum": "md5:f6e0aeb6981a89aa2dfc717575fcea28",
+      "offset": 482373120,
+      "length": 1119501,
+      "archiveBytes": 1149143040,
+      "compression": "stored",
+      "bytes": 1119501,
+      "sha256": "8f9d84cc5577ff723dfd8e693c1e61b0b196366f2568194f720edd8d64b8f139"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/aze_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 466373120,
+      "length": 1350946,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1350946,
+      "sha256": "d306b21793e7b8fb3fc8691f58d303387f5eceeab69f8ece881d556beca3249c"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/aze_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 1699420160,
+      "length": 6138041,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 6138041,
+      "sha256": "4311175da9da3b8d258e947b0660dca91b01b994d62d0b3e7be459f5c06d0e28"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 1315840,
+      "length": 459498,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 459498,
+      "sha256": "7f7dfb45f12a2d2b42353b93fda22940834cd8fa6b8adb86bfd79be8f8ebf375"
+    },
+    {
+      "path": "midv-2020/templates.tar/images/grc_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 598328320,
+      "length": 471388,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 471388,
+      "sha256": "3fdc610ab47a565eb0ab0dfd46c56f473e75916b10067565e48478294bed8d10"
+    },
+    {
+      "path": "midv-2020/scan_upright.tar/images/grc_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_upright.tar/content",
+      "archiveChecksum": "md5:f6e0aeb6981a89aa2dfc717575fcea28",
+      "offset": 718918144,
+      "length": 1274457,
+      "archiveBytes": 1149143040,
+      "compression": "stored",
+      "bytes": 1274457,
+      "sha256": "d22cda8133084485bcf1cef072d62d55feef03e81787444b166db9d669b913a6"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/grc_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 696232960,
+      "length": 1294287,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1294287,
+      "sha256": "1759a9345c09758f51317b64d7d6e8902562fb202342a2e39c9dbcc9c5672868"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/grc_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 2517031424,
+      "length": 4980886,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 4980886,
+      "sha256": "da798ccd3029e8353096d8c0463ac8b535c5dc0331dbae0a26b9caedb3a6fe00"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 878080,
+      "length": 437094,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 437094,
+      "sha256": "23615f944fc47d93b48be98cffeaaf477a49a9ee035b32fd143b07738c3033fa"
+    },
+    {
+      "path": "midv-2020/templates.tar/images/lva_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 45708288,
+      "length": 1273307,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 1273307,
+      "sha256": "eb7214c469ef8af3d9c6cb520f602550c300421473d6a016027cc53b9ebc5ac4"
+    },
+    {
+      "path": "midv-2020/scan_upright.tar/images/lva_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_upright.tar/content",
+      "archiveChecksum": "md5:f6e0aeb6981a89aa2dfc717575fcea28",
+      "offset": 37905920,
+      "length": 1119154,
+      "archiveBytes": 1149143040,
+      "compression": "stored",
+      "bytes": 1119154,
+      "sha256": "9397ad2b922e984bb172c73d1a557f253ec2891b0fa9f995047ac64a44d610e9"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/lva_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 39228416,
+      "length": 1176646,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1176646,
+      "sha256": "c9e58d1b0376fb3de924181afe92866d6105871608ea4604e06f621a79764ba9"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/lva_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 131005952,
+      "length": 5345555,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 5345555,
+      "sha256": "9e7d98bd6559e6834d4af847dae1530b2fa1c4757e8e407f669fc28d3c502b71"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 2864128,
+      "length": 477762,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 477762,
+      "sha256": "b6d56603895a8d512777187215b788536636b0fd7b4b42b5618bcfec61593de2"
+    },
+    {
+      "path": "midv-2020/templates.tar/images/srb_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 739747328,
+      "length": 1526458,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 1526458,
+      "sha256": "41eab1398a61689009eb3d7be00a8a2b5d5d44591111bfaef5a7f2872be790ae"
+    },
+    {
+      "path": "midv-2020/scan_upright.tar/images/srb_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_upright.tar/content",
+      "archiveChecksum": "md5:f6e0aeb6981a89aa2dfc717575fcea28",
+      "offset": 963816960,
+      "length": 1309250,
+      "archiveBytes": 1149143040,
+      "compression": "stored",
+      "bytes": 1309250,
+      "sha256": "d9a868d4480239944d4dc5d03beb8fcd5570f0006e9ff5786bff3932c2df6137"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/srb_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 929362944,
+      "length": 1692278,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 1692278,
+      "sha256": "789ab8302295e9b8094863ed585c7deb2bbbbd1920eb43ec85748efcd0eeda8e"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/srb_passport/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 3327750656,
+      "length": 4409115,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 4409115,
+      "sha256": "90c578d5d184daae6c7c20212737b60c33fea1bd2e940fdab9ecdde315725598"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/alb_id.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 1024,
+      "length": 325536,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 325536,
+      "sha256": "8173d4b0c2845e40e4c100d3011192924b74cec7858969cb116973be9f67d1c9"
+    },
+    {
+      "path": "midv-2020/templates.tar/images/alb_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 457283072,
+      "length": 1859173,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 1859173,
+      "sha256": "cba4c2bd4a3f74327845a6e0c209b9a947344a5b64181147678e6e4c15aa985f"
+    },
+    {
+      "path": "midv-2020/scan_upright.tar/images/alb_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_upright.tar/content",
+      "archiveChecksum": "md5:f6e0aeb6981a89aa2dfc717575fcea28",
+      "offset": 597591552,
+      "length": 1190677,
+      "archiveBytes": 1149143040,
+      "compression": "stored",
+      "bytes": 1190677,
+      "sha256": "4b2e86c2ea6e396c5a4ee350db8649fb747f9ccb38269f6240e8112d670f347a"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/alb_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 589471232,
+      "length": 955580,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 955580,
+      "sha256": "03fda82f27ed1b2ac692508abef17672a4865c9e806c9b308db27c23cc2a6ff9"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/alb_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 2113243136,
+      "length": 4442128,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 4442128,
+      "sha256": "55070b2d6ed81746eb0cc9273a1ddf1c5d36bca2b27b027c6ad266ac58b42b76"
+    },
+    {
+      "path": "midv-2020/templates.tar/annotations/est_id.json",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 582656,
+      "length": 294826,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 294826,
+      "sha256": "bb2eb9b261ac550ec7fca9660fc9afd333c55cc64a841f98877e547deb2619b4"
+    },
+    {
+      "path": "midv-2020/templates.tar/images/est_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/templates.tar/content",
+      "archiveChecksum": "md5:5bf6bd22df4808d4c8df9500e01f4f0a",
+      "offset": 849741312,
+      "length": 204175,
+      "archiveBytes": 863293440,
+      "compression": "stored",
+      "bytes": 204175,
+      "sha256": "84a3b2d0d98856c0337c50b37d40deab293fe64644aed128858d0256750a27e3"
+    },
+    {
+      "path": "midv-2020/scan_upright.tar/images/est_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_upright.tar/content",
+      "archiveChecksum": "md5:f6e0aeb6981a89aa2dfc717575fcea28",
+      "offset": 1083874816,
+      "length": 975265,
+      "archiveBytes": 1149143040,
+      "compression": "stored",
+      "bytes": 975265,
+      "sha256": "1dfbf06d992bd8297f665e9dfd3a0f9330090ca3cad28d9d425f8f197cd8f9aa"
+    },
+    {
+      "path": "midv-2020/scan_rotated.tar/images/est_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/scan_rotated.tar/content",
+      "archiveChecksum": "md5:3db227b453121b7e0a8c152e79988edf",
+      "offset": 1064812544,
+      "length": 855758,
+      "archiveBytes": 1122682880,
+      "compression": "stored",
+      "bytes": 855758,
+      "sha256": "ab13efd319397dcea09f6118a705ccbde87c7b1302075ace31b5e66013231ec1"
+    },
+    {
+      "path": "midv-2020/photo.tar/images/est_id/00.jpg",
+      "url": "https://zenodo.org/api/records/18786808/files/photo.tar/content",
+      "archiveChecksum": "md5:e716b2044a0af872cb21c9dc2f51d752",
+      "offset": 3732598784,
+      "length": 4437458,
+      "archiveBytes": 4002467840,
+      "compression": "stored",
+      "bytes": 4437458,
+      "sha256": "a6bf7b6fc1a29a8b00b02e63be8b657867e3404ee03ec878cd3523502e773f7a"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01.png.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 671074341,
+      "length": 1579,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 1579,
+      "sha256": "6aa6d04b8800b2f33b74e18e8f5a0c484be18b1a8c3d8b96613e8bbc2ab81a8e"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01.png",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 670236042,
+      "length": 838177,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 838177,
+      "sha256": "477ce0b4d0855730de7f62f696a9a832a3e5464f9d9dae764484b40eceecc4e7"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01_images/000001.jpg",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 669614073,
+      "length": 224857,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 224857,
+      "sha256": "42cb8ccc7d70495a6d3dcabd6d47462b062824bfc4e62db47393b5a5d6a364cb"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01_groundtruth/000001.jpg.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 670230688,
+      "length": 218,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 218,
+      "sha256": "2516c8905b6718e79d8572bb95fc4c12a75f37976a5fc10c29ecb94a04337704"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01.png.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 722540386,
+      "length": 1612,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 1612,
+      "sha256": "4a86a6a4acc395ed34cc5b8d8910a946834631e617fd93b6561c0becc413926d"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01.png",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 722542117,
+      "length": 907109,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 907109,
+      "sha256": "ea6e6b8ec0af9e7b5440b39afecb5597239a2627f6bce41a56b4a1d7cc0bee48"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01_images/000001.jpg",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 725553829,
+      "length": 226759,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 226759,
+      "sha256": "16e3b4e1fd074e1788b210a70c9d4817471b52c7da3244686a4b45b4072a1102"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01_groundtruth/000001.jpg.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 722535005,
+      "length": 217,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 217,
+      "sha256": "89d407c6044595a1ae515fab24f2f01bd58047fecfb3f7b4d97e1effc84f5e29"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01.png.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 256817520,
+      "length": 2620,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 2620,
+      "sha256": "6d734c3e09d7d205ebeddb57d0b9929b2aa3052e8890c87339251216f931a1e9"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01.png",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 252825105,
+      "length": 1334413,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 1334413,
+      "sha256": "15d1974ff7f90db4478afbbd2664e9c3d00d9312e9fbaeecc63327ff36053b2c"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01_images/000001.jpg",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 256195555,
+      "length": 238844,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 238844,
+      "sha256": "4dbe53cc2f8138a18674f268348cefa23f4a1c39f651d1d2c3017ed74b9c688f"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01_groundtruth/000001.jpg.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 256812577,
+      "length": 218,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 218,
+      "sha256": "90ad31ad63425eba2d41db0c4273b87aa5339c8db83def343fcbb05b5989dab6"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01.png.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 283417179,
+      "length": 3708,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 3708,
+      "sha256": "e30a6992f0f2457d74a0733aa952de4a39bed4c6b5776cb017ae93fb4830d155"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01.png",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 281454314,
+      "length": 1955729,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 1955729,
+      "sha256": "e7edd8431197c3d7ebb371bd021aea8cd580f5ca788b14554f51f0c522855ba9"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01_images/000001.jpg",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 285839677,
+      "length": 221438,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 221438,
+      "sha256": "9422de10b6965125c6afc0406d25e4e18c490ab4fe2f0475d7d1c24bd4764b63"
+    },
+    {
+      "path": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01_groundtruth/000001.jpg.json",
+      "url": "https://zenodo.org/api/records/18781343/files/dataset.zip/content",
+      "archiveChecksum": "md5:591618f576e32730097a66efc04daf9d",
+      "offset": 283412008,
+      "length": 221,
+      "archiveBytes": 775264434,
+      "compression": "stored",
+      "bytes": 221,
+      "sha256": "a34b74a76c82698e25ee34170606c4a7a69cadd49eaa84c311439306eeb6c04b"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_0139935.json",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3488007621,
+      "length": 236,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 367,
+      "sha256": "b075d1717c87c5562e0353d962b9a3b43d0f72eaa30aed5d5e0c2db8bf088850"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/positive/generated.photos_0139935.png",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 2916180229,
+      "length": 117817,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 117963,
+      "sha256": "fd1cbcb089a507f4adb1cdd663c9d84338d7cb1d96350b1f5c6b29aaf55ccd81"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_0193017.json",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3488840617,
+      "length": 232,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 364,
+      "sha256": "97f1f14f5b553e3c419577ad271aa9044e14ec82a4c776c5ea9717cf2e5d4d57"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/positive/generated.photos_0193017.png",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3286041656,
+      "length": 116744,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 116890,
+      "sha256": "4c56691faa2078b1a01f84afcc7d7996bfdd3a5cd6e2b7178432384ad25d9104"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_0210845.json",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3489506707,
+      "length": 229,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 361,
+      "sha256": "fb62b10f0bbdf7dba28cdff62601e71fc430ae72a6b00e5601f73d5e9eb268a7"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/positive/generated.photos_0210845.png",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3077100207,
+      "length": 117233,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 117378,
+      "sha256": "0c917d9da0141318ce93acb6ce56a5ced12d9a0aa668c85acfcc0f7c996e1a02"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_v3_0000170.json",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3487669607,
+      "length": 232,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 363,
+      "sha256": "a43d53bee05598d53651d53adeb2cd34d4aa5e072e26ac7d76a610f6cbdd134b"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/positive/generated.photos_v3_0000170.png",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3252959093,
+      "length": 117812,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 117957,
+      "sha256": "b7737a25c01cb2051909ddb845ed78ffadec58b166ad0eb3fc3b7d086dd156eb"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_v3_0000333.json",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 3488535514,
+      "length": 232,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 366,
+      "sha256": "03c8dfd3d1ff5f84d9b849f28d423c330e500f379cea40751c994cbd60f1c43c"
+    },
+    {
+      "path": "idnet-part3/SD.zip/SD/positive/generated.photos_v3_0000333.png",
+      "url": "https://zenodo.org/api/records/13852734/files/SD.zip/content",
+      "archiveChecksum": "md5:bf3f6cb72220771a633c4e8b29f9704d",
+      "offset": 2882509600,
+      "length": 117524,
+      "archiveBytes": 4873473984,
+      "compression": "deflate",
+      "bytes": 117669,
+      "sha256": "8cf230ec83cbc9e4ccaffee9bacc9eebd08498c2601515fb0062cca3a65412a1"
+    },
+    {
+      "path": "cord-v2/test/0.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=naver-clova-ix/cord-v2&config=default&split=test&offset=0&length=1",
+      "kind": "cord-row",
+      "column": "image",
+      "revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "bytes": 25639,
+      "sha256": "4e13b815b540420a4d68229494bd6259768c226a595114609970edae9a620aa9"
+    },
+    {
+      "path": "cord-v2/test/0.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=naver-clova-ix/cord-v2&config=default&split=test&offset=0&length=1",
+      "kind": "cord-row",
+      "column": "truth",
+      "revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "bytes": 4652,
+      "sha256": "444d1744d61fab34ffe2bd6ddf37f93f6eac0cf93ae4c3f0144c8b9b478ab4ef"
+    },
+    {
+      "path": "cord-v2/test/1.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=naver-clova-ix/cord-v2&config=default&split=test&offset=1&length=1",
+      "kind": "cord-row",
+      "column": "image",
+      "revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "bytes": 56652,
+      "sha256": "636284664cfc357e05f7b10d67ddb380f828a1be0a20809514f9e7fc0c611a9f"
+    },
+    {
+      "path": "cord-v2/test/1.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=naver-clova-ix/cord-v2&config=default&split=test&offset=1&length=1",
+      "kind": "cord-row",
+      "column": "truth",
+      "revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "bytes": 2418,
+      "sha256": "14f89d7c0bb641e902c2ead5c7b982c0ed25e2bfcd50054e7c7ed54dcfc63057"
+    },
+    {
+      "path": "cord-v2/test/2.jpg",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=naver-clova-ix/cord-v2&config=default&split=test&offset=2&length=1",
+      "kind": "cord-row",
+      "column": "image",
+      "revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "bytes": 67501,
+      "sha256": "bcf0c175181bfc6b2352ab8f452704b8f18e27fa51f2278bc5c41f6765179edb"
+    },
+    {
+      "path": "cord-v2/test/2.json",
+      "url": "https://datasets-server.huggingface.co/rows?dataset=naver-clova-ix/cord-v2&config=default&split=test&offset=2&length=1",
+      "kind": "cord-row",
+      "column": "truth",
+      "revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "bytes": 4257,
+      "sha256": "2199639cdd1be32986fdc9f4bf5fb7121477585cbd7231a8cef833fc0c85bcad"
+    }
+  ],
+  "cases": [
+    {
+      "id": "midv-2020/aze_passport/00/templates",
+      "group": "midv-2020/aze_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/templates.tar/images/aze_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "templates",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/aze_passport/00/scan_upright",
+      "group": "midv-2020/aze_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_upright.tar/images/aze_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_upright",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/aze_passport/00/scan_rotated",
+      "group": "midv-2020/aze_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/aze_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/aze_passport/00/photo",
+      "group": "midv-2020/aze_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/aze_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/aze_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/grc_passport/00/templates",
+      "group": "midv-2020/grc_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/templates.tar/images/grc_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "templates",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/grc_passport/00/scan_upright",
+      "group": "midv-2020/grc_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_upright.tar/images/grc_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_upright",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/grc_passport/00/scan_rotated",
+      "group": "midv-2020/grc_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/grc_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/grc_passport/00/photo",
+      "group": "midv-2020/grc_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/grc_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/grc_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/lva_passport/00/templates",
+      "group": "midv-2020/lva_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/templates.tar/images/lva_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "templates",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/lva_passport/00/scan_upright",
+      "group": "midv-2020/lva_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_upright.tar/images/lva_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_upright",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/lva_passport/00/scan_rotated",
+      "group": "midv-2020/lva_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/lva_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/lva_passport/00/photo",
+      "group": "midv-2020/lva_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/lva_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/lva_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/srb_passport/00/templates",
+      "group": "midv-2020/srb_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/templates.tar/images/srb_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "templates",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/srb_passport/00/scan_upright",
+      "group": "midv-2020/srb_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_upright.tar/images/srb_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_upright",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/srb_passport/00/scan_rotated",
+      "group": "midv-2020/srb_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/srb_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/srb_passport/00/photo",
+      "group": "midv-2020/srb_passport/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/srb_passport/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/srb_passport.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "photo",
+      "scope": "TD3 passport"
+    },
+    {
+      "id": "midv-2020/alb_id/00/templates",
+      "group": "midv-2020/alb_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/templates.tar/images/alb_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/alb_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "templates",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-2020/alb_id/00/scan_upright",
+      "group": "midv-2020/alb_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_upright.tar/images/alb_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/alb_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_upright",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-2020/alb_id/00/scan_rotated",
+      "group": "midv-2020/alb_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/alb_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/alb_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-2020/alb_id/00/photo",
+      "group": "midv-2020/alb_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/alb_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/alb_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "photo",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-2020/est_id/00/templates",
+      "group": "midv-2020/est_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/templates.tar/images/est_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/est_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "templates",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-2020/est_id/00/scan_upright",
+      "group": "midv-2020/est_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_upright.tar/images/est_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/est_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_upright",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-2020/est_id/00/scan_rotated",
+      "group": "midv-2020/est_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/scan_rotated.tar/images/est_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/est_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "scan_rotated",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-2020/est_id/00/photo",
+      "group": "midv-2020/est_id/00",
+      "dataset": "midv-2020",
+      "image": "midv-2020/photo.tar/images/est_id/00.jpg",
+      "truth": "midv-2020/templates.tar/annotations/est_id.json",
+      "truthSelector": {
+        "viaFilename": "00.jpg"
+      },
+      "capture": "photo",
+      "scope": "generic ID recognition"
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_gujarati_01/template",
+      "group": "midv-lait/ind_aadhaar_gujarati_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01.png",
+      "truth": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation"
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_gujarati_01/frame",
+      "group": "midv-lait/ind_aadhaar_gujarati_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01_images/000001.jpg",
+      "truth": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation",
+      "geometry": "midv-lait/dataset.zip/dataset/ind_aadhaar_gujarati_01/ind_aadhaar_gujarati_01_groundtruth/000001.jpg.json"
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_malayalam_01/template",
+      "group": "midv-lait/ind_aadhaar_malayalam_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01.png",
+      "truth": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation"
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_malayalam_01/frame",
+      "group": "midv-lait/ind_aadhaar_malayalam_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01_images/000001.jpg",
+      "truth": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation",
+      "geometry": "midv-lait/dataset.zip/dataset/ind_aadhaar_malayalam_01/ind_aadhaar_malayalam_01_groundtruth/000001.jpg.json"
+    },
+    {
+      "id": "midv-lait/tha_id_01/template",
+      "group": "midv-lait/tha_id_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01.png",
+      "truth": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation"
+    },
+    {
+      "id": "midv-lait/tha_id_01/frame",
+      "group": "midv-lait/tha_id_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01_images/000001.jpg",
+      "truth": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation",
+      "geometry": "midv-lait/dataset.zip/dataset/tha_id_01/tha_id_01_groundtruth/000001.jpg.json"
+    },
+    {
+      "id": "midv-lait/dza_passport_01/template",
+      "group": "midv-lait/dza_passport_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01.png",
+      "truth": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation"
+    },
+    {
+      "id": "midv-lait/dza_passport_01/frame",
+      "group": "midv-lait/dza_passport_01",
+      "dataset": "midv-lait",
+      "image": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01_images/000001.jpg",
+      "truth": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01.png.json",
+      "scope": "multilingual recognition; not full KYC profile validation",
+      "geometry": "midv-lait/dataset.zip/dataset/dza_passport_01/dza_passport_01_groundtruth/000001.jpg.json"
+    },
+    {
+      "id": "idnet-sd/generated.photos_0139935",
+      "group": "idnet-sd/generated.photos_0139935",
+      "dataset": "idnet-part3",
+      "image": "idnet-part3/SD.zip/SD/positive/generated.photos_0139935.png",
+      "truth": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_0139935.json",
+      "scope": "synthetic South Dakota licence; no general US coverage claim"
+    },
+    {
+      "id": "idnet-sd/generated.photos_0193017",
+      "group": "idnet-sd/generated.photos_0193017",
+      "dataset": "idnet-part3",
+      "image": "idnet-part3/SD.zip/SD/positive/generated.photos_0193017.png",
+      "truth": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_0193017.json",
+      "scope": "synthetic South Dakota licence; no general US coverage claim"
+    },
+    {
+      "id": "idnet-sd/generated.photos_0210845",
+      "group": "idnet-sd/generated.photos_0210845",
+      "dataset": "idnet-part3",
+      "image": "idnet-part3/SD.zip/SD/positive/generated.photos_0210845.png",
+      "truth": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_0210845.json",
+      "scope": "synthetic South Dakota licence; no general US coverage claim"
+    },
+    {
+      "id": "idnet-sd/generated.photos_v3_0000170",
+      "group": "idnet-sd/generated.photos_v3_0000170",
+      "dataset": "idnet-part3",
+      "image": "idnet-part3/SD.zip/SD/positive/generated.photos_v3_0000170.png",
+      "truth": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_v3_0000170.json",
+      "scope": "synthetic South Dakota licence; no general US coverage claim"
+    },
+    {
+      "id": "idnet-sd/generated.photos_v3_0000333",
+      "group": "idnet-sd/generated.photos_v3_0000333",
+      "dataset": "idnet-part3",
+      "image": "idnet-part3/SD.zip/SD/positive/generated.photos_v3_0000333.png",
+      "truth": "idnet-part3/SD.zip/SD/meta/basic/generated.photos_v3_0000333.json",
+      "scope": "synthetic South Dakota licence; no general US coverage claim"
+    },
+    {
+      "id": "cord-v2/test/0",
+      "group": "cord-v2/test/0",
+      "dataset": "cord-v2",
+      "image": "cord-v2/test/0.jpg",
+      "truth": "cord-v2/test/0.json",
+      "scope": "receipt semantic regions; viewer JPEG derivative, not original PNG"
+    },
+    {
+      "id": "cord-v2/test/1",
+      "group": "cord-v2/test/1",
+      "dataset": "cord-v2",
+      "image": "cord-v2/test/1.jpg",
+      "truth": "cord-v2/test/1.json",
+      "scope": "receipt semantic regions; viewer JPEG derivative, not original PNG"
+    },
+    {
+      "id": "cord-v2/test/2",
+      "group": "cord-v2/test/2",
+      "dataset": "cord-v2",
+      "image": "cord-v2/test/2.jpg",
+      "truth": "cord-v2/test/2.json",
+      "scope": "receipt semantic regions; viewer JPEG derivative, not original PNG"
+    }
+  ]
+}
