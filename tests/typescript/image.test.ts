@@ -11,6 +11,12 @@ describe('normalizeToBase64', () => {
     expect(result).toBe(input)
   })
 
+  it('does not treat base64 beginning with http as an image URL', async () => {
+    const input = 'httpAAAA'
+    expect(await normalizeToBase64(input)).toBe(input)
+    expect(Buffer.from(await (await normalizeToBlob(input)).arrayBuffer()).toString('base64')).toBe(input)
+  })
+
   it('converts Buffer to base64', async () => {
     const buf = Buffer.from('Hello World')
     const result = await normalizeToBase64(buf)
@@ -30,10 +36,20 @@ describe('normalizeToBlob', () => {
     return new Uint8Array(await blob.arrayBuffer())
   }
 
-  it('passes a Blob through unchanged', async () => {
-    const input = new Blob([new Uint8Array([1, 2, 3])])
+  it('passes a typed image Blob through unchanged', async () => {
+    const input = new Blob([new Uint8Array([1, 2, 3])], { type: 'image/png' })
     const result = await normalizeToBlob(input)
     expect(result).toBe(input)
+  })
+
+  it.each(['base64', 'arraybuffer', 'blob'])('sets a usable PDF multipart content type for %s inputs', async (kind) => {
+    const bytes = Buffer.from('%PDF-1.7\nsynthetic')
+    const input = kind === 'base64' ? bytes.toString('base64')
+      : kind === 'blob' ? new Blob([bytes])
+      : bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+    const result = await normalizeToBlob(input)
+    expect(result.type).toBe('application/pdf')
+    expect(await result.text()).toBe(bytes.toString())
   })
 
   it('converts a Buffer to a Blob preserving bytes', async () => {

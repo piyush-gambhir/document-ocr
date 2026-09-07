@@ -15,24 +15,12 @@ describe('DocumentOCR client', () => {
     expect(() => new DocumentOCR({ mode: 'lambda' })).toThrow('functionName is required')
   })
 
-  it('creates http client with endpoint', () => {
-    const client = new DocumentOCR({ mode: 'http', endpoint: 'http://localhost:8000' })
-    expect(client).toBeDefined()
+  it.each([-1, 0.5, NaN, Infinity])('rejects invalid retry count %s', (retries) => {
+    expect(() => new DocumentOCR({ retries })).toThrow('retries must be a non-negative integer')
   })
 
-  it('creates lambda client with functionName', () => {
-    const client = new DocumentOCR({ mode: 'lambda', functionName: 'my-fn' })
-    expect(client).toBeDefined()
-  })
-
-  it('defaults to local mode', () => {
-    const client = new DocumentOCR()
-    expect(client).toBeDefined()
-  })
-
-  it('creates local client without any options', () => {
-    const client = new DocumentOCR({})
-    expect(client).toBeDefined()
+  it.each([0, -1, NaN, Infinity, 2 ** 31])('rejects invalid timeout %s', (timeoutMs) => {
+    expect(() => new DocumentOCR({ timeoutMs })).toThrow('timeoutMs must be between')
   })
 
   it('warns if endpoint is provided in local mode', () => {

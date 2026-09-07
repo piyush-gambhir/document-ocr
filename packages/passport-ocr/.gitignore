@@ -1,0 +1,3 @@
+# Generated canonical source and hosting templates, included in npm artifacts.
+/hosting/
+/python/requirements.lock

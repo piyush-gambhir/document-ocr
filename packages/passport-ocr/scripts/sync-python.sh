@@ -11,6 +11,9 @@ rm -rf "$PACKAGE_DIR/python/core"
 cp -r "$REPO_ROOT/core" "$PACKAGE_DIR/python/core"
 find "$PACKAGE_DIR/python" -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
+# Copy the canonical runtime dependency constraints.
+cp "$REPO_ROOT/requirements.lock" "$PACKAGE_DIR/python/requirements.lock"
+
 # Copy server.py
 cp "$REPO_ROOT/deploy/docker/server.py" "$PACKAGE_DIR/python/server.py"
 

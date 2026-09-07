@@ -21,13 +21,17 @@ type Responder = (count: number) => {
 interface TestServer {
   url: string
   requestCount: () => number
+  paths: string[]
   close: () => Promise<void>
 }
 
 function startServer(responder: Responder): Promise<TestServer> {
   let count = 0
+  const paths: string[] = []
+  const timers = new Set<ReturnType<typeof setTimeout>>()
   const server: Server = createServer((req, res) => {
     count += 1
+    paths.push(req.url ?? '')
     const thisCount = count
     // Drain the request body (multipart form upload) so the socket frees up.
     req.resume()
@@ -37,19 +41,22 @@ function startServer(responder: Responder): Promise<TestServer> {
         res.writeHead(status, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify(body))
       }
-      if (delayMs > 0) setTimeout(send, delayMs)
+      if (delayMs > 0) timers.add(setTimeout(send, delayMs))
       else send()
     })
   })
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    server.on('error', reject)
     server.listen(0, '127.0.0.1', () => {
       const { port } = server.address() as AddressInfo
       resolve({
         url: `http://127.0.0.1:${port}`,
         requestCount: () => count,
+        paths,
         close: () =>
           new Promise<void>((res) => {
+            for (const timer of timers) clearTimeout(timer)
             server.closeAllConnections?.()
             server.close(() => res())
           }),
@@ -147,10 +154,8 @@ describe('DocumentOCR.scan (http mode, real server)', () => {
 
     expect(result.status).toBe('success')
     expect(result.documentType).toBe('pan')
-    if (result.documentType === 'pan') {
-      expect(result.panFields?.panNumber).toBe('ABCPE1234F')
-      expect(result.panFields?.name).toBe('ROHIT SHARMA')
-    }
+    expect(result.panFields?.panNumber).toBe('ABCPE1234F')
+    expect(result.panFields?.name).toBe('ROHIT SHARMA')
     expect(result.fields).toBeNull()
   })
 
@@ -231,17 +236,51 @@ describe('DocumentOCR.scan (http mode, real server)', () => {
     expect(server.requestCount()).toBe(1)
   })
 
-  it('throws the server error message on 400', async () => {
+  it.each([400, 401, 403, 404, 413])('does not retry a definitive %i rejection', async (status) => {
     const server = await withServer(() => ({
-      status: 400,
+      status,
       body: { error: 'INVALID_CONTENT_TYPE' },
     }))
-    const client = new DocumentOCR({ mode: 'http', endpoint: server.url, retries: 0 })
+    const client = new DocumentOCR({ mode: 'http', endpoint: server.url, retries: 2 })
 
     await expect(client.scan(Buffer.from('fake-image-bytes'))).rejects.toThrow(
       'INVALID_CONTENT_TYPE',
     )
     expect(server.requestCount()).toBe(1)
+  })
+
+  it.each([408, 429, 503])('retries transient %i errors regardless of message text', async (status) => {
+    const server = await withServer((count) => count === 1
+      ? { status, body: { error: 'upstream request 400422 is unavailable' } }
+      : { status: 200, body: successBody() })
+    const client = new DocumentOCR({ mode: 'http', endpoint: server.url, retries: 1 })
+
+    await expect(client.scan(Buffer.from('image'))).resolves.toMatchObject({ status: 'success' })
+    expect(server.requestCount()).toBe(2)
+  })
+
+  it('rejects transport validation errors on 422 instead of returning them as scan results', async () => {
+    const server = await withServer(() => ({ status: 422, body: { detail: 'Missing image' } }))
+    const client = new DocumentOCR({ mode: 'http', endpoint: server.url })
+
+    await expect(client.scan(Buffer.from('image'))).rejects.toThrow('Missing image')
+    expect(server.requestCount()).toBe(1)
+  })
+
+  it('accepts an endpoint with a trailing slash', async () => {
+    const server = await withServer(() => ({ status: 200, body: successBody() }))
+    const client = new DocumentOCR({ mode: 'http', endpoint: `${server.url}/` })
+
+    await client.scan(Buffer.from('image'))
+    expect(server.paths).toEqual(['/scan'])
+  })
+
+  it('applies the scan timeout to remote image downloads', async () => {
+    const server = await withServer(() => ({ status: 200, body: successBody(), delayMs: 500 }))
+    const client = new DocumentOCR({ mode: 'http', endpoint: server.url, retries: 0, timeoutMs: 50 })
+
+    await expect(client.scan(`${server.url}/image.jpg`)).rejects.toThrow(/timed out/)
+    expect(server.paths).toEqual(['/image.jpg'])
   })
 
   it('aborts via timeout and rejects when the server is too slow', async () => {

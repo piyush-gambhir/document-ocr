@@ -1,7 +1,7 @@
 {
   "name": "document-ocr",
-  "version": "3.0.0",
-  "description": "Standalone local OCR for passports and Indian KYC documents, including PAN, Aadhaar, DL, voter ID, NREGA, and NPR letters",
+  "version": "3.1.0",
+  "description": "Local and hosted OCR SDK for passports, Indian KYC and experimental US identity, immigration and tax documents",
   "type": "module",
   "exports": {
     ".": {
@@ -17,7 +17,8 @@
     "dist",
     "python",
     "scripts",
-    "README.md"
+    "README.md",
+    "hosting"
   ],
   "repository": {
     "type": "git",
@@ -45,7 +46,7 @@
   "scripts": {
     "postinstall": "node scripts/postinstall.mjs",
     "sync-python": "bash scripts/sync-python.sh",
-    "build": "bash scripts/sync-python.sh && tsup",
+    "build": "bash scripts/sync-python.sh && node scripts/sync-hosting.mjs && tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run ../../tests/typescript"
@@ -68,5 +69,8 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "bin": {
+    "document-ocr": "./scripts/dococr.mjs"
   }
 }

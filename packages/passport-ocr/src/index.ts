@@ -20,4 +20,15 @@ export type {
   DocumentType,
   PageType,
   UnsupportedReason,
+  ScanOptions,
+  S3ImageInput,
+  BatchScanResult,
+  DocumentScanGroupResult,
+  JobOptions,
+  OCRJob,
+  DocumentDefinition,
+  DocumentCatalog,
+  FieldEvidence,
+  JsonValue,
 } from './types'
+export { HttpError, InputValidationError } from './errors'

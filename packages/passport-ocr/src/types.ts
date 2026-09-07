@@ -113,20 +113,36 @@ export type DocumentType =
   | 'voter_id'
   | 'nrega_job_card'
   | 'npr_letter'
+  | 'us_driver_license'
+  | 'us_state_id'
+  | 'passport_card'
+  | 'us_green_card'
+  | 'us_ead'
+  | 'visa'
+  | 'us_i94'
+  | 'us_w9'
   | 'unknown'
-export type PageType =
-  | 'passport_biodata'
-  | 'passport_non_biodata'
-  | 'pan'
-  | 'aadhaar'
-  | 'driving_licence'
-  | 'voter_id'
-  | 'nrega_job_card'
-  | 'npr_letter'
-  | 'unknown'
+export type PageType = DocumentType | 'passport_biodata' | 'passport_non_biodata'
 export type UnsupportedReason = 'UNSUPPORTED_DOCUMENT'
 
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
+
+export interface FieldEvidence {
+  text: string
+  bbox: number[][]
+  source: 'ocr' | 'pdf_text' | 'mrz' | 'pdf417' | 'qr'
+  confidence: number
+  page?: number
+}
+
 export interface BaseDocumentScanResult {
+  schemaVersion?: number
+  documentFields?: Record<string, JsonValue> | null
+  issuingCountry?: string | null
+  issuingRegion?: string | null
+  fieldEvidence?: Record<string, FieldEvidence[]>
+  imageSize?: [number, number] | null // [width, height] in evidence coordinates
+  checks?: Record<string, boolean | string | null>
   status: DocumentStatus
   documentType: DocumentType
   pageType: PageType
@@ -185,7 +201,74 @@ export interface DocumentOCROptions {
   functionName?: string // required for mode: 'lambda'
   timeoutMs?: number // default: 30000
   retries?: number // default: 2
-  apiKey?: string // optional bearer token for http mode
+  apiKey?: string // optional bearer token for HTTP mode
+  // Called on every HTTP attempt so short-lived IAM tokens can be refreshed.
+  // Returned headers override apiKey, which remains the fallback.
+  authHeaders?: (url: string, signal?: AbortSignal) => HeadersInit | Promise<HeadersInit>
 }
 
 export type PassportOCROptions = DocumentOCROptions
+
+export interface ScanOptions {
+  documentType?: string
+  country?: string
+  includeEvidence?: boolean
+}
+
+export interface BatchScanResult {
+  results: DocumentScanResult[]
+  status: 'success' | 'partial' | 'failure'
+  errors: string[]
+}
+
+export interface DocumentScanGroupResult extends BatchScanResult {
+  documentFields: Record<string, JsonValue>
+  conflicts: Array<{
+    field: string
+    values: Array<{ page: number; value: JsonValue }>
+  }>
+}
+
+export interface JobOptions extends ScanOptions {
+  grouped?: boolean
+  notify?: boolean
+}
+
+export interface OCRJob {
+  id: string
+  status: 'queued' | 'running' | 'succeeded' | 'failed'
+  createdAt: number
+  expiresAt: number
+  attempts: number
+  error: string | null
+  result?: BatchScanResult | DocumentScanGroupResult
+}
+
+export interface S3ImageInput {
+  bucket: string
+  key: string
+  versionId?: string
+}
+
+export interface DocumentDefinition {
+  documentType: DocumentType
+  label: string
+  countries: string[]
+  fields: string[]
+  requiredFields: string[]
+  requiredFieldsByVariant?: Record<string, string[]>
+  requirementAlternatives?: Record<string, string[][]>
+  sources: string[]
+  experimental: boolean
+}
+
+export interface DocumentCatalog {
+  schemaVersion: number
+  documents: DocumentDefinition[]
+  capabilities: {
+    barcode: boolean
+    jobs: boolean
+    review: boolean
+    multipage: boolean
+  }
+}

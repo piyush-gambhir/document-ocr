@@ -12,8 +12,8 @@
  * Exits 0 even on failure — errors will surface on first scan() call.
  */
 
-import { execSync } from 'node:child_process'
-import { existsSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { existsSync, rmSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -22,6 +22,7 @@ const packageDir = join(__dirname, '..')
 const pythonDir = join(packageDir, 'python')
 const venvDir = join(packageDir, '.venv')
 const markerFile = join(venvDir, '.setup-complete')
+const constraints = join(pythonDir, 'requirements.lock')
 
 // Python version used by the bundled runtime
 const TARGET_PYTHON = '3.12'
@@ -30,9 +31,9 @@ function log(msg) {
   process.stderr.write(`[document-ocr] ${msg}\n`)
 }
 
-function run(cmd, opts = {}) {
-  log(`> ${cmd}`)
-  return execSync(cmd, {
+function run(cmd, args, opts = {}) {
+  log(`> ${cmd} ${args.join(' ')}`)
+  return execFileSync(cmd, args, {
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
     timeout: 600000, // 10 minutes (OCR dependencies are large)
@@ -42,7 +43,7 @@ function run(cmd, opts = {}) {
 
 function hasUv() {
   try {
-    const version = execSync('uv --version 2>&1', { encoding: 'utf-8', timeout: 10000 }).trim()
+    const version = execFileSync('uv', ['--version'], { encoding: 'utf-8', timeout: 10000 }).trim()
     log(`Found ${version}`)
     return true
   } catch {
@@ -55,13 +56,11 @@ function findCompatiblePython() {
    * Find a Python supported by the bundled runtime (3.12 or 3.13).
    * Check versioned commands first, then generic ones.
    */
-  const candidates = process.platform === 'win32'
-    ? ['python3.12', 'python3.13', 'python3', 'python']
-    : ['python3.12', 'python3.13', 'python3', 'python']
+  const candidates = ['python3.12', 'python3.13', 'python3', 'python']
 
   for (const cmd of candidates) {
     try {
-      const version = execSync(`${cmd} --version 2>&1`, { encoding: 'utf-8', timeout: 10000 }).trim()
+      const version = execFileSync(cmd, ['--version'], { encoding: 'utf-8', timeout: 10000 }).trim()
       const match = version.match(/Python (\d+)\.(\d+)/)
       if (match) {
         const major = parseInt(match[1], 10)
@@ -83,13 +82,13 @@ async function main() {
     return
   }
 
-  if (process.env.PASSPORT_OCR_SKIP_PYTHON === '1') {
-    log('Skipping Python setup (PASSPORT_OCR_SKIP_PYTHON=1)')
+  if (process.env.DOCUMENT_OCR_SKIP_PYTHON === '1' || process.env.PASSPORT_OCR_SKIP_PYTHON === '1') {
+    log('Skipping Python setup (DOCUMENT_OCR_SKIP_PYTHON / PASSPORT_OCR_SKIP_PYTHON)')
     return
   }
 
-  if (!existsSync(pythonDir)) {
-    log('Warning: python/ directory not found. Local mode will not work.')
+  if (!existsSync(pythonDir) || !existsSync(constraints)) {
+    log('Warning: bundled Python runtime or dependency lock is missing. Local mode will not work.')
     return
   }
 
@@ -100,12 +99,12 @@ async function main() {
   if (uvAvailable && !existsSync(venvDir)) {
     log(`Creating virtual environment with Python ${TARGET_PYTHON} via uv...`)
     try {
-      run(`uv venv --python ${TARGET_PYTHON} "${venvDir}"`)
+      run('uv', ['venv', '--python', TARGET_PYTHON, venvDir])
       log('Installing Python dependencies...')
       const venvPython = process.platform === 'win32'
         ? join(venvDir, 'Scripts', 'python.exe')
         : join(venvDir, 'bin', 'python')
-      run(`uv pip install --python "${venvPython}" -e "${pythonDir}"`)
+      run('uv', ['pip', 'install', '--python', venvPython, '-c', constraints, '-e', pythonDir])
       writeFileSync(markerFile, new Date().toISOString())
       log('Setup complete.')
       return
@@ -113,7 +112,7 @@ async function main() {
       log(`uv setup failed: ${err.message?.split('\n')[0]}`)
       log('Trying fallback...')
       // Clean up failed venv
-      try { execSync(`rm -rf "${venvDir}"`, { timeout: 10000 }) } catch {}
+      try { rmSync(venvDir, { recursive: true, force: true }) } catch {}
     }
   }
 
@@ -123,7 +122,7 @@ async function main() {
     if (!existsSync(venvDir)) {
       log(`Creating virtual environment with ${pythonCmd}...`)
       try {
-        run(`${pythonCmd} -m venv "${venvDir}"`)
+        run(pythonCmd, ['-m', 'venv', venvDir])
       } catch (err) {
         log(`Warning: Failed to create venv: ${err.message?.split('\n')[0]}`)
         return
@@ -142,10 +141,10 @@ async function main() {
     log('Installing Python dependencies...')
     try {
       if (uvAvailable) {
-        run(`uv pip install --python "${venvPython}" -e "${pythonDir}"`)
+        run('uv', ['pip', 'install', '--python', venvPython, '-c', constraints, '-e', pythonDir])
       } else {
-        run(`"${venvPython}" -m pip install --upgrade pip`)
-        run(`"${venvPython}" -m pip install -e "${pythonDir}"`)
+        run(venvPython, ['-m', 'pip', 'install', '--upgrade', 'pip'])
+        run(venvPython, ['-m', 'pip', 'install', '-c', constraints, '-e', pythonDir])
       }
     } catch (err) {
       log(`Warning: Failed to install dependencies: ${err.message?.split('\n')[0]}`)
