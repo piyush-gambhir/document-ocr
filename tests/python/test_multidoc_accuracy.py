@@ -62,6 +62,7 @@ def test_missing_family_and_too_few_runs_fail_closed():
     r['repeats'] = 1
     r['profiles'] = {}
     assert set(gate(r, policy())['failures']) == {'INSUFFICIENT_REPEATS', 'passport:INSUFFICIENT_CASES'}
+    assert not gate(r, policy())['regressionPassed']
 
 
 def test_latency_budget_is_per_family():
@@ -136,3 +137,37 @@ def test_matched_successful_latency_regression_is_blocked():
     result = gate(after, policy(), before)
     assert not result['regressionPassed']
     assert 'passport:REGRESSED_p95Ms' in result['failures']
+
+
+def test_unchanged_rejection_latency_cannot_escape_regression_gate():
+    before = report()
+    before['cases'][0]['runs'] *= 2
+    for run in before['cases'][0]['runs']:
+        run.update(status='unsupported_page', fieldMatches={}, mrzExact=None,
+                   routingMatch=None, negativeRejected=True)
+    after = deepcopy(before)
+    for run in after['cases'][0]['runs']:
+        run['elapsedMs'] = 1800
+    assert not gate(after, policy(), before)['regressionPassed']
+
+
+def test_cold_start_failure_is_operational_even_when_warm_calls_succeed():
+    r = report()
+    r['coldStartError'] = 'OCRModelInitError'
+    assert 'COLD_START_ERROR' in gate(r, policy())['failures']
+    assert not gate(r, policy())['regressionPassed']
+
+
+def test_mixed_source_baseline_cannot_approve_a_candidate():
+    before, after = report(), report()
+    before['sourceUnchanged'] = False
+    with pytest.raises(ValueError, match='source changed'):
+        gate(after, policy(), before)
+
+
+def test_legacy_field_block_scores_actual_extraction_without_free_credit():
+    case = {'profile': 'pan', 'fieldBlock': 'panFields'}
+    actual = {'documentType': 'pan', 'status': 'failure', 'panFields': {'name': 'ANNA SAMPLE'}}
+    r = score(case, ({'name': 'ANNA SAMPLE', 'panNumber': 'ABCPA1234F'}, None), actual, 100, None)
+    assert r['fieldMatches'] == {'name': True, 'panNumber': False}
+    assert summarize([{'group': 'one', 'runs': [r]}])['acceptedPositiveAccuracy'] == 0

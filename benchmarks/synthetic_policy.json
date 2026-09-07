@@ -1,0 +1,98 @@
+{
+  "minimumRepeats": 3,
+  "maxWarmP95Ms": 2500,
+  "maxLatencyIncreaseFraction": 0.2,
+  "latencyNoiseFloorMs": 100,
+  "profiles": {
+    "passport": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "pan": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "aadhaar": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "driving_licence": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "voter_id": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "nrega_job_card": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "npr_letter": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "us_driver_license": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "us_state_id": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "passport_card": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "us_green_card": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "us_ead": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "visa": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "us_i94": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    },
+    "us_w9": {
+      "minimumCases": 6,
+      "fieldAccuracy": 0.98,
+      "completeRecordAccuracy": 0.95,
+      "acceptedPositiveAccuracy": 0.95
+    }
+  }
+}

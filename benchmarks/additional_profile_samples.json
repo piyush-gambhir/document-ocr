@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "researchDate": "2026-09-08",
+  "purpose": "reviewed-specimen contract coverage; not independently verified population accuracy",
+  "labelProvenance": "agent-visual-transcription-before-ocr; no independent human review",
+  "selection": "One completed high-resolution USCIS fictional specimen. No augmentations or full dataset archives.",
+  "sources": [
+    {
+      "id": "uscis-ead-2017",
+      "author": "U.S. Citizenship and Immigration Services (USCIS)",
+      "source": "https://www.uscis.gov/sites/default/files/USCIS/E-Verify/Images/4.2_Figure_3_Auto_Extend_EAD.jpg",
+      "mirror": "https://commons.wikimedia.org/w/index.php?title=File:USCIS_EAD_card.jpg&oldid=916147826",
+      "license": "public-domain-us-federal-government",
+      "terms": "https://commons.wikimedia.org/wiki/File:USCIS_EAD_card.jpg#Licensing",
+      "notes": "USCIS-authored specimen mirrored on Commons; 2019-03-19 upload, 2003x1278 original. USCIS source URL did not resolve during this review."
+    }
+  ],
+  "files": [
+    {
+      "path": "reviewed-specimen/uscis-ead-2017.jpg",
+      "kind": "direct",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/fe/USCIS_EAD_card.jpg",
+      "bytes": 505084,
+      "sha256": "4be5359facc3a1801139a8b54b7e4b564a73856edbb39dc36080f1c34743bd77"
+    },
+    {
+      "path": "reviewed-specimen/uscis-ead-2017.json",
+      "kind": "generated",
+      "sourceFile": "uscis-ead-2017.json",
+      "bytes": 1066,
+      "sha256": "977d908d75623b47ebe347a094311d18fe95da5714610f4c35470ef55e8f42c1"
+    }
+  ],
+  "cases": [
+    {
+      "id": "reviewed-specimen/uscis-ead-2017/front",
+      "group": "uscis-specimen/test-v-000000811",
+      "dataset": "reviewed-specimen",
+      "profile": "us_ead",
+      "fieldBlock": "documentFields",
+      "image": "reviewed-specimen/uscis-ead-2017.jpg",
+      "truth": "reviewed-specimen/uscis-ead-2017.json",
+      "capture": "publisher-specimen",
+      "scope": "one historical fictional EAD front; agent visual transcription",
+      "split": "reviewed-contract",
+      "labelProvenance": "agent-visual-transcription-before-ocr"
+    }
+  ]
+}

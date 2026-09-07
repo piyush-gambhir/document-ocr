@@ -50,6 +50,8 @@ def read_url(url: str, limit: int, *, offset: int | None = None, total: int | No
 
 
 def fetch_bytes(record: dict, rows: dict) -> bytes:
+    if record.get('kind') == 'generated':
+        raise ValueError('local fixture missing; run its documented generator before verification')
     if record.get('kind') == 'direct':
         return read_url(record['url'], record['bytes'])
     if record.get('kind') in {'cord-row', 'symage-row'}:
@@ -96,7 +98,7 @@ def validate_manifest(manifest: dict, root: Path) -> None:
         raise ValueError('sample exceeds the fixed 100 MiB limit')
     for f in files:
         sample_path(root, f['path'])
-        if f.get('kind') not in {'cord-row', 'symage-row', 'direct'}:
+        if f.get('kind') not in {'cord-row', 'symage-row', 'direct', 'generated'}:
             if not (0 < f['length'] <= MAX_BYTES and 0 <= f['offset'] < f['archiveBytes']
                     and f['offset'] + f['length'] <= f['archiveBytes']):
                 raise ValueError('invalid archive range')
@@ -144,6 +146,12 @@ def inspect_samples(manifest: dict, root: Path) -> dict:
         elif case['dataset'] == 'symage-us-forms':
             if truth['form_id'] != case['formId'] or not json.loads(truth['funsd_json']):
                 raise ValueError('missing or mismatched form annotations')
+        elif case['dataset'] in {'synthetic-contract', 'reviewed-specimen'}:
+            if not isinstance(truth.get('fields'), dict):
+                raise ValueError('missing explicit fixture field truth')
+            if case['profile'] != 'negative_control' and (
+                    not truth['fields'] or truth.get('documentType', case['profile']) != case['profile']):
+                raise ValueError('fixture truth does not match profile')
         if 'geometry' in case:
             json.loads(sample_path(root, case['geometry']).read_text())
         counts[case['dataset']] = counts.get(case['dataset'], 0) + 1

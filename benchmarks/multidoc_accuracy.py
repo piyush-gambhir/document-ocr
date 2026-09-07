@@ -83,6 +83,9 @@ def form_truth(truth: dict) -> dict:
 
 def expected(case: dict, root: Path) -> tuple[dict, list[str] | None]:
     kind = profile(case)
+    if case['dataset'] in {'synthetic-contract', 'reviewed-specimen'}:
+        truth = json.loads((root / case['truth']).read_text())
+        return truth['fields'], truth.get('mrzRaw') if kind == 'passport' else None
     if kind in {'passport', 'us_driver_license'}:
         return expected_fields(case, root)
     if kind == 'us_w9':
@@ -105,7 +108,7 @@ def score(case: dict, truth: tuple[dict, list[str] | None], actual: dict | None,
     actual = actual or {}
     kind = profile(case)
     routed = actual.get('documentType') == kind
-    values = actual.get('fields' if kind == 'passport' else 'documentFields') or {}
+    values = actual.get(case.get('fieldBlock', 'fields' if kind == 'passport' else 'documentFields')) or {}
     matches, absent = {}, {}
     for key, value in fields.items():
         if value is None:
@@ -168,7 +171,13 @@ def gate(report: dict, policy: dict, baseline: dict | None = None) -> dict:
         for metric in ('fieldAccuracy', 'completeRecordAccuracy', 'acceptedPositiveAccuracy'):
             if summary[metric] is None or summary[metric] < thresholds[metric]:
                 failures.append(kind + ':' + metric)
-    operational_failures = []
+    operational_failures = [f for f in failures if 'INSUFFICIENT_' in f]
+    if report.get('coldStartError'):
+        failures.append('COLD_START_ERROR')
+        operational_failures.append('COLD_START_ERROR')
+    if report.get('sourceUnchanged') is False:
+        failures.append('SOURCE_CHANGED_DURING_RUN')
+        operational_failures.append('SOURCE_CHANGED_DURING_RUN')
     for kind, summary in report['profiles'].items():
         if summary['spuriousFields']:
             failures.append(kind + ':SPURIOUS_FIELDS')
@@ -183,6 +192,8 @@ def gate(report: dict, policy: dict, baseline: dict | None = None) -> dict:
             failures.append(kind + ':LATENCY_BUDGET')
     regressions, latency_comparisons = [], {}
     if baseline:
+        if baseline.get('sourceUnchanged') is False:
+            raise ValueError('incompatible baseline: source changed during measurement')
         for key in ('schemaVersion', 'repeats', 'seed', 'policySha256'):
             if baseline[key] != report[key]:
                 raise ValueError('incompatible benchmark: ' + key)
@@ -209,12 +220,21 @@ def gate(report: dict, policy: dict, baseline: dict | None = None) -> dict:
                         raise ValueError('incompatible metric denominators')
                     if was is True and now is False:
                         regressions.append({'id': case['id'], 'metric': metric})
-        # Compare the same successful workload. Newly readable documents must
-        # not be compared against the old millisecond pre-OCR rejection path.
+        # Compare successful extraction and unchanged rejection workloads.
+        # Newly readable documents cannot be compared with pre-OCR rejection.
+        # Rejecting unsupported input is also work with a latency budget.
+        def comparable(a, b):
+            if a['runtimeError'] or b['runtimeError']:
+                return False
+            if a['status'] == b['status'] == 'success':
+                return True
+            return {k: v for k, v in a.items() if k != 'elapsedMs'} == {
+                k: v for k, v in b.items() if k != 'elapsedMs'}
+
         for kind in report['profiles']:
             pairs = [(a['elapsedMs'], b['elapsedMs']) for c in report['cases'] if c['profile'] == kind
                      for a, b in zip(old[c['id']]['runs'], c['runs'])
-                     if a['status'] == b['status'] == 'success']
+                     if comparable(a, b)]
             if len(pairs) < 5:
                 latency_comparisons[kind] = {'comparableCalls': len(pairs), 'measured': False}
                 continue
@@ -263,7 +283,7 @@ def run(manifests: list[Path], root: Path, repeats: int, seed: int, raw_path: Pa
     def measure(case, iteration):
         start = time.perf_counter()
         try:
-            actual = scan(str(root / case['image'])).to_dict()
+            actual = scan(str(root / case['image']), **case.get('options', {})).to_dict()
             error = None
         except Exception as exc:
             actual, error = None, type(exc).__name__
@@ -277,6 +297,8 @@ def run(manifests: list[Path], root: Path, repeats: int, seed: int, raw_path: Pa
                          'split': c.get('split', 'original_smoke'), 'runs': []} for c in cases}
     try:
         cold = measure(cases[0], -1)
+        if cold['runtimeError'] == 'OCRModelInitError':
+            raise RuntimeError('OCR model initialization failed; refusing to retry setup for every case')
         # Warm every family before timing. Cold model startup is reported separately.
         seen = set()
         for case in cases:
@@ -294,7 +316,11 @@ def run(manifests: list[Path], root: Path, repeats: int, seed: int, raw_path: Pa
         raw_file.close()
     provenance['modelSha256'] = {p.name: fingerprint(p) for p in sorted(model_dir.glob('*.onnx'))}
     records = list(results.values())
+    source_unchanged = provenance['coreSha256'] == hashlib.sha256(b''.join(
+        p.name.encode() + b'\0' + p.read_bytes()
+        for p in sorted(Path(core.__file__).parent.glob('*.py')))).hexdigest()
     return {'schemaVersion': 1, 'repeats': repeats, 'seed': seed, 'provenance': provenance,
+            'sourceUnchanged': source_unchanged,
             'coldStartMs': cold['elapsedMs'], 'coldStartError': cold['runtimeError'],
             'overall': summarize(records),
             'profiles': {kind: summarize([c for c in records if c['profile'] == kind]) for kind in sorted(seen)},

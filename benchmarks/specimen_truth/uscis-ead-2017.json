@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "documentType": "us_ead",
+  "fieldBlock": "documentFields",
+  "labelProvenance": "agent-visual-transcription-before-ocr; not publisher annotations or independent human review",
+  "source": "https://commons.wikimedia.org/w/index.php?title=File:USCIS_EAD_card.jpg&oldid=916147826",
+  "notes": [
+    "One USCIS fictional SPECIMEN / TEST V identity, front only.",
+    "All values were transcribed from the original image before any OCR result was inspected.",
+    "USCIS# punctuation is removed; Ethiopia is normalized to ISO alpha-3 ETH.",
+    "The historical specimen prints Valid From 01/01/80 and Card Expires 05/10/11; years are interpreted as 1980 and 2011. Expired specimen tests extraction, not current immigration validity."
+  ],
+  "fields": {
+    "surname": "SPECIMEN",
+    "givenNames": "TEST V",
+    "uscisNumber": "000000811",
+    "cardNumber": "SRC0000000811",
+    "category": "C09",
+    "countryOfBirth": "ETH",
+    "dateOfBirth": "1920-01-01",
+    "sex": "M",
+    "validFrom": "1980-01-01",
+    "expiryDate": "2011-05-10"
+  }
+}

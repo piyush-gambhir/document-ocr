@@ -1,0 +1,14 @@
+{
+  "minimumRepeats": 3,
+  "maxWarmP95Ms": 2500,
+  "maxLatencyIncreaseFraction": 0.2,
+  "latencyNoiseFloorMs": 100,
+  "profiles": {
+    "us_ead": {
+      "minimumCases": 1,
+      "fieldAccuracy": 1.0,
+      "completeRecordAccuracy": 1.0,
+      "acceptedPositiveAccuracy": 1.0
+    }
+  }
+}
