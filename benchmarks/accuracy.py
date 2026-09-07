@@ -1,214 +1,227 @@
-"""
-Accuracy benchmark for the document OCR pipeline.
+"""Private passport OCR benchmark with fail-closed release gates.
 
-Runs against an ignored, private dataset under benchmark-data/ and reports
-metrics. The directory must contain a manifest.json keyed by image filename.
+The ignored dataset contains a manifest.json keyed by opaque asset filename.
+Reports contain aggregate metrics only, never extracted fields or OCR errors.
 """
 
 from __future__ import annotations
 
 import json
+import math
 import os
 import statistics
 import sys
-import time
 from pathlib import Path
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from core.pipeline import scan
+from typing import Any, Callable, Mapping, Sequence
 
 STATUS_MATCH_TARGET = 0.95
 FIELD_ACCURACY_TARGET = 0.97
 MRZ_EXACT_TARGET = 0.99
 NON_BIODATA_TARGET = 0.95
 WARM_BIODATA_MEDIAN_MS_TARGET = 5000
+FIELD_BLOCKS = ("fields", "backPageFields")
 
 
-def run_benchmark():
-    sample_dir = Path(
-        os.getenv(
-            "DOCUMENT_OCR_BENCHMARK_DATA",
-            Path(__file__).parent.parent / "benchmark-data",
-        )
-    )
-    manifest_path = sample_dir / "manifest.json"
-    expectations = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    images = [sample_dir / name for name in expectations]
-
-    if not images:
-        print(
-            f"No benchmark images found in {sample_dir}. "
-            "Set DOCUMENT_OCR_BENCHMARK_DATA or create benchmark-data/."
-        )
-        sys.exit(1)
-
-    warmup_image = next(
-        (
-            sample_dir / name
-            for name, expected in expectations.items()
-            if expected.get("status") == "success" and expected.get("pageType") == "passport_biodata"
-        ),
-        None,
-    )
-
-    if warmup_image is not None:
-        print(f"Warming OCR pipeline with {warmup_image.name}...\n")
-        scan(str(warmup_image))
-
-    print(f"Running benchmark on {len(images)} images...\n")
-
-    results = []
-    total_start = time.monotonic()
-
-    for image_path in images:
-        print(f"  Processing: {image_path.name}")
-        result = scan(str(image_path))
-        expected = expectations.get(image_path.name, {})
-        matched = (
-            result.status == expected.get("status")
-            and result.document_type == expected.get("documentType", result.document_type)
-            and result.page_type == expected.get("pageType")
-        )
-        field_matches, field_total = _score_fields(result.to_dict().get("fields"), expected.get("fields"))
-        mrz_exact = _score_mrz(result.mrz_raw, expected.get("mrzRaw"))
-        unsupported_reason_match = _score_unsupported_reason(result.unsupported_reason, expected.get("unsupportedReason"))
-        results.append((image_path.name, result, matched))
-
-        status = "OK" if matched else "FAIL"
-        print(f"    {status} | status={result.status} | page_type={result.page_type} | "
-              f"confidence={result.confidence:.3f} | {result.processing_ms}ms")
-
-        if field_total:
-            print(f"    fields: {field_matches}/{field_total} exact")
-        if mrz_exact is not None:
-            print(f"    mrz_exact: {mrz_exact}")
-        if unsupported_reason_match is not None:
-            print(f"    unsupported_reason: {unsupported_reason_match}")
-
-        if result.errors:
-            print(f"    errors: {result.errors}")
-        if result.warnings:
-            print(f"    warnings: {result.warnings}")
-        print()
-
-    total_ms = int((time.monotonic() - total_start) * 1000)
-
-    # Summary
-    matched_results = [matched for _, _, matched in results]
-    supported_success = [r for _, r, matched in results if matched and r.status == "success"]
-    avg_conf = sum(r.confidence for _, r, _ in results) / len(results) if results else 0
-    avg_time = sum(r.processing_ms for _, r, _ in results) / len(results) if results else 0
-    biodata_latencies = [
-        r.processing_ms
-        for name, r, _ in results
-        if expectations.get(name, {}).get("status") == "success"
-        and expectations.get(name, {}).get("pageType") == "passport_biodata"
-    ]
-    warm_biodata_median = statistics.median(biodata_latencies) if biodata_latencies else 0
-
-    total_field_matches = 0
-    total_field_expectations = 0
-    mrz_exact_matches = 0
-    mrz_expectations = 0
-    non_biodata_matches = 0
-    non_biodata_expectations = 0
-
-    for name, result, _ in results:
-        expected = expectations.get(name, {})
-
-        field_matches, field_total = _score_fields(result.to_dict().get("fields"), expected.get("fields"))
-        total_field_matches += field_matches
-        total_field_expectations += field_total
-
-        mrz_exact = _score_mrz(result.mrz_raw, expected.get("mrzRaw"))
-        if mrz_exact is not None:
-            mrz_expectations += 1
-            mrz_exact_matches += int(mrz_exact)
-
-        if expected.get("pageType") == "passport_non_biodata":
-            non_biodata_expectations += 1
-            non_biodata_matches += int(
-                result.status == "success"
-                and result.page_type == "passport_non_biodata"
-            )
-
-    field_accuracy = (
-        total_field_matches / total_field_expectations
-        if total_field_expectations
-        else 1.0
-    )
-    mrz_exact_rate = (mrz_exact_matches / mrz_expectations) if mrz_expectations else 1.0
-    non_biodata_rate = (non_biodata_matches / non_biodata_expectations) if non_biodata_expectations else 1.0
-
-    print("=" * 60)
-    print(f"Total images:      {len(results)}")
-    print(f"Status matched:    {sum(matched_results)} ({sum(matched_results)/len(results)*100:.1f}%)")
-    print(f"Successful:        {len(supported_success)}")
-    print(f"Field accuracy:    {field_accuracy:.1%}")
-    print(f"MRZ exact-match:   {mrz_exact_rate:.1%}")
-    print(f"Non-biodata acc:   {non_biodata_rate:.1%}")
-    print(f"Warm biodata p50:  {warm_biodata_median:.0f}ms")
-    print(f"Avg confidence:    {avg_conf:.3f}")
-    print(f"Avg processing:    {avg_time:.0f}ms")
-    print(f"Total time:        {total_ms}ms")
-    print("=" * 60)
-
-    matched_rate = sum(matched_results) / len(results) if results else 0
-    failures = []
-    if matched_rate < STATUS_MATCH_TARGET:
-        failures.append(
-            f"Status match rate {matched_rate:.1%} is below {STATUS_MATCH_TARGET:.0%}"
-        )
-    if field_accuracy < FIELD_ACCURACY_TARGET:
-        failures.append(
-            f"Field accuracy {field_accuracy:.1%} is below {FIELD_ACCURACY_TARGET:.0%}"
-        )
-    if mrz_exact_rate < MRZ_EXACT_TARGET:
-        failures.append(
-            f"MRZ exact-match rate {mrz_exact_rate:.1%} is below {MRZ_EXACT_TARGET:.0%}"
-        )
-    if non_biodata_rate < NON_BIODATA_TARGET:
-        failures.append(
-            f"Non-biodata accuracy {non_biodata_rate:.1%} is below {NON_BIODATA_TARGET:.0%}"
-        )
-    if biodata_latencies and warm_biodata_median > WARM_BIODATA_MEDIAN_MS_TARGET:
-        failures.append(
-            f"Warm biodata median {warm_biodata_median:.0f}ms exceeds {WARM_BIODATA_MEDIAN_MS_TARGET}ms"
-        )
-
-    if failures:
-        print("\nFAIL:")
-        for failure in failures:
-            print(f"  - {failure}")
-        sys.exit(1)
+def _ratio(matches: int, total: int) -> float | None:
+    return matches / total if total else None
 
 
-def _score_fields(actual_fields: dict | None, expected_fields: dict | None) -> tuple[int, int]:
+def _score_fields(
+    actual_fields: Mapping[str, Any] | None,
+    expected_fields: Mapping[str, Any] | None,
+) -> tuple[int, int]:
     if not expected_fields:
         return 0, 0
-
-    actual_fields = actual_fields or {}
-    matches = 0
-    total = 0
-    for key, expected in expected_fields.items():
-        total += 1
-        matches += int(actual_fields.get(key) == expected)
-    return matches, total
+    actual_fields = actual_fields if isinstance(actual_fields, Mapping) else {}
+    return (
+        sum(actual_fields.get(key) == value for key, value in expected_fields.items()),
+        len(expected_fields),
+    )
 
 
-def _score_mrz(actual_mrz: tuple[str, str] | None, expected_mrz: list[str] | None) -> bool | None:
-    if not expected_mrz:
-        return None
-    return list(actual_mrz) == expected_mrz if actual_mrz else False
+def evaluate_results(
+    results: Sequence[tuple[Mapping[str, Any], Mapping[str, Any] | None]],
+) -> dict[str, Any]:
+    """Score (expected, actual) pairs; a missing actual records a scanner crash.
+
+    Missing measurement denominators fail the corresponding release gate.
+    Field and MRZ scores require the expected status/document/page routing.
+    Additional annotated result metadata, including unsupportedReason and
+    mrzValid, participates in the status/metadata match gate.
+    """
+    status_matches = field_matches = field_total = mrz_matches = mrz_total = 0
+    back_matches = back_total = runtime_errors = 0
+    biodata_total = 0
+    biodata_latencies: list[float] = []
+
+    for expected, actual in results:
+        runtime_errors += int(actual is None)
+        actual = actual or {}
+        metadata = {
+            "documentType": "passport",
+            **{
+                key: value
+                for key, value in expected.items()
+                if key not in (*FIELD_BLOCKS, "mrzRaw")
+            },
+        }
+        matched = all(actual.get(key) == value for key, value in metadata.items())
+        status_matches += int(matched)
+        for block in FIELD_BLOCKS:
+            matches, total = _score_fields(actual.get(block), expected.get(block))
+            field_matches += matches if matched else 0
+            field_total += total
+
+        if expected.get("mrzRaw") is not None:
+            mrz_total += 1
+            mrz_matches += int(matched and actual.get("mrzRaw") == expected["mrzRaw"])
+
+        if (
+            expected.get("status") == "success"
+            and expected.get("pageType") == "passport_non_biodata"
+        ):
+            back_total += 1
+            back_matches += int(matched)
+
+        if (
+            expected.get("status") == "success"
+            and expected.get("pageType") == "passport_biodata"
+        ):
+            biodata_total += 1
+            latency = actual.get("processingMs")
+            if (
+                not isinstance(latency, bool)
+                and isinstance(latency, (int, float))
+                and math.isfinite(latency)
+                and latency > 0
+            ):
+                biodata_latencies.append(latency)
+
+    metrics = {
+        "samples": len(results),
+        "statusMatches": status_matches,
+        "statusMatchRate": _ratio(status_matches, len(results)),
+        "fieldMatches": field_matches,
+        "fieldExpectations": field_total,
+        "fieldAccuracy": _ratio(field_matches, field_total),
+        "mrzMatches": mrz_matches,
+        "mrzExpectations": mrz_total,
+        "mrzExactRate": _ratio(mrz_matches, mrz_total),
+        "nonBiodataMatches": back_matches,
+        "nonBiodataExpectations": back_total,
+        "nonBiodataAccuracy": _ratio(back_matches, back_total),
+        "runtimeErrors": runtime_errors,
+        "biodataSamples": biodata_total,
+        "biodataLatencySamples": len(biodata_latencies),
+        "warmBiodataMedianMs": (
+            statistics.median(biodata_latencies) if biodata_latencies else None
+        ),
+    }
+    gates = (
+        ("statusMatchRate", STATUS_MATCH_TARGET, ">="),
+        ("fieldAccuracy", FIELD_ACCURACY_TARGET, ">="),
+        ("mrzExactRate", MRZ_EXACT_TARGET, ">="),
+        ("nonBiodataAccuracy", NON_BIODATA_TARGET, ">="),
+        ("warmBiodataMedianMs", WARM_BIODATA_MEDIAN_MS_TARGET, "<="),
+        ("runtimeErrors", 0, "<="),
+    )
+    checks = []
+    for metric, threshold, operator in gates:
+        actual = metrics[metric]
+        passed = actual is not None and (
+            actual >= threshold if operator == ">=" else actual <= threshold
+        )
+        checks.append({
+            "metric": metric,
+            "actual": actual,
+            "threshold": threshold,
+            "operator": operator,
+            "passed": passed,
+        })
+    checks.append({
+        "metric": "biodataLatencySamples",
+        "actual": len(biodata_latencies),
+        "threshold": biodata_total,
+        "operator": "==",
+        "passed": biodata_total > 0 and len(biodata_latencies) == biodata_total,
+    })
+    failures = [check for check in checks if not check["passed"]]
+    return {"passed": not failures, "metrics": metrics, "checks": checks, "failures": failures}
 
 
-def _score_unsupported_reason(actual_reason: str | None, expected_reason: str | None) -> bool | None:
-    if expected_reason is None:
-        return None
-    return actual_reason == expected_reason
+def _load_dataset(root: Path) -> list[tuple[Path, dict[str, Any]]]:
+    expectations = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    if not isinstance(expectations, dict) or not expectations:
+        raise ValueError("manifest must be a non-empty mapping of assets to expectations")
+    cases = []
+    for name, expected in expectations.items():
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("manifest asset names must be non-empty strings")
+        asset = (root / name).resolve()
+        if not asset.is_relative_to(root.resolve()) or not asset.is_file():
+            raise ValueError("manifest assets must exist inside the dataset root")
+        if not isinstance(expected, dict) or not all(
+            isinstance(expected.get(key), str) and expected[key]
+            for key in ("status", "pageType")
+        ):
+            raise ValueError("every sample needs string status and pageType expectations")
+        for block in FIELD_BLOCKS:
+            if expected.get(block) is not None and not isinstance(expected[block], dict):
+                raise ValueError(f"{block} expectations must be objects or null")
+        if expected.get("mrzRaw") is not None and (
+            not isinstance(expected["mrzRaw"], list)
+            or len(expected["mrzRaw"]) != 2
+            or not all(isinstance(line, str) and line for line in expected["mrzRaw"])
+        ):
+            raise ValueError("mrzRaw expectations must contain two non-empty strings")
+        cases.append((asset, expected))
+    return cases
+
+
+def run_benchmark(
+    dataset_root: str | Path | None = None,
+    scanner: Callable[[str], Any] | None = None,
+) -> dict[str, Any]:
+    root = Path(dataset_root or os.getenv(
+        "DOCUMENT_OCR_BENCHMARK_DATA", Path(__file__).resolve().parent.parent / "benchmark-data"
+    ))
+    cases = _load_dataset(root)
+    if scanner is None:
+        # Delay OCR imports until a valid private dataset is available.
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from core.pipeline import scan
+
+        scanner = scan
+
+    warmup = next((asset for asset, expected in cases if (
+        expected["status"] == "success" and expected["pageType"] == "passport_biodata"
+    )), None)
+    if warmup is not None:
+        scanner(str(warmup))
+
+    results = []
+    for asset, expected in cases:
+        try:
+            result = scanner(str(asset))
+            actual = result if isinstance(result, Mapping) else result.to_dict()
+            if not isinstance(actual, Mapping):
+                raise TypeError("scanner must return a mapping or a result with to_dict()")
+        except Exception:  # Count failures without leaking OCR text or identity fields.
+            actual = None
+        results.append((expected, actual))
+    return evaluate_results(results)
+
+
+def main() -> int:
+    try:
+        report = run_benchmark()
+    except Exception as exc:
+        # Runtime messages may contain identity values; expose only the error type.
+        print(f"Passport benchmark setup failed ({type(exc).__name__}). Check the dataset and OCR setup.", file=sys.stderr)
+        return 2
+    print(json.dumps(report, indent=2))
+    return 0 if report["passed"] else 1
 
 
 if __name__ == "__main__":
-    run_benchmark()
+    raise SystemExit(main())

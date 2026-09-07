@@ -99,22 +99,28 @@ class ManifestError(ValueError):
 def _ratio(numerator: int, denominator: int) -> float | None:
     if denominator == 0:
         return None
-    return round(numerator / denominator, 6)
+    # Gate on the measured ratio; display rounding can otherwise turn a value
+    # just below a release threshold into a passing result.
+    return numerator / denominator
 
 
 def normalize_value(value: Any) -> Any:
     """Normalize a field value for tolerant comparison.
 
     String normalization is Unicode-aware, case-insensitive, and removes
-    whitespace/punctuation while preserving letters and digits from every
-    script. Exact comparison remains available separately.
+    whitespace/punctuation while preserving letters, digits, and combining
+    marks from every script. Exact comparison remains available separately.
     """
 
     if value is None or isinstance(value, (bool, int, float)):
         return value
     if isinstance(value, str):
         normalized = unicodedata.normalize("NFKC", value).casefold()
-        return "".join(character for character in normalized if character.isalnum())
+        return "".join(
+            character
+            for character in normalized
+            if character.isalnum() or unicodedata.category(character).startswith("M")
+        )
     if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         return tuple(normalize_value(item) for item in value)
     if isinstance(value, Mapping):
@@ -172,7 +178,10 @@ class Observation:
 
     @property
     def classification_correct(self) -> bool:
-        return self.actual_document_type == self.expected_document_type
+        return (
+            not self.runtime_error
+            and self.actual_document_type == self.expected_document_type
+        )
 
     @property
     def false_success(self) -> bool:
@@ -372,9 +381,11 @@ def _validate_required_slice_coverage(
             )
 
 
-def validate_manifest(manifest: Any) -> None:
+def validate_manifest(manifest: Any, *, field_blocks: Mapping[str, str] | None = None) -> None:
     """Validate required structure and dataset coverage without extra packages."""
 
+    field_blocks = DOCUMENT_FIELD_BLOCKS if field_blocks is None else field_blocks
+    document_types = tuple(field_blocks)
     _expect_type(manifest, Mapping, "manifest")
     if manifest.get("schemaVersion") != MANIFEST_SCHEMA_VERSION:
         raise ManifestError(
@@ -389,10 +400,10 @@ def validate_manifest(manifest: Any) -> None:
     _expect_type(required_types, list, "requiredDocumentTypes")
     if len(required_types) != len(set(required_types)):
         raise ManifestError("requiredDocumentTypes must not contain duplicates")
-    if set(required_types) != set(DOCUMENT_TYPES):
+    if set(required_types) != set(document_types):
         raise ManifestError(
             "requiredDocumentTypes must contain every supported KYC document type: "
-            + ", ".join(DOCUMENT_TYPES)
+            + ", ".join(document_types)
         )
 
     samples = manifest.get("samples")
@@ -408,7 +419,7 @@ def validate_manifest(manifest: Any) -> None:
         dict[str, set[str]],
     ] = {
         document_type: defaultdict(set)
-        for document_type in DOCUMENT_TYPES
+        for document_type in document_types
     }
 
     for index, sample in enumerate(samples):
@@ -447,7 +458,7 @@ def validate_manifest(manifest: Any) -> None:
             )
 
         document_type = sample["documentType"]
-        if document_type not in DOCUMENT_FIELD_BLOCKS:
+        if document_type not in field_blocks:
             raise ManifestError(
                 f"{location}.documentType is unsupported: {document_type}"
             )
@@ -472,6 +483,8 @@ def validate_manifest(manifest: Any) -> None:
                 raise ManifestError(
                     f"{location}.{key} must contain non-empty strings"
                 )
+            if len(values) != len(set(values)):
+                raise ManifestError(f"{location}.{key} must not contain duplicates")
 
         if sample["side"] not in {
             "front",
@@ -540,7 +553,7 @@ def validate_manifest(manifest: Any) -> None:
         classification_target = expected.get(
             "classificationTarget", document_type
         )
-        if classification_target not in (*DOCUMENT_TYPES, "unknown"):
+        if classification_target not in (*document_types, "unknown"):
             raise ManifestError(
                 f"{location}.expected.classificationTarget is unsupported: "
                 f"{classification_target}"
@@ -608,7 +621,7 @@ def validate_manifest(manifest: Any) -> None:
     per_document = thresholds.get("perDocument", {})
     _expect_type(per_document, Mapping, "thresholds.perDocument")
     for document_type, rules in per_document.items():
-        if document_type != "*" and document_type not in DOCUMENT_FIELD_BLOCKS:
+        if document_type != "*" and document_type not in field_blocks:
             raise ManifestError(
                 f"thresholds.perDocument has unknown type: {document_type}"
             )
@@ -703,7 +716,9 @@ def _compare(
     raw_result: Any,
     *,
     runtime_error: bool,
+    field_blocks: Mapping[str, str] | None = None,
 ) -> Observation:
+    field_blocks = DOCUMENT_FIELD_BLOCKS if field_blocks is None else field_blocks
     result = _result_to_dict(raw_result)
     document_type = sample["documentType"]
     expected = sample["expected"]
@@ -715,20 +730,25 @@ def _compare(
 
     # A classification error is an end-to-end extraction error, even if a
     # malformed result happens to populate the expected document block.
+    classification_correct = (
+        not runtime_error and actual_document_type == expected_document_type
+    )
     actual_fields = (
-        result_fields_for(result, document_type)
+        result.get(field_blocks[document_type], {})
         if actual_document_type == document_type
         else {}
     )
 
+    if not isinstance(actual_fields, Mapping):
+        actual_fields = {}
     outcomes: dict[str, FieldOutcome] = {}
     for name, expected_value in expected["fields"].items():
         present = name in actual_fields and actual_fields[name] is not None
         actual_value = actual_fields.get(name)
         outcomes[name] = FieldOutcome(
-            exact=actual_value == expected_value,
-            normalized=normalize_value(actual_value)
-            == normalize_value(expected_value),
+            exact=classification_correct and actual_value == expected_value,
+            normalized=classification_correct
+            and normalize_value(actual_value) == normalize_value(expected_value),
             present=present,
         )
 
@@ -779,10 +799,13 @@ def evaluate_manifest(
     *,
     dataset_root: str | Path,
     thresholds: Mapping[str, Any] | None = None,
+    field_blocks: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     """Evaluate a validated private dataset with an injected scanner."""
 
-    validate_manifest(manifest)
+    field_blocks = DOCUMENT_FIELD_BLOCKS if field_blocks is None else field_blocks
+    document_types = tuple(field_blocks)
+    validate_manifest(manifest, field_blocks=field_blocks)
     root = Path(dataset_root)
     threshold_config = dict(
         manifest["thresholds"] if thresholds is None else thresholds
@@ -791,10 +814,10 @@ def evaluate_manifest(
     # dataset content.
     override_manifest = dict(manifest)
     override_manifest["thresholds"] = threshold_config
-    validate_manifest(override_manifest)
+    validate_manifest(override_manifest, field_blocks=field_blocks)
 
     overall = MetricAccumulator()
-    documents = {name: MetricAccumulator() for name in DOCUMENT_TYPES}
+    documents = {name: MetricAccumulator() for name in document_types}
     slices: dict[str, dict[str, MetricAccumulator]] = defaultdict(
         lambda: defaultdict(MetricAccumulator)
     )
@@ -802,7 +825,7 @@ def evaluate_manifest(
         str, dict[str, dict[str, MetricAccumulator]]
     ] = {
         name: defaultdict(lambda: defaultdict(MetricAccumulator))
-        for name in DOCUMENT_TYPES
+        for name in document_types
     }
     sample_reports: list[dict[str, Any]] = []
 
@@ -813,25 +836,20 @@ def evaluate_manifest(
                 f"sample {sample['id']} asset does not exist: {asset_path}"
             )
 
-        runtime_error = False
         try:
             raw_result = scanner(str(asset_path))
             observation = _compare(
                 sample,
                 raw_result,
                 runtime_error=False,
+                field_blocks=field_blocks,
             )
-        except Exception as exc:  # benchmark must record, not hide, scanner failures
-            runtime_error = True
-            raw_result = {
-                "status": "failure",
-                "documentType": "unknown",
-                "errors": [f"{type(exc).__name__}: scanner failed"],
-            }
+        except Exception:  # benchmark must record, not hide, scanner failures
             observation = _compare(
                 sample,
-                raw_result,
-                runtime_error=runtime_error,
+                {"status": "failure", "documentType": "unknown"},
+                runtime_error=True,
+                field_blocks=field_blocks,
             )
         document_type = sample["documentType"]
         overall.add(observation, field_prefix=f"{document_type}.")
@@ -903,7 +921,7 @@ def evaluate_manifest(
 
     per_document = threshold_config.get("perDocument", {})
     common_document_rules = per_document.get("*", {})
-    for document_type in DOCUMENT_TYPES:
+    for document_type in document_types:
         rules = dict(common_document_rules)
         rules.update(per_document.get(document_type, {}))
         checks.extend(
@@ -989,7 +1007,7 @@ def evaluate_manifest(
         "manifestSchemaVersion": manifest["schemaVersion"],
         "datasetVersion": manifest["datasetVersion"],
         "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "fieldBlocks": dict(DOCUMENT_FIELD_BLOCKS),
+        "fieldBlocks": dict(field_blocks),
         "passed": not failures,
         "summary": summary_metrics,
         "documents": document_metrics,

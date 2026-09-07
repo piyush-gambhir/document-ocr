@@ -220,6 +220,12 @@ document-plus-slice results:
 - exact and normalized complete-record accuracy;
 - field presence and match counts.
 
+Release gates use unrounded ratios. Missing denominators fail their gates,
+scanner crashes cannot count as correct unknown classifications, and
+misclassified documents receive no field-match credit, including for annotated
+absent fields. Language and script tags must be unique within a sample so a
+single document cannot inflate slice sample counts.
+
 `requiredDocumentSlices` first guarantees that each declared per-document
 variant exists in the accepted-positive dataset. Configured `perSlice`
 minimum-sample and accuracy gates are then applied both to the global slice and
@@ -232,8 +238,9 @@ combination is release-critical, represent it as its own verified
 `designFamily` (or add an explicit sample catalog entry) and require that value.
 
 Exact accuracy is deliberately strict. Normalized accuracy applies Unicode NFKC,
-case folding, and removal of whitespace/punctuation while preserving letters and
-digits from every script. Report both; do not replace exact identifier accuracy
+case folding, and removal of whitespace/punctuation while preserving letters,
+digits, and combining marks from every script. Vowel signs and other script marks
+remain significant; different names must not become equal by dropping them. Report both; do not replace exact identifier accuracy
 with a fuzzy score.
 
 Measure accuracy on all submitted samples and conditional acceptance separately.

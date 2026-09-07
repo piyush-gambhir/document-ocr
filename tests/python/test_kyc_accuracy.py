@@ -262,6 +262,21 @@ def test_normalization_is_unicode_aware_and_punctuation_insensitive():
     )
 
 
+@pytest.mark.parametrize(("first", "second"), [("दल", "दाल"), ("क", "क्"), ("க", "கா")])
+def test_normalization_preserves_script_marks_that_change_identity(first, second):
+    assert normalize_value(first) != normalize_value(second)
+
+
+@pytest.mark.parametrize("key", ["languages", "scripts"])
+def test_duplicate_metadata_cannot_inflate_slice_sample_counts(key):
+    manifest = _manifest()
+    values = manifest["samples"][0][key]
+    values.append(values[0])
+
+    with pytest.raises(ManifestError, match=f"{key} must not contain duplicates"):
+        validate_manifest(manifest)
+
+
 def test_evaluator_reads_every_document_specific_field_block(tmp_path):
     manifest = _manifest()
     _create_assets(manifest, tmp_path)
@@ -488,3 +503,57 @@ def test_threshold_override_replaces_manifest_thresholds(tmp_path):
         failure["rule"] == "minClassificationAccuracy"
         for failure in report["failures"]
     )
+
+
+def test_release_thresholds_use_unrounded_measurements(tmp_path):
+    manifest = _manifest()
+    manifest["thresholds"] = _thresholds(minExactFieldAccuracy=0.6666669)
+    _create_assets(manifest, tmp_path)
+    results = _successful_results(manifest)
+    for sample in manifest["samples"][:2]:
+        results[sample["id"]][DOCUMENT_FIELD_BLOCKS[sample["documentType"]]] = {}
+
+    report = evaluate_manifest(
+        manifest, _scanner_for(manifest, results), dataset_root=tmp_path
+    )
+
+    assert report["summary"]["exactFieldAccuracy"] == 4 / 6
+    assert any(
+        failure["rule"] == "minExactFieldAccuracy"
+        for failure in report["failures"]
+    )
+
+
+def test_wrong_classification_cannot_get_credit_for_absent_fields(tmp_path):
+    manifest = _manifest()
+    sample = manifest["samples"][0]
+    sample["expected"]["fields"]["optionalField"] = None
+    _create_assets(manifest, tmp_path)
+    results = _successful_results(manifest)
+    results[sample["id"]]["documentType"] = "aadhaar"
+
+    report = evaluate_manifest(
+        manifest, _scanner_for(manifest, results), dataset_root=tmp_path
+    )
+
+    fields = report["samples"][0]["fields"]
+    assert fields["optionalField"]["exact"] is False
+    assert fields["optionalField"]["normalized"] is False
+
+
+def test_scanner_crash_is_not_a_correct_unknown_classification(tmp_path):
+    manifest = _manifest()
+    _create_assets(manifest, tmp_path)
+    scanner = _scanner_for(manifest, _successful_results(manifest))
+    negative = manifest["samples"][-1]
+
+    def scanner_with_crash(path):
+        if Path(path).name == negative["asset"]:
+            raise RuntimeError("synthetic failure")
+        return scanner(path)
+
+    report = evaluate_manifest(manifest, scanner_with_crash, dataset_root=tmp_path)
+
+    assert report["summary"]["classificationCorrect"] == len(DOCUMENT_TYPES)
+    assert report["samples"][-1]["classificationCorrect"] is False
+    assert report["samples"][-1]["runtimeError"] is True

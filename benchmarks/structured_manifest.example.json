@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "datasetVersion": "UNMEASURED-EXAMPLE-REQUIRES-PRIVATE-ANNOTATED-ASSETS",
+  "split": "release",
+  "requiredDocumentTypes": [
+    "us_driver_license",
+    "us_state_id",
+    "passport_card",
+    "us_green_card",
+    "us_ead",
+    "visa",
+    "us_i94",
+    "us_w9"
+  ],
+  "minimumIndependentGroups": {
+    "positive": 20,
+    "negative": 20
+  },
+  "requiredSlices": {
+    "captureType": [
+      "phone_photo",
+      "flatbed_scan"
+    ],
+    "quality.rotation": [
+      "upright",
+      "quarter_turn"
+    ]
+  },
+  "requiredDocumentSlices": {
+    "us_driver_license": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    },
+    "us_state_id": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    },
+    "passport_card": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    },
+    "us_green_card": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    },
+    "us_ead": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    },
+    "visa": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    },
+    "us_i94": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    },
+    "us_w9": {
+      "designFamily": [
+        "REPLACE_WITH_VERIFIED_DESIGN"
+      ],
+      "captureType": [
+        "phone_photo"
+      ]
+    }
+  },
+  "thresholds": {
+    "overall": {
+      "minClassificationAccuracy": 0.98,
+      "minExpectedAcceptanceRate": 0.95,
+      "minExactFieldAccuracy": 0.95,
+      "minNormalizedFieldAccuracy": 0.97,
+      "minCompleteRecordAccuracy": 0.9,
+      "minNormalizedCompleteRecordAccuracy": 0.93,
+      "maxFalseSuccessRate": 0.01,
+      "maxRuntimeErrorRate": 0
+    },
+    "perSlice": {
+      "dimensions": [
+        "designFamily",
+        "captureType",
+        "quality.rotation"
+      ],
+      "minimumSamples": 20,
+      "rules": {
+        "minExactFieldAccuracy": 0.95
+      }
+    }
+  },
+  "structuredThresholds": {
+    "minIdentifierExactAccuracy": 0.99,
+    "minDateExactAccuracy": 0.99
+  },
+  "samples": []
+}
