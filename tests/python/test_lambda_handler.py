@@ -76,7 +76,8 @@ class TestSuccess:
 
         result = mod.handler(event)
 
-        assert result["status"] == "success"
+        assert result["statusCode"] == 200
+        assert json.loads(result["body"])["status"] == "success"
 
 
 class TestInputErrors:
@@ -130,3 +131,40 @@ class TestPipelineErrors:
         resp = mod.handler({"image_base64": _b64(b"img")})
         assert resp["statusCode"] == 500
         assert json.loads(resp["body"])["error"] == "INTERNAL_ERROR"
+
+
+def test_s3_reference_is_allowlisted_and_stream_is_bounded_closed(mod,monkeypatch):
+    import io
+    import sys
+    from types import SimpleNamespace
+    calls=[]
+    stream=io.BytesIO(b'object-image')
+    def get_object(**kwargs):
+        calls.append(kwargs)
+        return {'ContentLength':12,'Body':stream}
+    monkeypatch.setitem(sys.modules,'boto3',SimpleNamespace(client=lambda service:SimpleNamespace(get_object=get_object)))
+    monkeypatch.setenv('DOCUMENT_OCR_S3_BUCKET','documents-test')
+    monkeypatch.setenv('DOCUMENT_OCR_S3_PREFIX','incoming/')
+    monkeypatch.setattr(mod,'scan',lambda data,**options:_FakeResult({'status':'success','bytes':len(data),'options':options}))
+    denied=mod.handler({'s3':{'bucket':'other-bucket','key':'incoming/id.png'}})
+    assert denied['statusCode']==400
+    assert calls==[]
+    output=mod.handler({'s3':{'bucket':'documents-test','key':'incoming/id.png','version_id':'v1'},'country':'US','include_evidence':True})
+    assert output['status']=='success'
+    assert output['options']=={'country':'US','include_evidence':True}
+    assert calls==[{'Bucket':'documents-test','Key':'incoming/id.png','VersionId':'v1'}]
+    assert stream.closed
+
+
+def test_gateway_base64_encoded_json_and_failure_status(mod,monkeypatch):
+    monkeypatch.setattr(mod,'scan',lambda data:_FakeResult({'status':'failure','errors':['LOW_CONFIDENCE_EXTRACTION']}))
+    event={'body':_b64(json.dumps({'image_base64':_b64(b'image')}).encode()),'isBase64Encoded':True}
+    response=mod.handler(event)
+    assert response['statusCode']==422
+    assert json.loads(response['body'])['status']=='failure'
+
+
+def test_ambiguous_image_source_does_not_fetch_s3(mod,monkeypatch):
+    monkeypatch.setattr(mod,'_read_s3',lambda _:pytest.fail('must reject before fetching'))
+    response=mod.handler({'image_base64':_b64(b'image'),'s3':{'bucket':'b','key':'k'}})
+    assert json.loads(response['body'])['error']=='AMBIGUOUS_IMAGE_SOURCE'

@@ -1,7 +1,7 @@
 [project]
 name = "india-document-ocr"
-version = "3.0.0"
-description = "Local OCR pipeline for passports and Indian KYC documents, including PAN, Aadhaar, DL, voter ID, NREGA, and NPR letters"
+version = "3.1.0"
+description = "Local OCR for passports, Indian KYC and US documents, with evidence, review tools, and portable workers"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
 readme = "README.md"
@@ -33,6 +33,9 @@ dependencies = [
     "urllib3>=2.7,<3",
     "pypdfium2>=5.0,<6",
     "pillow-heif>=1.3,<2",
+    "zxing-cpp>=3.1.1,<4",
+    "pycountry>=26.2.16,<27",
+    "cryptography>=50.0.1,<51",
 ]
 
 [project.urls]

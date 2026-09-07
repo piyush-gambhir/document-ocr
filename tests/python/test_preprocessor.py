@@ -1,6 +1,9 @@
 """Tests for image preprocessing."""
 
 import io
+import json
+import subprocess
+import sys
 
 import cv2
 import numpy as np
@@ -68,8 +71,10 @@ class TestResolutionCheck:
 class TestBlurCheck:
     def test_sharp_image(self):
         # Create image with high-frequency content (not blurry)
-        img = np.random.randint(0, 255, (800, 1200, 3), dtype=np.uint8)
-        _check_blur(img)  # random noise = high variance, should pass
+        img = np.full((800, 1200, 3), 255, dtype=np.uint8)
+        cv2.putText(img, "DOCUMENT OCR", (60, 400), cv2.FONT_HERSHEY_SIMPLEX,
+                    3, (0, 0, 0), 5)
+        _check_blur(img)  # readable, sharp text should pass
 
     def test_blurry_image(self):
         # Solid color image = zero Laplacian variance
@@ -81,7 +86,7 @@ class TestBlurCheck:
 class TestGlareCheck:
     def test_no_glare(self):
         img = np.full((800, 1200, 3), 128, dtype=np.uint8)
-        _check_glare(img)  # uniform mid-gray, no glare
+        assert _check_glare(img) is None
 
     def test_heavy_glare(self):
         # Image mostly white (V channel > 250 for most pixels)
@@ -91,12 +96,6 @@ class TestGlareCheck:
 
 
 class TestNormalise:
-    def test_output_width(self):
-        # 900 < TARGET_WIDTH (1600), so no resize — width stays 900
-        img = np.zeros((600, 900, 3), dtype=np.uint8)
-        result = _normalise(img)
-        assert result.shape[1] == 900
-
     def test_preserves_aspect_ratio(self):
         # 900 < TARGET_WIDTH (1600), so no resize — dimensions unchanged
         img = np.zeros((600, 900, 3), dtype=np.uint8)
@@ -194,7 +193,7 @@ class TestPreprocessFallbackToRaw:
         assert ok
         return buf.tobytes()
 
-    def test_text_filled_image_without_real_boundary_keeps_full_resolution(self, tmp_path):
+    def test_text_filled_image_without_real_boundary_keeps_full_resolution(self):
         # Synthetic page with text but no document edges — mimics a flat scan
         # that fills the frame. Preprocessing should not collapse it into a
         # tiny strip.
@@ -213,3 +212,104 @@ class TestPreprocessFallbackToRaw:
         assert result.image.shape[1] == 1200
         # And height should be roughly preserved — emphatically not a sliver.
         assert result.image.shape[0] >= 700
+
+
+class TestImageDecoding:
+    @pytest.mark.parametrize("orientation", [2, 3, 4, 5, 6, 7, 8])
+    def test_exif_orientation_is_identical_for_path_and_upload(self, tmp_path, orientation):
+        # Asymmetric color blocks catch mirrored and rotated decoding mistakes.
+        pixels = np.zeros((80, 120, 3), dtype=np.uint8)
+        pixels[:40, :60] = (230, 20, 40)
+        pixels[40:, 60:] = (10, 170, 90)
+        photo = Image.fromarray(pixels)
+        exif = Image.Exif()
+        exif[274] = orientation
+        output = io.BytesIO()
+        photo.save(output, format="JPEG", exif=exif)
+        data = output.getvalue()
+        path = tmp_path / "photo.jpg"
+        path.write_bytes(data)
+        operations = {
+            2: Image.Transpose.FLIP_LEFT_RIGHT, 3: Image.Transpose.ROTATE_180,
+            4: Image.Transpose.FLIP_TOP_BOTTOM, 5: Image.Transpose.TRANSPOSE,
+            6: Image.Transpose.ROTATE_270, 7: Image.Transpose.TRANSVERSE,
+            8: Image.Transpose.ROTATE_90,
+        }
+        with Image.open(io.BytesIO(data)) as decoded:
+            expected = cv2.cvtColor(
+                np.array(decoded.transpose(operations[orientation]).convert("RGB")),
+                cv2.COLOR_RGB2BGR,
+            )
+        np.testing.assert_array_equal(_load_image(data), expected)
+        np.testing.assert_array_equal(_load_image(path), expected)
+
+    @pytest.mark.parametrize("extension", [".heic", ".heif"])
+    def test_heif_upload_matches_path(self, tmp_path, extension):
+        import pillow_heif
+
+        pillow_heif.register_heif_opener()
+        photo = Image.new("RGB", (120, 80), (220, 30, 40))
+        output = io.BytesIO()
+        photo.save(output, format="HEIF")
+        data = output.getvalue()
+        path = tmp_path / ("photo" + extension)
+        path.write_bytes(data)
+        uploaded = _load_image(data)
+        assert uploaded.shape == (80, 120, 3)
+        np.testing.assert_array_equal(uploaded, _load_image(path))
+        np.testing.assert_allclose(uploaded[20, 20], (40, 30, 220), atol=5)
+
+    @pytest.mark.parametrize("data,error", [
+        (b"", "INVALID_IMAGE"),
+        (b"not an image", "INVALID_IMAGE"),
+        (b"%PDF-invalid", "INVALID_PDF"),
+    ])
+    def test_corrupt_upload_has_a_clear_input_error(self, data, error):
+        with pytest.raises(ImageQualityError, match=error):
+            _load_image(data)
+
+
+def test_rotated_quad_never_reuses_a_corner():
+    from itertools import permutations
+    from core.preprocessor import _perspective_correct
+
+    diamond = np.array([[300, 0], [600, 300], [300, 600], [0, 300]], dtype=np.float32)
+    for points in permutations(diamond):
+        ordered = _order_points(np.array(points))
+        np.testing.assert_array_equal(ordered, diamond)
+    image = np.full((601, 601, 3), 220, dtype=np.uint8)
+    cv2.putText(image, "TEXT", (150, 320), cv2.FONT_HERSHEY_SIMPLEX,
+                2, (0, 0, 0), 4)
+    corrected = _perspective_correct(image, diamond)
+    assert corrected.shape[:2] == (424, 424)
+    assert corrected.mean() > 200
+    assert corrected.min() < 20  # the text survived the transform
+
+
+def test_first_heif_upload_in_a_fresh_process():
+    import pillow_heif
+
+    output = io.BytesIO()
+    picture = Image.new("RGB", (120, 80), (220, 30, 40))
+    pillow_heif.from_bytes("RGB", picture.size, picture.tobytes()).save(output)
+    process = subprocess.run(
+        [sys.executable, "-c", (
+            "import json, sys; from core.preprocessor import _load_image; "
+            "image = _load_image(sys.stdin.buffer.read()); "
+            "print(json.dumps({'shape': image.shape, 'pixel': image[20,20].tolist()}))"
+        )],
+        input=output.getvalue(), capture_output=True, check=True,
+    )
+    result = json.loads(process.stdout)
+    assert result['shape'] == [80, 120, 3]
+    np.testing.assert_allclose(result['pixel'], (40, 30, 220), atol=5)
+
+
+@pytest.mark.parametrize("format", ["PNG", "TIFF"])
+def test_16_bit_scan_preserves_tonal_range(format):
+    levels = np.array([[0, 4096, 8192, 32768, 49152, 65535]], dtype=np.uint16)
+    output = io.BytesIO()
+    Image.fromarray(levels).save(output, format=format)
+    decoded = _load_image(output.getvalue())
+    expected = np.repeat(np.array([[[0], [16], [32], [128], [192], [255]]], dtype=np.uint8), 3, axis=2)
+    np.testing.assert_array_equal(decoded, expected)

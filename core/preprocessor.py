@@ -8,13 +8,15 @@ quality checks.
 
 from __future__ import annotations
 
+import io
+
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Union
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -55,63 +57,40 @@ class PreprocessResult:
 
 def _load_image(source: Union[str, bytes, Path]) -> np.ndarray:
     """Load image from file path, bytes, or Path and return BGR numpy array."""
-    if isinstance(source, (str, Path)):
-        path = str(source)
-        if path.lower().endswith(".pdf"):
-            return _load_pdf_first_page(path)
-        if path.lower().endswith(".heic"):
-            return _load_heic(path)
-        img = cv2.imread(path, cv2.IMREAD_COLOR)
-        if img is None:
-            raise ValueError(f"Could not read image at {path}")
-        return img
+    # Decode paths and uploads identically: OpenCV's path/byte decoders do not
+    # consistently handle EXIF orientation or HEIF, especially for phone photos.
+    data = Path(source).read_bytes() if isinstance(source, (str, Path)) else source
+    if data.startswith(b"%PDF-"):
+        return _load_pdf_first_page(data)
+    try:
+        try:
+            image = Image.open(io.BytesIO(data))
+        except UnidentifiedImageError:
+            import pillow_heif
 
-    # bytes
-    if source.startswith(b"%PDF-"):
-        return _load_pdf_first_page(source)
-    arr = np.frombuffer(source, dtype=np.uint8)
-    img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-    if img is None:
-        raise ValueError("Could not decode image from bytes")
-    return img
+            pillow_heif.register_heif_opener()
+            image = Image.open(io.BytesIO(data))
+        with image:
+            if image.width * image.height > 40_000_000:
+                raise ImageQualityError("IMAGE_TOO_LARGE")
+            oriented = ImageOps.exif_transpose(image)
+            pixels = np.asarray(oriented)
+            if pixels.dtype.kind == "u" and pixels.dtype.itemsize == 2:
+                # Pillow's direct RGB conversion clips 16-bit grayscale at 255,
+                # erasing nearly all contrast. Match 8-bit image decoding by
+                # retaining the high byte across the full 16-bit range.
+                oriented = Image.fromarray((pixels >> 8).astype(np.uint8))
+            return cv2.cvtColor(np.array(oriented.convert("RGB")), cv2.COLOR_RGB2BGR)
+    except Image.DecompressionBombError as exc:
+        raise ImageQualityError("IMAGE_TOO_LARGE") from exc
+    except (OSError, ValueError) as exc:
+        raise ImageQualityError("INVALID_IMAGE") from exc
 
 
 def _load_pdf_first_page(source: Union[str, bytes, Path]) -> np.ndarray:
-    """Render the first page of a PDF as a BGR image at 300 DPI."""
-    try:
-        import pypdfium2 as pdfium
-    except ImportError as exc:
-        raise ImportError(
-            "pypdfium2 is required for PDF support: pip install pypdfium2"
-        ) from exc
-
-    document = pdfium.PdfDocument(source)
-    if len(document) == 0:
-        document.close()
-        raise ValueError("PDF contains no pages")
-
-    page = document[0]
-    bitmap = None
-    try:
-        bitmap = page.render(scale=300 / 72)
-        pil_image = bitmap.to_pil().convert("RGB")
-        return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
-    finally:
-        if bitmap is not None:
-            bitmap.close()
-        page.close()
-        document.close()
-
-
-def _load_heic(path: str) -> np.ndarray:
-    """Load HEIC image via pillow-heif."""
-    try:
-        import pillow_heif
-        pillow_heif.register_heif_opener()
-    except ImportError:
-        raise ImportError("pillow-heif is required for HEIC support: pip install pillow-heif")
-    pil_img = Image.open(path).convert("RGB")
-    return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+    """Render a bounded first PDF page in the common 1600-pixel coordinate plane."""
+    from .document_input import input_bytes, pdf_pages
+    return pdf_pages(input_bytes(source), first_only=True)[0].image
 
 
 def _check_resolution(img: np.ndarray) -> None:
@@ -194,14 +173,14 @@ def _is_plausible_document_quad(approx: np.ndarray, img_area: float) -> bool:
 
 def _order_points(pts: np.ndarray) -> np.ndarray:
     """Order points: top-left, top-right, bottom-right, bottom-left."""
-    rect = np.zeros((4, 2), dtype=np.float32)
-    s = pts.sum(axis=1)
-    rect[0] = pts[np.argmin(s)]
-    rect[2] = pts[np.argmax(s)]
-    d = np.diff(pts, axis=1)
-    rect[1] = pts[np.argmin(d)]
-    rect[3] = pts[np.argmax(d)]
-    return rect
+    # Sorting each extremum separately can select the same vertex twice when
+    # sums/differences tie (for example a document rotated by 45 degrees).
+    points = np.asarray(pts, dtype=np.float32).reshape(4, 2)
+    center = points.mean(axis=0)
+    angles = np.arctan2(points[:, 1] - center[1], points[:, 0] - center[0])
+    ordered = points[np.argsort(angles)]
+    start = np.lexsort((ordered[:, 0], ordered[:, 1], ordered.sum(axis=1)))[0]
+    return np.roll(ordered, -start, axis=0)
 
 
 def _perspective_correct(img: np.ndarray, corners: np.ndarray) -> np.ndarray:
@@ -251,7 +230,6 @@ def _normalise(img: np.ndarray) -> np.ndarray:
 
 class ImageQualityError(Exception):
     """Raised when image quality is insufficient for OCR."""
-    pass
 
 
 # ---------------------------------------------------------------------------

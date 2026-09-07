@@ -4,14 +4,11 @@ Uses httpx AsyncClient with ASGI transport — does not load OCR models.
 """
 
 import io
-import sys
-import os
+import asyncio
+import threading
 
 import pytest
 from unittest.mock import patch, MagicMock
-
-# Ensure project root is importable
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from httpx import AsyncClient, ASGITransport
 
@@ -313,3 +310,41 @@ class TestScan:
 
         assert resp.status_code == 503
         assert resp.json()["error"] == "MODEL_INIT_FAILED"
+
+
+async def test_timeout_retains_ocr_slot_until_worker_exits(client, small_image, monkeypatch):
+    from core.pipeline import DocumentScanResult
+
+    release_first = threading.Event()
+    second_started = threading.Event()
+    calls = []
+
+    def slow_scan(data):
+        calls.append(data)
+        if len(calls) == 1:
+            release_first.wait(timeout=2)
+        else:
+            second_started.set()
+        return DocumentScanResult('success', 'passport', 'passport_biodata', 0.9)
+
+    monkeypatch.setattr(server_module, '_ocr_semaphore', asyncio.Semaphore(1))
+    monkeypatch.setattr(server_module, 'SCAN_TIMEOUT_SECONDS', 0.05)
+    monkeypatch.setattr(server_module, 'scan', slow_scan)
+    files = {'image': ('synthetic.jpg', small_image, 'image/jpeg')}
+    second = None
+    try:
+        first = await client.post('/scan', files=files)
+        assert first.status_code == 504
+        assert first.json() == {'error': 'SCAN_TIMEOUT'}
+        assert server_module._ocr_semaphore.locked()
+        second = asyncio.create_task(client.post('/scan', files=files))
+        await asyncio.sleep(0.02)
+        assert not second_started.is_set()
+        release_first.set()
+        response = await asyncio.wait_for(second, timeout=1)
+        assert response.status_code == 200
+        assert second_started.is_set()
+    finally:
+        release_first.set()
+        if second is not None:
+            await second

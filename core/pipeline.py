@@ -27,7 +27,11 @@ from .nrega_extractor import NregaFields, extract_nrega
 from .ocr_engine import TextRegion, run_ocr
 from .page_classifier import classify_passport_page
 from .pan_extractor import PanFields, extract_pan
-from .preprocessor import ImageQualityError, preprocess
+from .preprocessor import ImageQualityError, PreprocessResult, preprocess
+from .document_registry import validate_document_hint
+from .barcodes import decode_barcodes
+from .document_input import input_bytes, pdf_pages
+from .evidence import document_fields as collect_fields, field_evidence as collect_evidence
 from .validator import validate, find_visual_field, find_visual_value_near
 from .voter_id_extractor import VoterIdFields, extract_voter_id
 
@@ -74,14 +78,21 @@ class DocumentScanResult:
     warnings: list[str] = field(default_factory=list)
     processing_ms: int = 0
 
+    document_fields: Optional[dict] = None
+    issuing_country: Optional[str] = None
+    issuing_region: Optional[str] = None
+    field_evidence: Optional[dict] = None
+    checks: Optional[dict] = None
+    image_size: Optional[list[int]] = None
+
     def to_dict(self) -> dict:
-        return {
+        result = {
             "status": self.status,
             "documentType": self.document_type,
             "pageType": self.page_type,
             "confidence": self.confidence,
-            "fields": _fields_to_dict(self.fields),
-            "backPageFields": _back_page_fields_to_dict(self.back_page_fields),
+            "fields": _dataclass_to_camel_dict(self.fields),
+            "backPageFields": _dataclass_to_camel_dict(self.back_page_fields),
             "panFields": _dataclass_to_camel_dict(self.pan_fields),
             "aadhaarFields": _dataclass_to_camel_dict(self.aadhaar_fields),
             "drivingLicenceFields": _dataclass_to_camel_dict(self.driving_licence_fields),
@@ -93,30 +104,136 @@ class DocumentScanResult:
             "lowConfidence": self.low_confidence,
             "unsupportedReason": self.unsupported_reason,
             "identifierValid": self.identifier_valid,
-            "missingRequiredFields": self.missing_required_fields,
+            "missingRequiredFields": [_snake_to_camel(name) for name in self.missing_required_fields],
             "probeText": self.probe_text,
             "errors": self.errors,
             "warnings": self.warnings,
             "processingMs": self.processing_ms,
         }
+        if self.document_fields is not None:
+            result.update({
+                "schemaVersion": 1,
+                "documentFields": {_snake_to_camel(k): _serialise_dataclass_value(v) for k, v in self.document_fields.items()},
+                "issuingCountry": self.issuing_country,
+                "issuingRegion": self.issuing_region,
+                "checks": {_snake_to_camel(k): v for k, v in (self.checks or {}).items()},
+            })
+        if self.field_evidence is not None:
+            result["fieldEvidence"] = {_snake_to_camel(k): v for k, v in self.field_evidence.items()}
+            result["imageSize"] = self.image_size
+        return result
 
 
-def scan(image_input: Union[str, bytes, Path]) -> DocumentScanResult:
-    """Run the full passport OCR pipeline."""
+def scan(
+    image_input: Union[str, bytes, Path], *, document_type: str | None = None,
+    country: str | None = None, include_evidence: bool = False,
+) -> DocumentScanResult:
+    """Scan one image/PDF page. Use scan_document for grouped images/all PDF pages.
+
+    Hints restrict routing; they never make an unidentified document valid.
+    Evidence coordinates refer to the normalized image from preview_image().
+    """
+    document_type, country = validate_document_hint(document_type, country)
     start = time.monotonic()
-
     try:
+        data = input_bytes(image_input)
+        if data.startswith(b"%PDF-"):
+            page = pdf_pages(data, first_only=True)[0]
+            warnings = ["PDF_ADDITIONAL_PAGES_IGNORED"] if page.total > 1 else []
+            prep = PreprocessResult(page.image, warnings)
+            return _scan_page(prep, start, document_type, country, include_evidence, native=page.regions)
         prep = preprocess(image_input)
     except ImageQualityError as exc:
-        return DocumentScanResult(
-            status="failure",
-            document_type="unknown",
-            page_type="unknown",
-            confidence=0.0,
-            errors=[str(exc)],
-            processing_ms=_elapsed_ms(start),
-        )
+        return DocumentScanResult("failure", "unknown", "unknown", 0.0,
+                                  errors=[str(exc)], processing_ms=_elapsed_ms(start))
+    return _scan_page(prep, start, document_type, country, include_evidence)
 
+
+def preview_image(image_input: Union[str, bytes, Path]):
+    """Return the exact coordinate plane used for first-page extraction evidence."""
+    data = input_bytes(image_input)
+    if data.startswith(b"%PDF-"):
+        return pdf_pages(data, first_only=True)[0].image
+    return preprocess(image_input).image
+
+
+def _structured(regions, prep, start, *, document_type=None, country=None, barcodes=None):
+    from .structured_documents import extract_structured_document
+    extraction = extract_structured_document(regions, document_type=document_type,
+                                             country=country, barcodes=barcodes)
+    if extraction is None:
+        return None
+    return DocumentScanResult(
+        "success" if extraction.complete else "failure", extraction.document_type,
+        extraction.document_type, extraction.confidence,
+        document_fields=extraction.fields, issuing_country=extraction.issuing_country,
+        issuing_region=extraction.issuing_region, field_evidence=extraction.field_evidence,
+        checks=extraction.checks, missing_required_fields=extraction.missing_required_fields,
+        errors=extraction.errors, warnings=prep.warnings + extraction.warnings,
+        processing_ms=_elapsed_ms(start),
+    )
+
+
+def _scan_page(prep, start, document_type, country, include_evidence, *, native=None):
+    barcodes = decode_barcodes(prep.image)
+    full = None
+    source = "ocr"
+    # Native text avoids re-OCR of digital forms and preserves exact characters.
+    # A document that cannot be identified from it falls back to visible OCR.
+    if native and sum(len(r.text) for r in native) >= 30:
+        full = native
+        source = "pdf_text"
+        prep.warnings.append("PDF_NATIVE_TEXT_NOT_VISUALLY_VERIFIED")
+    needs_full = bool(full or barcodes or document_type or country or include_evidence)
+    if needs_full:
+        full = full if full is not None else run_kyc_ocr(prep.image)
+        result = _structured(full, prep, start, document_type=document_type, country=country, barcodes=barcodes)
+        if result is None:
+            result = _scan_non_passport(prep, start, full_regions=full, try_structured=False)
+        if source == "pdf_text" and (result.document_type == "unknown" or "DOCUMENT_TYPE_NOT_CONFIRMED" in result.errors):
+            full = run_kyc_ocr(prep.image)
+            source = "ocr"
+            result = _structured(full, prep, start, document_type=document_type, country=country, barcodes=barcodes)
+            if result is None:
+                result = _scan_non_passport(prep, start, full_regions=full, try_structured=False)
+    else:
+        result = _scan_prepared(prep, start)
+    if result.issuing_country is None:
+        if result.document_type in _NON_PASSPORT_EXTRACTORS:
+            result.issuing_country = "IN"
+        elif result.fields and result.fields.country_code:
+            from .document_registry import normalize_country
+            try:
+                result.issuing_country = normalize_country(result.fields.country_code)
+            except ValueError:
+                pass
+    if document_type and result.document_type != document_type:
+        result.status = "failure"
+        result.errors.append("DOCUMENT_TYPE_MISMATCH")
+    if country and result.issuing_country and result.issuing_country != country:
+        result.status = "failure"
+        result.errors.append("DOCUMENT_COUNTRY_MISMATCH")
+    if country and not result.issuing_country:
+        result.status = "failure"
+        result.errors.append("ISSUING_COUNTRY_UNRESOLVED")
+    if include_evidence or document_type or country or result.document_fields is not None:
+        result.document_fields = collect_fields(result)
+        if include_evidence:
+            if result.field_evidence is None:
+                result.field_evidence = collect_evidence(result.document_fields, full or [], source=source, mrz_raw=result.mrz_raw)
+            elif source == "pdf_text":
+                for items in result.field_evidence.values():
+                    for item in items:
+                        if item["source"] == "ocr":
+                            item["source"] = source
+            result.image_size = [prep.image.shape[1], prep.image.shape[0]]
+        else:
+            result.field_evidence = None
+    result.processing_ms = _elapsed_ms(start)
+    return result
+
+
+def _scan_prepared(prep, start):
     regions = _extract_targeted_regions(prep.image)
     if not regions:
         # The cheap probe uses a bottom crop. A non-passport document can have
@@ -125,11 +242,20 @@ def scan(image_input: Union[str, bytes, Path]) -> DocumentScanResult:
         # from the full page before preserving the existing no-text failure.
         full_kyc_regions = run_kyc_ocr(prep.image)
         if full_kyc_regions:
+            structured = _structured(full_kyc_regions, prep, start)
+            if structured is not None:
+                return structured
             full_kyc_cls = classify_document(full_kyc_regions)
+            if full_kyc_cls.document_type == "passport":
+                page = classify_passport_page(full_kyc_regions)
+                if page.page_type in {"passport_biodata", "passport_non_biodata"}:
+                    return _scan_passport(
+                        prep, page, full_kyc_regions, start,
+                        full_page_regions=full_kyc_regions,
+                    )
             if _is_strong_non_passport_classification(full_kyc_cls):
                 return _scan_non_passport(
                     prep,
-                    None,
                     start,
                     full_regions=full_kyc_regions,
                     doc_cls=full_kyc_cls,
@@ -145,45 +271,48 @@ def scan(image_input: Union[str, bytes, Path]) -> DocumentScanResult:
         )
 
     classification = classify_passport_page(regions)
+    if classification.page_type not in {"passport_biodata", "passport_non_biodata"}:
+        return _scan_non_passport(prep, start)
+    return _scan_passport(prep, classification, regions, start)
+
+
+def _scan_passport(prep, classification, regions, start, *, full_page_regions=None):
+    # The crop establishes routing; the full page supplies visual fields and
+    # cross-checks even when the cropped MRZ already has valid check digits.
+    if full_page_regions is None:
+        full_page_regions = run_ocr(prep.image)
+    structured = _structured(full_page_regions, prep, start)
+    if structured is not None:
+        return structured
     if classification.page_type == "passport_non_biodata":
-        # Run full-page OCR for back page extraction (not just bottom crop)
-        full_regions = run_ocr(prep.image)
-        back_fields = extract_back_page(full_regions)
+        back_fields = extract_back_page(full_page_regions)
+        has_fields = any(
+            getattr(back_fields, item.name)
+            for item in dataclass_fields(back_fields)
+        )
         return DocumentScanResult(
-            status="success",
+            status="success" if has_fields else "failure",
             document_type="passport",
             page_type="passport_non_biodata",
-            confidence=classification.confidence,
+            confidence=classification.confidence if has_fields else 0.0,
             back_page_fields=back_fields,
+            errors=[] if has_fields else ["NO_BACK_PAGE_FIELDS_DETECTED"],
             probe_text=classification.probe_text,
             warnings=prep.warnings + classification.reasons,
             processing_ms=_elapsed_ms(start),
         )
 
-    if classification.page_type != "passport_biodata":
-        # Not a passport per the cheap bottom-crop probe — route to the other
-        # supported document types using full-page OCR.
-        return _scan_non_passport(prep, classification, start)
-
     mrz = parse_mrz(regions)
+    if full_page_regions:
+        fallback_mrz = parse_mrz(full_page_regions)
+        if _candidate_score(fallback_mrz, full_page_regions) > _candidate_score(
+            mrz, full_page_regions
+        ):
+            mrz = fallback_mrz
+        regions = full_page_regions
+
     validation = validate(mrz, regions)
     fields = _build_fields(mrz, regions)
-
-    if _needs_full_page_fallback(mrz, validation, fields):
-        fallback_regions = run_ocr(prep.image)
-        if fallback_regions:
-            fallback_mrz = parse_mrz(fallback_regions)
-            fallback_validation = validate(fallback_mrz, fallback_regions)
-            fallback_fields = _build_fields(fallback_mrz, fallback_regions)
-            if _candidate_score(fallback_mrz, fallback_validation, fallback_fields) > _candidate_score(
-                mrz,
-                validation,
-                fields,
-            ):
-                regions = fallback_regions
-                mrz = fallback_mrz
-                validation = fallback_validation
-                fields = fallback_fields
 
     mrz_valid = mrz.overall_checksum_valid if mrz else False
     all_warnings = prep.warnings.copy()
@@ -202,7 +331,13 @@ def scan(image_input: Union[str, bytes, Path]) -> DocumentScanResult:
     )
     low_confidence = 0.3 <= overall_confidence < 0.7
 
-    if mrz_valid and fields.passport_number and fields.surname and overall_confidence >= 0.7:
+    if (
+        mrz_valid
+        and not all_errors
+        and fields.passport_number
+        and fields.surname
+        and overall_confidence >= 0.7
+    ):
         return DocumentScanResult(
             status="success",
             document_type="passport",
@@ -270,11 +405,11 @@ def _is_strong_non_passport_classification(classification) -> bool:
 
 def _scan_non_passport(
     prep,
-    _passport_classification,
     start: float,
     *,
     full_regions=None,
     doc_cls=None,
+    try_structured=True,
 ) -> DocumentScanResult:
     """Classify and extract a non-passport KYC document from full-page OCR."""
     if full_regions is None:
@@ -290,8 +425,18 @@ def _scan_non_passport(
             processing_ms=_elapsed_ms(start),
         )
 
+    if try_structured:
+        structured = _structured(full_regions, prep, start)
+        if structured is not None:
+            return structured
     if doc_cls is None:
         doc_cls = classify_document(full_regions)
+    if doc_cls.document_type == "passport":
+        page = classify_passport_page(full_regions)
+        if page.page_type in {"passport_biodata", "passport_non_biodata"}:
+            return _scan_passport(
+                prep, page, full_regions, start, full_page_regions=full_regions
+            )
     extractor_entry = _NON_PASSPORT_EXTRACTORS.get(doc_cls.document_type)
 
     if extractor_entry is None:
@@ -347,24 +492,6 @@ def _elapsed_ms(start: float) -> int:
     return int((time.monotonic() - start) * 1000)
 
 
-def _fields_to_dict(fields: Optional[PassportFields]) -> Optional[dict]:
-    if fields is None:
-        return None
-    return {
-        "surname": fields.surname,
-        "givenNames": fields.given_names,
-        "fullName": fields.full_name,
-        "passportNumber": fields.passport_number,
-        "nationality": fields.nationality,
-        "dateOfBirth": fields.date_of_birth,
-        "sex": fields.sex,
-        "expiryDate": fields.expiry_date,
-        "issueDate": fields.issue_date,
-        "placeOfBirth": fields.place_of_birth,
-        "countryCode": fields.country_code,
-    }
-
-
 def _snake_to_camel(name: str) -> str:
     parts = name.split("_")
     return parts[0] + "".join(part.title() for part in parts[1:])
@@ -396,24 +523,6 @@ def _serialise_dataclass_value(value):
     return value
 
 
-def _back_page_fields_to_dict(fields: Optional[BackPageFields]) -> Optional[dict]:
-    if fields is None:
-        return None
-    return {
-        "fatherName": fields.father_name,
-        "motherName": fields.mother_name,
-        "spouseName": fields.spouse_name,
-        "address": fields.address,
-        "pincode": fields.pincode,
-        "city": fields.city,
-        "state": fields.state,
-        "fileNumber": fields.file_number,
-        "oldPassportNumber": fields.old_passport_number,
-        "oldPassportDateOfIssue": fields.old_passport_date_of_issue,
-        "oldPassportPlaceOfIssue": fields.old_passport_place_of_issue,
-    }
-
-
 def _extract_targeted_regions(image) -> list[TextRegion]:
     height = image.shape[0]
     crop_top = int(height * TARGETED_CROP_TOP_RATIO)
@@ -432,36 +541,13 @@ def _offset_regions(regions: list[TextRegion], *, x_offset: int = 0, y_offset: i
     return offset_regions
 
 
-def _needs_full_page_fallback(
-    mrz: Optional[MRZResult],
-    validation,
-    fields: PassportFields,
-) -> bool:
+def _candidate_score(mrz: Optional[MRZResult], regions: list[TextRegion]) -> tuple:
+    # A checksum-valid reading must always outrank one that fails its checksum.
     return (
-        mrz is None
-        or not mrz.overall_checksum_valid
-        or fields.passport_number is None
-        or fields.surname is None
+        bool(mrz and mrz.overall_checksum_valid),
+        validate(mrz, regions).confidence,
+        mrz is not None,
     )
-
-
-def _candidate_score(
-    mrz: Optional[MRZResult],
-    validation,
-    fields: PassportFields,
-) -> float:
-    score = validation.confidence
-    if mrz:
-        score += 0.15
-    if mrz and mrz.overall_checksum_valid:
-        score += 0.2
-    if fields.passport_number:
-        score += 0.1
-    if fields.surname:
-        score += 0.1
-    if fields.date_of_birth:
-        score += 0.05
-    return score
 
 
 def _has_meaningful_fields(fields: PassportFields) -> bool:
