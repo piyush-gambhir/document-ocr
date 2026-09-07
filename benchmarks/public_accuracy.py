@@ -127,12 +127,16 @@ def evaluate(manifest: dict, root: Path, raw: dict) -> dict:
 def run(root: Path, manifest: dict, raw_path: Path) -> dict:
     from core.pipeline import scan
     import rapidocr
+    import core
 
     integrity = inspect_samples(manifest, root)
     model_dir = Path(rapidocr.__file__).parent / 'models'
     raw = {'integrity': integrity,
            'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
            'scorerSha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+           'coreSha256': hashlib.sha256(b''.join(
+               p.name.encode() + b'\0' + p.read_bytes()
+               for p in sorted(Path(core.__file__).parent.glob('*.py')))).hexdigest(),
            'platform': platform.platform(), 'python': platform.python_version(),
            'cpuCount': os.cpu_count(), 'kycLanguages': os.getenv('DOCUMENT_OCR_KYC_LANGS', ''),
            'packages': {k: importlib.metadata.version(k) for k in

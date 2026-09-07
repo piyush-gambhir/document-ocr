@@ -1,5 +1,8 @@
 # Public sample OCR baseline
 
+Historical initial baseline. See [measured MRZ improvements](MRZ_IMPROVEMENTS.md)
+for the subsequent fixes and comparison.
+
 Measured on 2026-09-07 against OCR commit `17c952e`. The [JSON report](reports/public-data/baseline.json)
 records the corpus fingerprint, scorer hash, dependency versions, cached model hashes,
 hardware and per-case outcomes. Raw responses remain ignored under `benchmark-data/`.
