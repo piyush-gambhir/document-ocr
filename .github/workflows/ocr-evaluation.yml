@@ -5,14 +5,22 @@ on:
     branches: [main]
     paths:
       - 'core/**'
+      - 'deploy/docker/**'
       - 'benchmarks/**'
+      - '!benchmarks/**/*.md'
+      - '!benchmarks/reports/**'
+      - '!benchmarks/document_dataset_coverage.json'
       - 'requirements.lock'
       - 'pyproject.toml'
       - '.github/workflows/ocr-evaluation.yml'
   pull_request:
     paths:
       - 'core/**'
+      - 'deploy/docker/**'
       - 'benchmarks/**'
+      - '!benchmarks/**/*.md'
+      - '!benchmarks/reports/**'
+      - '!benchmarks/document_dataset_coverage.json'
       - 'requirements.lock'
       - 'pyproject.toml'
       - '.github/workflows/ocr-evaluation.yml'
@@ -46,6 +54,7 @@ jobs:
         run: |
           uv run --no-sync python -m benchmarks.public_data fetch-samples
           uv run --no-sync python -m benchmarks.public_data fetch-samples --manifest benchmarks/public_expansion_samples.json
+          uv run --no-sync python -m benchmarks.additional_profiles --fetch
       - name: Export baseline core
         run: |
           resolved_ref=$(git rev-parse --verify --end-of-options "${OCR_BASE_REF}^{commit}")
@@ -58,6 +67,10 @@ jobs:
       - name: Gate candidate regressions on the same runner
         run: |
           uv run --no-sync python -m benchmarks.multidoc_accuracy --baseline benchmark-data/ci/before.json --regressions-only --output benchmark-data/ci/after.json
+      - name: Measure the separately reviewed EAD contract
+        run: |
+          uv run --no-sync python -c 'import os, sys; sys.path.insert(0, os.environ["OCR_BASE_CORE"]); from benchmarks.multidoc_accuracy import main; raise SystemExit(main())' --manifest benchmarks/additional_profile_samples.json --policy benchmarks/reviewed_specimen_policy.json --output benchmark-data/ci/ead-before.json || test -s benchmark-data/ci/ead-before.json
+          uv run --no-sync python -m benchmarks.multidoc_accuracy --manifest benchmarks/additional_profile_samples.json --policy benchmarks/reviewed_specimen_policy.json --baseline benchmark-data/ci/ead-before.json --regressions-only --output benchmark-data/ci/ead-after.json
       - name: Publish score-only summary
         if: always()
         run: |
@@ -78,4 +91,81 @@ jobs:
                       complete = 'unmeasured' if s['completeRecordAccuracy'] is None else f"{s['completeRecordAccuracy']:.1%}"
                       output.write(f"| {name} | {accuracy} | {complete} | {s['p95Ms']:.0f} ms |\n")
                   output.write('\nUnmet checks: ' + ', '.join(r['gates']['failures']) + '\n')
+          path = Path('benchmark-data/ci/ead-after.json')
+          if path.exists():
+              r = json.loads(path.read_text())
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+                  output.write('\n### One reviewed EAD specimen\n\nAgent-transcribed contract; not a population accuracy estimate.\n\n')
+                  output.write(f"Exact fields: {r['overall']['fieldAccuracy']:.1%}; regression gate: {r['gates']['regressionPassed']}; absolute targets: {r['gates']['passed']}.\n\n")
+                  output.write('Unmet checks: ' + ', '.join(r['gates']['failures']) + '\n')
+          PY
+
+  all-profiles:
+    name: All profiles (${{ matrix.mode }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [core, http]
+    env:
+      OCR_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || inputs.base_ref }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - run: uv venv
+      - run: uv pip install -r requirements.lock
+      - name: Generate all-profile synthetic image contracts
+        run: uv run --no-sync python -m benchmarks.synthetic_documents
+      - name: Install HTTP evaluation client
+        if: matrix.mode == 'http'
+        run: uv pip install -e '.[dev]' -c requirements.lock
+      - name: Export baseline core and HTTP server
+        run: |
+          resolved_ref=$(git rev-parse --verify --end-of-options "${OCR_BASE_REF}^{commit}")
+          baseline_dir=$(mktemp -d "$RUNNER_TEMP/ocr-base.XXXXXX")
+          git archive "$resolved_ref" core deploy | tar -x -C "$baseline_dir"
+          echo "OCR_BASE_CORE=$baseline_dir" >> "$GITHUB_ENV"
+      - name: Measure baseline core with the same generated corpus
+        if: matrix.mode == 'core'
+        run: |
+          uv run --no-sync python -c 'import os, sys; sys.path.insert(0, os.environ["OCR_BASE_CORE"]); from benchmarks.multidoc_accuracy import main; raise SystemExit(main())' --manifest benchmark-data/synthetic/manifest.json --policy benchmarks/synthetic_policy.json --output benchmark-data/ci/before.json || test -s benchmark-data/ci/before.json
+      - name: Gate all-profile core regressions
+        if: matrix.mode == 'core'
+        run: |
+          uv run --no-sync python -m benchmarks.multidoc_accuracy --manifest benchmark-data/synthetic/manifest.json --policy benchmarks/synthetic_policy.json --baseline benchmark-data/ci/before.json --regressions-only --output benchmark-data/ci/after.json
+      - name: Measure baseline HTTP transport and input formats
+        if: matrix.mode == 'http'
+        run: |
+          uv run --no-sync python -m benchmarks.http_accuracy --manifest benchmark-data/synthetic/manifest.json --source "$OCR_BASE_CORE" --output benchmark-data/ci/http-before.json || test -s benchmark-data/ci/http-before.json
+      - name: Gate real HTTP, queue, input-format and accuracy regressions
+        if: matrix.mode == 'http'
+        run: |
+          uv run --no-sync python -m benchmarks.http_accuracy --manifest benchmark-data/synthetic/manifest.json --baseline benchmark-data/ci/http-before.json --output benchmark-data/ci/http-after.json
+      - name: Publish aggregate results without document fields
+        if: always()
+        run: |
+          uv run --no-sync python - <<'PY'
+          import json, os
+          from pathlib import Path
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('### All-profile synthetic contracts\n\nGenerated fixtures exercise real OCR and transport; these are not real-world accuracy estimates.\n\n')
+              for filename in ('after.json', 'http-after.json'):
+                  path = Path('benchmark-data/ci') / filename
+                  if not path.exists():
+                      continue
+                  r = json.loads(path.read_text())
+                  if 'gates' in r:
+                      output.write(f"Core regression gate: {r['gates']['regressionPassed']}. Absolute targets: {r['gates']['passed']}.\n\n")
+                      output.write('Unmet checks: ' + ', '.join(r['gates']['failures']) + '\n\n')
+                  else:
+                      output.write(f"HTTP operational checks: {r['operationalPassed']}. Comparison: {r.get('comparison', {}).get('passed')}.\n\n")
+                      output.write('| Clients | Requests/s | Warm p95 | Field accuracy |\n|---|---:|---:|---:|\n')
+                      for level, s in r['concurrency'].items():
+                          output.write(f"| {level} | {s['requestsPerSecond']:.2f} | {s['overall']['p95Ms']:.0f} ms | {s['overall']['fieldAccuracy']:.2%} |\n")
           PY
