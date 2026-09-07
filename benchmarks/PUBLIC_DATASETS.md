@@ -1,7 +1,7 @@
 # Public OCR evaluation data
 
-Research date: 2026-09-07. This phase links sources and prepares a small evaluation sample. It does **not**
-report OCR accuracy or enable an automatic OCR regression gate yet.
+Research date: 2026-09-07. This phase links sources and prepares a small evaluation sample. The [first OCR baseline](PUBLIC_BASELINE.md) reports measured results on this sample;
+an automatic regression gate is not enabled yet.
 
 The machine-readable [catalog](public_datasets.json) pins 145 publisher files,
 totaling **447.58 GiB** before extraction. It contains the full published image
@@ -137,7 +137,7 @@ Inspection results describe dataset quality, not OCR quality. Archive downloads
 can be complete while labels or images still need curation. Current aggregate
 reports are stored under `benchmarks/reports/public-data/`.
 
-## Next phase: regression and improvement measurements
+## Further regression and improvement measurements
 
 1. Review label anomalies and implement source-specific adapters. Preserve raw
    truth; separately document date/name normalization, absent fields and every
@@ -172,5 +172,6 @@ reports are stored under `benchmarks/reports/public-data/`.
 The existing passport/KYC/structured release gates remain intact. A public subset
 report must not relax their full-profile coverage requirements or imply that an
 unsupported document family has become supported. After the data/adapters are
-reviewed, add the image-based workflow; the current unit-test CI already tests
-the bounded sample acquisition code.
+reviewed, add the image-based workflow; the current unit-test CI tests
+the bounded sample acquisition and scoring code. The local
+`python -m benchmarks.public_accuracy` runner now records the initial baseline.
