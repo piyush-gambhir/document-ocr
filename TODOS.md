@@ -26,16 +26,13 @@ TypeScript SDK tests, back-page accuracy, Cloud Run deploy) were completed in
    the spatial label→value relationships the extractors rely on. A Hough /
    projection-profile deskew step would harden real-world phone-photo accuracy.
 
-5. **Multi-page non-passport documents.** PDF preprocessing currently evaluates
-   the first page. Add a KYC-only page aggregation contract before claiming
-   complete support for multi-page NPR letters or job-card continuations.
+5. **Broader multi-page semantics.** Grouped pages and conflict detection now
+   exist. Add typed table/continuation merging and holder association for NPR,
+   NREGA and document packets using representative fixtures.
 
-6. **Explicit KYC routing for ambiguous documents.** To preserve the existing
-   passport-positive path, `scan()` does not override a positive passport-page
-   classification. Some driving licences and voter cards containing multiple
-   passport-like labels can therefore remain on the passport path. Add a
-   separate KYC-only entry point or independent router without changing
-   passport OCR behavior.
+6. **Evaluate routing and US layouts.** Country/document hints and structured
+   US routing are implemented. Measure automatic classification confusion and
+   each new experimental profile on separate tuning and locked image sets.
 
 7. **Driving licence layout variance.** The DL extractor is best-effort; layouts
    differ substantially by issuing state. Gather fixtures from more states
@@ -47,9 +44,39 @@ TypeScript SDK tests, back-page accuracy, Cloud Run deploy) were completed in
    `_find_name` infers it spatially relative to the DOB line. Validate against
    more real layouts (vertical/horizontal cards, masked Aadhaar, mAadhaar PDF).
 
-9. **SDK retry semantics for 4xx.** Thread structured HTTP status information
-   through retry handling rather than inferring retryability from error-message
-   text.
+9. **Calibrate confidence and latency on the locked dataset.** Passport scans
+   now read the full page even after a valid cropped MRZ, exposing visual fields
+   and mismatches but adding OCR work. Measure field gains, false rejections,
+   and p50/p95 latency before tuning crops, thresholds, or model settings.
+
+## Implemented in 3.1.0
+
+See FEATURES.md and HOSTING.md for contracts, limitations and validation.
+
+- Country-aware profiles, AAMVA PDF417, TD1 passport/US cards, MRV visas,
+  I-94 and W-9 extraction; new profiles remain experimental.
+- Native PDF text, source evidence, grouped pages and independent batches.
+- Review/edit/export UI, selected raster redaction, encrypted persistent-server
+  jobs with retention and signed metadata-only callbacks.
+- Cloud Run, Lambda/S3, Cloudflare Worker+Container, Compose/Caddy, Terraform,
+  and an npm init/doctor/deploy CLI with generated-source dry runs.
+
+Still planned: bank statements/utility bills/payslips, GST/Udyam/incorporation/
+cheque schemas, signed Aadhaar QR with current trusted fixtures, and distributed
+cloud job backends. None are advertised as implemented document profiles.
+
+## Completed in the September 2026 audit
+
+- Fixed MRZ century/calendar parsing, paired-line detection, and checksum gates.
+- Preserved whole identifier boundaries instead of truncating malformed values.
+- Added full-page passport recovery/enrichment and rejected empty back pages.
+- Unified image decoding for paths/uploads, including HEIF and EXIF orientation;
+  preserved 16-bit scan contrast and fixed rotated-quadrilateral corner ties.
+- Made benchmark coverage fail closed and preserved Indic marks in scoring.
+- Fixed HTTP retry semantics, deadlines, Lambda cleanup, local-server lifecycle,
+  and native OCR serialization after HTTP timeouts.
+- Removed the duplicate CI workflow and verified redundant code/tests.
+- Added `make smoke` for repeatable real-model synthetic regression checks.
 
 ## Completed in 3.0.0
 

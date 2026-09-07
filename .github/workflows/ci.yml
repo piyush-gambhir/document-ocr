@@ -19,8 +19,10 @@ jobs:
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
-      - run: uv sync --all-extras
-      - run: uv run pytest tests/python
+      - run: uv venv
+      - run: uv pip install -r requirements.lock
+      - run: uv pip install -e '.[dev]' -c requirements.lock
+      - run: uv run --no-sync pytest tests/python
       - run: uv build
 
   typescript:
@@ -40,5 +42,24 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      - run: node --test ../../tests/javascript/review.test.cjs
       - run: npm run build
       - run: npm pack --dry-run
+
+  cloudflare:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deploy/cloudflare
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: deploy/cloudflare/package-lock.json
+      - run: npm ci
+      - run: npm run types
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run check

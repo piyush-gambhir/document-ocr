@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.1.0 — Unreleased
+
+- Add country-aware experimental US profiles, AAMVA PDF417, TD1 card and visa MRZ
+  extraction, I-94/W-9 fields, source evidence and a capability catalog.
+- Add native PDF text, grouped pages with conflicts, batches, review/edit/export,
+  raster redaction and optional encrypted persistent-server jobs/webhooks.
+- Add portable deployment kits and npm init/doctor/deploy CLI for Cloud Run,
+  Lambda/S3, Cloudflare Worker+Container and Compose/Caddy; include Terraform.
+- Fix passport date/checksum/visual-field regressions, identifier boundaries,
+  image decoding, request deadlines and SDK retry/lifecycle behavior.
+- Strengthen private-image benchmark coverage gates and add US exact-field gates.
+- Preserve legacy result blocks; new profiles remain experimental. See FEATURES.md
+  and HOSTING.md for contracts, verification boundaries and pending work.
+
+
 ## 3.0.0 — 2026-07-27
 
 ### Non-passport document coverage

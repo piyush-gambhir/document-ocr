@@ -1,6 +1,6 @@
 # document-ocr
 
-Local-first OCR pipeline for passports and Indian KYC documents. It
+Local-first OCR pipeline for passports, Indian KYC documents, and experimental US identity/immigration/tax documents. It
 preprocesses scans, classifies the document, runs targeted OCR with RapidOCR
 (PP-OCRv5), and extracts structured fields—including passport MRZ data, Indian
 passport back-page fields, and identifier/holder fields for PAN, Aadhaar,
@@ -14,6 +14,12 @@ Ships as a Python package with a FastAPI server, plus an npm wrapper at [`packag
 > document authenticity, verify identity against an issuing authority, detect
 > fraud, or by itself satisfy KYC obligations. Evaluate it on your own legally
 > obtained dataset before production use.
+
+Version 3.1 adds US document profiles, PDF417/TD1/visa parsing, country hints,
+field evidence, native PDF text, grouped pages, batch scans, a browser review UI,
+redaction, and optional encrypted jobs. See [FEATURES.md](FEATURES.md) for the
+contracts and coverage limits and [HOSTING.md](HOSTING.md) for Cloud Run, Lambda,
+Cloudflare Containers, servers, Terraform, and the deployment CLI.
 
 ## Supported documents
 
@@ -43,10 +49,9 @@ private image dataset. The extraction layer handles multiple label/layout
 variants, but deterministic text-region tests are not evidence of real-image
 accuracy.
 
-To keep passport OCR behavior unchanged, a positive passport-page probe is
-never overridden by the KYC router. A driving licence or voter card whose crop
-contains multiple passport-like labels can therefore remain ambiguous; an
-explicit KYC-only entry point is tracked as future work.
+Country/document hints route through full-page classification rather than relying
+on an ambiguous passport crop. New structured-document evidence can also override
+generic passport-like labels. Unknown or conflicting document hints fail explicitly.
 
 ## Quickstart
 
@@ -101,11 +106,18 @@ The package auto-creates a `.venv`, installs the Python deps, and manages the lo
 |---|---|---|
 | GET | `/health` | Liveness |
 | GET | `/ready` | `503` until OCR models finish loading |
-| POST | `/scan` | Multipart image upload, returns scan result JSON |
+| GET | `/documents` | Document profiles and runtime capabilities |
+| POST | `/scan` | Single scan with country/document hints and optional evidence |
+| POST | `/scan/batch` | Independent inputs, preserving order |
+| POST | `/scan/document` | Grouped front/back images or all PDF pages, with conflict detection |
+| GET | `/review` | Browser review, corrections and export |
+| POST | `/preview`, `/redact` | Normalized preview or selected raster redactions |
+| POST | `/jobs` | Optional persistent-server queue |
+| GET / DELETE | `/jobs/{id}` | Poll or delete a retained job |
 
 `/scan` accepts images and PDFs up to 10 MB. Concurrency is serialized
 internally. Set `API_TOKEN` to require
-`Authorization: Bearer <token>` on `/scan`. For internet-facing deployments,
+`Authorization: Bearer <token>` on document and job endpoints. For internet-facing deployments,
 use platform IAM or an API gateway in addition to application-level controls.
 Incomplete or semantically invalid non-passport extractions return HTTP `422`
 with the full structured failure result.
@@ -163,7 +175,7 @@ with the full structured failure result.
 
 1. `preprocess` — orientation, document boundary detection, perspective correction, quality checks
 2. `classify_passport_page` — biodata vs non-biodata vs not-a-passport (cheap bottom-crop probe)
-3. passport path: `run_ocr` (RapidOCR PP-OCRv5, full-page fallback when MRZ is missing) → `parse_mrz` (TD3 MRZ with per-field + overall checksum validation) → `extract_back_page` (bilingual label-aware extraction) → `validate` (cross-checks MRZ vs visual fields, computes confidence)
+3. passport path: `run_ocr` (RapidOCR PP-OCRv5, full-page enrichment and visual cross-checks even when the cropped MRZ is valid) → `parse_mrz` (TD3 MRZ with per-field + overall checksum validation) → `extract_back_page` (bilingual label-aware extraction) → `validate` (cross-checks MRZ vs visual fields, computes confidence)
 4. non-passport path: `classify_document` routes full-page OCR to the matching
    extractor (`pan` / `aadhaar` / `driving_licence` / `voter_id` /
    `nrega_job_card` / `npr_letter`), checks minimum required fields, validates
@@ -197,6 +209,22 @@ failures are reported before the first scan. Unsupported names or more than
 four configured models fail readiness instead of silently falling back.
 
 Single entry point: `core.pipeline.scan(image_input)`.
+
+### Verification
+
+Run `make test` for Python and SDK regressions, and `make smoke` for a real-model
+check against two generated, clearly synthetic documents. The smoke check
+requires the OCR models and is separate from the offline unit suite. It is not
+a representative accuracy measurement.
+
+Use `make benchmark` with a private passport manifest following
+[`benchmarks/PASSPORT_DATASET.md`](benchmarks/PASSPORT_DATASET.md), or
+`make benchmark-kyc KYC_MANIFEST=/secure/path/manifest.json` following
+[`benchmarks/KYC_DATASET.md`](benchmarks/KYC_DATASET.md), to measure actual image
+accuracy. Missing required coverage fails the release gates.
+
+See [`AUDIT.md`](AUDIT.md) for the September 2026 review, verified fixes,
+synthetic before/after results, and remaining accuracy work.
 
 ## Deployment
 
