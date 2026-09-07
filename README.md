@@ -301,15 +301,15 @@ and annotation workflow.
 `benchmark-data/` is ignored by Git. Never commit identity documents or
 personal data. See [CONTRIBUTING.md](CONTRIBUTING.md) for fixture rules.
 
-For public datasets, see [the linked catalog and fixed 40-case evaluation
-sample](benchmarks/PUBLIC_DATASETS.md). The bounded fetcher downloads only selected
-images and labels, with pinned checksums. Integrity checks are separate from OCR accuracy;
-see the [measured OCR baseline](benchmarks/PUBLIC_BASELINE.md) for current accuracy
-and failures, the [first MRZ improvements](benchmarks/MRZ_IMPROVEMENTS.md), and
-the [passport recovery follow-up](benchmarks/MRZ_RECOVERY_FOLLOWUP.md) for the latest
-before/after comparison. The [dataset coverage map](benchmarks/DOCUMENT_DATASET_COVERAGE.md)
-links sources and identifies gaps for all 15 supported document types. Further
-profiles need reviewed adapters before entering accuracy gates.
+For public datasets, see [the linked catalog](benchmarks/PUBLIC_DATASETS.md).
+The [repeated multi-document evaluation](benchmarks/MULTIDOC_EVALUATION.md) now
+covers 62 images, with per-family accuracy and latency targets and a PR regression
+workflow. Its bounded fetcher downloads selected images and labels with pinned
+checksums. [Historical OCR results](benchmarks/PUBLIC_BASELINE.md) and
+[passport recovery comparisons](benchmarks/MRZ_RECOVERY_FOLLOWUP.md) remain available.
+The [dataset coverage map](benchmarks/DOCUMENT_DATASET_COVERAGE.md) links sources
+and identifies gaps for all 15 supported document types; unscored families are
+not included in field-accuracy claims.
 
 ## Privacy and security
 

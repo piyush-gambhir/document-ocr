@@ -269,5 +269,18 @@
       "gaps": "Synthetic clean render only; no noisy scans/handwriting. Need inspect exact field linking before adapter.",
       "smallSamplePlan": "Select 5 held-out W-9 rows by form_id=irs_w9_standard_2024 using bounded viewer requests; inspect SSN/EIN and missing-value cases; no full Parquet download."
     }
+  },
+  "latestEvaluation": {
+    "date": "2026-09-08",
+    "document": "MULTIDOC_EVALUATION.md",
+    "additionalManifest": "public_expansion_samples.json",
+    "totalImages": 62,
+    "fieldScoredProfiles": [
+      "passport",
+      "passport_card",
+      "us_driver_license",
+      "us_w9"
+    ],
+    "note": "Later evaluation update; original source-readiness research remains dated separately. This is a small tuning suite, not representative release coverage."
   }
 }

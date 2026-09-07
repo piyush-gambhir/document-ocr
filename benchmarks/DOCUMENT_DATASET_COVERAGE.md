@@ -5,7 +5,11 @@ Research date: 2026-09-07. All **15 registered document types** are mapped in th
 source links, label type, access limitations, remaining gaps and a small sample
 plan. A listed candidate is **not** an admitted or downloaded benchmark.
 
-No new image datasets were downloaded in this research pass. The existing
+For the later 22-image expansion and measured multi-document results, see
+[the repeated evaluation](MULTIDOC_EVALUATION.md). This catalog records the original
+research pass; its original readiness notes below are historical.
+
+No new image datasets were downloaded in that research pass. The existing
 40-image sample and its measured baseline remain unchanged. This is evaluation,
 not model training; prefer a few independently labeled examples per variant.
 

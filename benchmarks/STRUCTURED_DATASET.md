@@ -1,7 +1,9 @@
 # Structured-document accuracy dataset
 
-**Real-image accuracy: not measured.** The repository has no representative,
-licensed, independently annotated image dataset for these eight profiles.
+**Representative release accuracy: not measured.** A small public smoke suite now
+measures US licences, passport-card fronts and W-9s; see the
+[repeated multi-document evaluation](MULTIDOC_EVALUATION.md). It does not cover all
+eight profiles or meet this document's release-dataset requirements.
 Parser regressions and a generated PDF417 encode/decode round trip verify
 implementation behavior; they do not establish production OCR accuracy.
 

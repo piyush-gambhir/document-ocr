@@ -1,0 +1,3940 @@
+{
+  "schemaVersion": 1,
+  "repeats": 3,
+  "seed": 20260908,
+  "provenance": {
+    "commit": "d3d1a274d91f0edd8b18c8847dc2d90c50f24dc9",
+    "coreSha256": "ebc2fd350cc9a7a81d5cf6577f293c68bc3ac9bd5d9379661056659b6119cb54",
+    "scorerSha256": "ea96b170cd216cc16af0029ae0ff52a624eba071b00170b4064c2eb21a035120",
+    "manifestSha256": [
+      "8e2f9b60cedaeacf3af5e836a59234f2c597e203e1cb1484d540b24d0a047ca6",
+      "f145dc9d21926e948413de8620d3fd06a7dbc89ba2d5e60b4522080cc9c9a681"
+    ],
+    "integrity": [
+      {
+        "schemaVersion": 1,
+        "manifestSha256": "8e2f9b60cedaeacf3af5e836a59234f2c597e203e1cb1484d540b24d0a047ca6",
+        "cases": 40,
+        "identityGroups": 18,
+        "files": 62,
+        "bytes": 60034236,
+        "datasets": {
+          "midv-2020": 24,
+          "midv-lait": 8,
+          "idnet-part3": 5,
+          "cord-v2": 3
+        },
+        "integrity": "passed",
+        "ocrMeasured": false
+      },
+      {
+        "schemaVersion": 1,
+        "manifestSha256": "f145dc9d21926e948413de8620d3fd06a7dbc89ba2d5e60b4522080cc9c9a681",
+        "cases": 22,
+        "identityGroups": 15,
+        "files": 40,
+        "bytes": 54796027,
+        "datasets": {
+          "midv-2020": 8,
+          "midv-500": 4,
+          "symage-us-forms": 10
+        },
+        "integrity": "passed",
+        "ocrMeasured": false
+      }
+    ],
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.12.13",
+    "cpuCount": 15,
+    "kycLanguages": "",
+    "packages": {
+      "rapidocr": "3.9.2",
+      "onnxruntime": "1.28.0",
+      "numpy": "2.5.1",
+      "opencv-python": "4.13.0.92",
+      "pillow": "12.3.0"
+    },
+    "modelSha256": {
+      "PP-OCRv6_det_small.onnx": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+      "PP-OCRv6_rec_small.onnx": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+      "ch_PP-OCRv5_det_mobile.onnx": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+      "ch_PP-OCRv5_mobile_det.onnx": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+      "ch_ppocr_mobile_v2.0_cls_mobile.onnx": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+      "en_PP-OCRv5_rec_mobile.onnx": "c3461add59bb4323ecba96a492ab75e06dda42467c9e3d0c18db5d1d21924be8",
+      "en_PP-OCRv5_rec_mobile_infer.onnx": "c3461add59bb4323ecba96a492ab75e06dda42467c9e3d0c18db5d1d21924be8"
+    }
+  },
+  "coldStartMs": 981.0,
+  "coldStartError": null,
+  "overall": {
+    "cases": 62,
+    "identityGroups": 33,
+    "calls": 186,
+    "scoredCases": 39,
+    "fieldMatches": 750,
+    "fieldExpectations": 798,
+    "fieldAccuracy": 0.9398496240601504,
+    "completeRecordAccuracy": 0.9230769230769231,
+    "acceptedPositiveAccuracy": 0.9230769230769231,
+    "spuriousFields": 0,
+    "mrzMatches": 63,
+    "mrzExpectations": 72,
+    "negativeRejections": 21,
+    "negativeExpectations": 21,
+    "statuses": {
+      "success": 108,
+      "failure": 60,
+      "unsupported_page": 18
+    },
+    "runtimeErrors": 0,
+    "unstableCases": 0,
+    "medianMs": 502.865,
+    "p95Ms": 1798.88,
+    "successfulMedianMs": 677.23,
+    "successfulP95Ms": 1790.88
+  },
+  "profiles": {
+    "aadhaar_observation": {
+      "cases": 4,
+      "identityGroups": 2,
+      "calls": 12,
+      "scoredCases": 0,
+      "fieldMatches": 0,
+      "fieldExpectations": 0,
+      "fieldAccuracy": null,
+      "completeRecordAccuracy": null,
+      "acceptedPositiveAccuracy": null,
+      "spuriousFields": 0,
+      "mrzMatches": 0,
+      "mrzExpectations": 0,
+      "negativeRejections": 0,
+      "negativeExpectations": 0,
+      "statuses": {
+        "failure": 12
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 172.915,
+      "p95Ms": 358.11,
+      "successfulMedianMs": null,
+      "successfulP95Ms": null
+    },
+    "negative_control": {
+      "cases": 7,
+      "identityGroups": 7,
+      "calls": 21,
+      "scoredCases": 0,
+      "fieldMatches": 0,
+      "fieldExpectations": 0,
+      "fieldAccuracy": null,
+      "completeRecordAccuracy": null,
+      "acceptedPositiveAccuracy": null,
+      "spuriousFields": 0,
+      "mrzMatches": 0,
+      "mrzExpectations": 0,
+      "negativeRejections": 21,
+      "negativeExpectations": 21,
+      "statuses": {
+        "failure": 15,
+        "unsupported_page": 6
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 887.09,
+      "p95Ms": 2777.54,
+      "successfulMedianMs": null,
+      "successfulP95Ms": null
+    },
+    "other_observation": {
+      "cases": 12,
+      "identityGroups": 4,
+      "calls": 36,
+      "scoredCases": 0,
+      "fieldMatches": 0,
+      "fieldExpectations": 0,
+      "fieldAccuracy": null,
+      "completeRecordAccuracy": null,
+      "acceptedPositiveAccuracy": null,
+      "spuriousFields": 0,
+      "mrzMatches": 0,
+      "mrzExpectations": 0,
+      "negativeRejections": 0,
+      "negativeExpectations": 0,
+      "statuses": {
+        "failure": 27,
+        "unsupported_page": 9
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 451.71500000000003,
+      "p95Ms": 1010.59,
+      "successfulMedianMs": null,
+      "successfulP95Ms": null
+    },
+    "passport": {
+      "cases": 24,
+      "identityGroups": 8,
+      "calls": 72,
+      "scoredCases": 24,
+      "fieldMatches": 552,
+      "fieldExpectations": 576,
+      "fieldAccuracy": 0.9583333333333334,
+      "completeRecordAccuracy": 0.9583333333333334,
+      "acceptedPositiveAccuracy": 0.9583333333333334,
+      "spuriousFields": 0,
+      "mrzMatches": 63,
+      "mrzExpectations": 72,
+      "negativeRejections": 0,
+      "negativeExpectations": 0,
+      "statuses": {
+        "success": 69,
+        "unsupported_page": 3
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 713.075,
+      "p95Ms": 995.91,
+      "successfulMedianMs": 679.85,
+      "successfulP95Ms": 962.67
+    },
+    "passport_card": {
+      "cases": 4,
+      "identityGroups": 1,
+      "calls": 12,
+      "scoredCases": 4,
+      "fieldMatches": 48,
+      "fieldExpectations": 72,
+      "fieldAccuracy": 0.6666666666666666,
+      "completeRecordAccuracy": 0.5,
+      "acceptedPositiveAccuracy": 0.5,
+      "spuriousFields": 0,
+      "mrzMatches": 0,
+      "mrzExpectations": 0,
+      "negativeRejections": 0,
+      "negativeExpectations": 0,
+      "statuses": {
+        "success": 6,
+        "failure": 6
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 388.135,
+      "p95Ms": 519.35,
+      "successfulMedianMs": 439.04499999999996,
+      "successfulP95Ms": 519.35
+    },
+    "us_driver_license": {
+      "cases": 5,
+      "identityGroups": 5,
+      "calls": 15,
+      "scoredCases": 5,
+      "fieldMatches": 60,
+      "fieldExpectations": 60,
+      "fieldAccuracy": 1.0,
+      "completeRecordAccuracy": 1.0,
+      "acceptedPositiveAccuracy": 1.0,
+      "spuriousFields": 0,
+      "mrzMatches": 0,
+      "mrzExpectations": 0,
+      "negativeRejections": 0,
+      "negativeExpectations": 0,
+      "statuses": {
+        "success": 15
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 383.19,
+      "p95Ms": 392.86,
+      "successfulMedianMs": 383.19,
+      "successfulP95Ms": 392.86
+    },
+    "us_w9": {
+      "cases": 6,
+      "identityGroups": 6,
+      "calls": 18,
+      "scoredCases": 6,
+      "fieldMatches": 90,
+      "fieldExpectations": 90,
+      "fieldAccuracy": 1.0,
+      "completeRecordAccuracy": 1.0,
+      "acceptedPositiveAccuracy": 1.0,
+      "spuriousFields": 0,
+      "mrzMatches": 0,
+      "mrzExpectations": 0,
+      "negativeRejections": 0,
+      "negativeExpectations": 0,
+      "statuses": {
+        "success": 18
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 1768.3400000000001,
+      "p95Ms": 1862.06,
+      "successfulMedianMs": 1768.3400000000001,
+      "successfulP95Ms": 1862.06
+    }
+  },
+  "slices": {
+    "expansion": {
+      "cases": 22,
+      "identityGroups": 15,
+      "calls": 66,
+      "scoredCases": 18,
+      "fieldMatches": 306,
+      "fieldExpectations": 354,
+      "fieldAccuracy": 0.864406779661017,
+      "completeRecordAccuracy": 0.8333333333333334,
+      "acceptedPositiveAccuracy": 0.8333333333333334,
+      "spuriousFields": 0,
+      "mrzMatches": 18,
+      "mrzExpectations": 24,
+      "negativeRejections": 12,
+      "negativeExpectations": 12,
+      "statuses": {
+        "success": 45,
+        "unsupported_page": 6,
+        "failure": 15
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 889.185,
+      "p95Ms": 2733.35,
+      "successfulMedianMs": 867.91,
+      "successfulP95Ms": 1815.96
+    },
+    "original_smoke": {
+      "cases": 40,
+      "identityGroups": 18,
+      "calls": 120,
+      "scoredCases": 21,
+      "fieldMatches": 444,
+      "fieldExpectations": 444,
+      "fieldAccuracy": 1.0,
+      "completeRecordAccuracy": 1.0,
+      "acceptedPositiveAccuracy": 1.0,
+      "spuriousFields": 0,
+      "mrzMatches": 45,
+      "mrzExpectations": 48,
+      "negativeRejections": 9,
+      "negativeExpectations": 9,
+      "statuses": {
+        "success": 63,
+        "failure": 45,
+        "unsupported_page": 12
+      },
+      "runtimeErrors": 0,
+      "unstableCases": 0,
+      "medianMs": 460.66499999999996,
+      "p95Ms": 902.58,
+      "successfulMedianMs": 505.82,
+      "successfulP95Ms": 902.58
+    }
+  },
+  "cases": [
+    {
+      "id": "midv-2020/aze_passport/00/templates",
+      "group": "midv-2020/aze_passport/00",
+      "profile": "passport",
+      "capture": "templates",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 710.85
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 746.61
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 752.54
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/aze_passport/00/scan_upright",
+      "group": "midv-2020/aze_passport/00",
+      "profile": "passport",
+      "capture": "scan_upright",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 469.8
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 501.68
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 500.84
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/aze_passport/00/scan_rotated",
+      "group": "midv-2020/aze_passport/00",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 480.28
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 508.11
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 504.39
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/aze_passport/00/photo",
+      "group": "midv-2020/aze_passport/00",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 820.64
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 854.1
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 841.54
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/grc_passport/00/templates",
+      "group": "midv-2020/grc_passport/00",
+      "profile": "passport",
+      "capture": "templates",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 842.66
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 858.59
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 896.45
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/grc_passport/00/scan_upright",
+      "group": "midv-2020/grc_passport/00",
+      "profile": "passport",
+      "capture": "scan_upright",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 470.37
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 477.25
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 490.96
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/grc_passport/00/scan_rotated",
+      "group": "midv-2020/grc_passport/00",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 388.21
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 418.2
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 450.12
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/grc_passport/00/photo",
+      "group": "midv-2020/grc_passport/00",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 852.82
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 889.51
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 902.58
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/lva_passport/00/templates",
+      "group": "midv-2020/lva_passport/00",
+      "profile": "passport",
+      "capture": "templates",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 984.17
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 995.91
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1030.53
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/lva_passport/00/scan_upright",
+      "group": "midv-2020/lva_passport/00",
+      "profile": "passport",
+      "capture": "scan_upright",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 624.92
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 672.46
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 679.85
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/lva_passport/00/scan_rotated",
+      "group": "midv-2020/lva_passport/00",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 475.18
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 498.93
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 509.1
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/lva_passport/00/photo",
+      "group": "midv-2020/lva_passport/00",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 727.46
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 761.56
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 758.06
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/srb_passport/00/templates",
+      "group": "midv-2020/srb_passport/00",
+      "profile": "passport",
+      "capture": "templates",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 728.03
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 746.99
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 752.52
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/srb_passport/00/scan_upright",
+      "group": "midv-2020/srb_passport/00",
+      "profile": "passport",
+      "capture": "scan_upright",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 470.95
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 498.09
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 505.82
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/srb_passport/00/scan_rotated",
+      "group": "midv-2020/srb_passport/00",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 521.61
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 505.3
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 510.26
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/srb_passport/00/photo",
+      "group": "midv-2020/srb_passport/00",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 715.72
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 733.08
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 740.76
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/alb_id/00/templates",
+      "group": "midv-2020/alb_id/00",
+      "profile": "other_observation",
+      "capture": "templates",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 561.51
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 558.6
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 596.35
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/alb_id/00/scan_upright",
+      "group": "midv-2020/alb_id/00",
+      "profile": "other_observation",
+      "capture": "scan_upright",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 437.92
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 457.19
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 458.74
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/alb_id/00/scan_rotated",
+      "group": "midv-2020/alb_id/00",
+      "profile": "other_observation",
+      "capture": "scan_rotated",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 555.06
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 593.04
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 609.02
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/alb_id/00/photo",
+      "group": "midv-2020/alb_id/00",
+      "profile": "other_observation",
+      "capture": "photo",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 58.18
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 60.36
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 67.44
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/est_id/00/templates",
+      "group": "midv-2020/est_id/00",
+      "profile": "other_observation",
+      "capture": "templates",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 451.87
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 483.47
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 482.51
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/est_id/00/scan_upright",
+      "group": "midv-2020/est_id/00",
+      "profile": "other_observation",
+      "capture": "scan_upright",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "voter_id",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 439.63
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "voter_id",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 451.56
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "voter_id",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 462.59
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/est_id/00/scan_rotated",
+      "group": "midv-2020/est_id/00",
+      "profile": "other_observation",
+      "capture": "scan_rotated",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 38.47
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 38.14
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 40.05
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/est_id/00/photo",
+      "group": "midv-2020/est_id/00",
+      "profile": "other_observation",
+      "capture": "photo",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 58.86
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 64.56
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 65.18
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_gujarati_01/template",
+      "group": "midv-lait/ind_aadhaar_gujarati_01",
+      "profile": "aadhaar_observation",
+      "capture": "template",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 332.37
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 354.12
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 358.11
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_gujarati_01/frame",
+      "group": "midv-lait/ind_aadhaar_gujarati_01",
+      "profile": "aadhaar_observation",
+      "capture": "frame",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 26.95
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 31.64
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 27.58
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_malayalam_01/template",
+      "group": "midv-lait/ind_aadhaar_malayalam_01",
+      "profile": "aadhaar_observation",
+      "capture": "template",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 314.19
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 339.35
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 329.45
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/ind_aadhaar_malayalam_01/frame",
+      "group": "midv-lait/ind_aadhaar_malayalam_01",
+      "profile": "aadhaar_observation",
+      "capture": "frame",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 25.28
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 29.59
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 29.34
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/tha_id_01/template",
+      "group": "midv-lait/tha_id_01",
+      "profile": "other_observation",
+      "capture": "template",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 478.97
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 509.19
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 507.3
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/tha_id_01/frame",
+      "group": "midv-lait/tha_id_01",
+      "profile": "other_observation",
+      "capture": "frame",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 28.77
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 27.43
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 30.64
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/dza_passport_01/template",
+      "group": "midv-lait/dza_passport_01",
+      "profile": "other_observation",
+      "capture": "template",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 969.62
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1034.43
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1010.59
+        }
+      ]
+    },
+    {
+      "id": "midv-lait/dza_passport_01/frame",
+      "group": "midv-lait/dza_passport_01",
+      "profile": "other_observation",
+      "capture": "frame",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 25.96
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 30.16
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 27.55
+        }
+      ]
+    },
+    {
+      "id": "idnet-sd/generated.photos_0139935",
+      "group": "idnet-sd/generated.photos_0139935",
+      "profile": "us_driver_license",
+      "capture": "generated.photos_0139935",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 368.02
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 385.9
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 391.05
+        }
+      ]
+    },
+    {
+      "id": "idnet-sd/generated.photos_0193017",
+      "group": "idnet-sd/generated.photos_0193017",
+      "profile": "us_driver_license",
+      "capture": "generated.photos_0193017",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 362.07
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 379.19
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 391.29
+        }
+      ]
+    },
+    {
+      "id": "idnet-sd/generated.photos_0210845",
+      "group": "idnet-sd/generated.photos_0210845",
+      "profile": "us_driver_license",
+      "capture": "generated.photos_0210845",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 365.57
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 381.03
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 383.19
+        }
+      ]
+    },
+    {
+      "id": "idnet-sd/generated.photos_v3_0000170",
+      "group": "idnet-sd/generated.photos_v3_0000170",
+      "profile": "us_driver_license",
+      "capture": "generated.photos_v3_0000170",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 369.3
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 383.38
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 392.86
+        }
+      ]
+    },
+    {
+      "id": "idnet-sd/generated.photos_v3_0000333",
+      "group": "idnet-sd/generated.photos_v3_0000333",
+      "profile": "us_driver_license",
+      "capture": "generated.photos_v3_0000333",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 369.57
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 388.68
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "dateOfBirth": true,
+            "expiryDate": true,
+            "issueDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_driver_license",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 383.3
+        }
+      ]
+    },
+    {
+      "id": "cord-v2/test/0",
+      "group": "cord-v2/test/0",
+      "profile": "negative_control",
+      "capture": "0",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 0.95
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 0.94
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 1.1
+        }
+      ]
+    },
+    {
+      "id": "cord-v2/test/1",
+      "group": "cord-v2/test/1",
+      "profile": "negative_control",
+      "capture": "1",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 4.22
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 5.26
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 5.21
+        }
+      ]
+    },
+    {
+      "id": "cord-v2/test/2",
+      "group": "cord-v2/test/2",
+      "profile": "negative_control",
+      "capture": "2",
+      "split": "original_smoke",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 265.33
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 262.76
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 279.23
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/aze_passport/41/scan_rotated",
+      "group": "midv-2020/aze_passport/41",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 860.83
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 884.94
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 867.91
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/aze_passport/41/photo",
+      "group": "midv-2020/aze_passport/41",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": false,
+            "givenNames": false,
+            "passportNumber": false,
+            "countryCode": false,
+            "nationality": false,
+            "dateOfBirth": false,
+            "sex": false,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "unsupported_page",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 951.3
+        },
+        {
+          "fieldMatches": {
+            "surname": false,
+            "givenNames": false,
+            "passportNumber": false,
+            "countryCode": false,
+            "nationality": false,
+            "dateOfBirth": false,
+            "sex": false,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "unsupported_page",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1003.86
+        },
+        {
+          "fieldMatches": {
+            "surname": false,
+            "givenNames": false,
+            "passportNumber": false,
+            "countryCode": false,
+            "nationality": false,
+            "dateOfBirth": false,
+            "sex": false,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "unsupported_page",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1004.33
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/grc_passport/41/scan_rotated",
+      "group": "midv-2020/grc_passport/41",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 423.33
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 468.13
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 446.11
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/grc_passport/41/photo",
+      "group": "midv-2020/grc_passport/41",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 486.09
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 499.34
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 507.63
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/lva_passport/41/scan_rotated",
+      "group": "midv-2020/lva_passport/41",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 715.3
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 725.45
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 758.28
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/lva_passport/41/photo",
+      "group": "midv-2020/lva_passport/41",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 677.44
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 677.02
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": false,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 721.25
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/srb_passport/41/scan_rotated",
+      "group": "midv-2020/srb_passport/41",
+      "profile": "passport",
+      "capture": "scan_rotated",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 429.52
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 468.46
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 464.77
+        }
+      ]
+    },
+    {
+      "id": "midv-2020/srb_passport/41/photo",
+      "group": "midv-2020/srb_passport/41",
+      "profile": "passport",
+      "capture": "photo",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 871.4
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 962.67
+        },
+        {
+          "fieldMatches": {
+            "surname": true,
+            "givenNames": true,
+            "passportNumber": true,
+            "countryCode": true,
+            "nationality": true,
+            "dateOfBirth": true,
+            "sex": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": true,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 953.11
+        }
+      ]
+    },
+    {
+      "id": "midv-500/passportcard/template/01",
+      "group": "midv-500/passportcard/48",
+      "profile": "passport_card",
+      "capture": "template",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 474.34
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 519.35
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 504.05
+        }
+      ]
+    },
+    {
+      "id": "midv-500/passportcard/TA/01",
+      "group": "midv-500/passportcard/48",
+      "profile": "passport_card",
+      "capture": "TA",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 373.41
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 403.75
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": true,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": true
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 395.01
+        }
+      ]
+    },
+    {
+      "id": "midv-500/passportcard/HS/01",
+      "group": "midv-500/passportcard/48",
+      "profile": "passport_card",
+      "capture": "HS",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": false,
+            "surname": false,
+            "givenNames": false,
+            "sex": false,
+            "dateOfBirth": false,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": false,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 27.21
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": false,
+            "surname": false,
+            "givenNames": false,
+            "sex": false,
+            "dateOfBirth": false,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": false,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 30.04
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": false,
+            "surname": false,
+            "givenNames": false,
+            "sex": false,
+            "dateOfBirth": false,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": false,
+          "status": "failure",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 31.62
+        }
+      ]
+    },
+    {
+      "id": "midv-500/passportcard/CS/01",
+      "group": "midv-500/passportcard/48",
+      "profile": "passport_card",
+      "capture": "CS",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "documentNumber": false,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "failure",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 359.64
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": false,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "failure",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 384.54
+        },
+        {
+          "fieldMatches": {
+            "documentNumber": false,
+            "surname": true,
+            "givenNames": true,
+            "sex": true,
+            "dateOfBirth": true,
+            "expiryDate": false
+          },
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "failure",
+          "documentType": "passport_card",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 391.73
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/60",
+      "group": "symage-us-forms/930000",
+      "profile": "us_w9",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1731.18
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1790.88
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1834.24
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/61",
+      "group": "symage-us-forms/930005",
+      "profile": "us_w9",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1712.59
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1767.65
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1815.96
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/62",
+      "group": "symage-us-forms/930010",
+      "profile": "us_w9",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1757.03
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1769.03
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1780.21
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/63",
+      "group": "symage-us-forms/930015",
+      "profile": "us_w9",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1732.14
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1763.02
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1797.11
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/64",
+      "group": "symage-us-forms/930020",
+      "profile": "us_w9",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1727.97
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1798.88
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1862.06
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/65",
+      "group": "symage-us-forms/930025",
+      "profile": "us_w9",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1718.92
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1758.84
+        },
+        {
+          "fieldMatches": {
+            "name": true,
+            "address": true,
+            "cityStatePostalCode": true,
+            "taxpayerId": true,
+            "taxpayerIdType": true
+          },
+          "absentFieldMatches": {
+            "businessName": true
+          },
+          "mrzExact": null,
+          "routingMatch": true,
+          "status": "success",
+          "documentType": "us_w9",
+          "runtimeError": null,
+          "negativeRejected": null,
+          "elapsedMs": 1780.59
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/30",
+      "group": "symage-us-forms/910000",
+      "profile": "negative_control",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "pan",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 2639.89
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "pan",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 2694.93
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "pan",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 2733.36
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/50",
+      "group": "symage-us-forms/920000",
+      "profile": "negative_control",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 2733.35
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 2777.54
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "unsupported_page",
+          "documentType": "unknown",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 2788.58
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/70",
+      "group": "symage-us-forms/940000",
+      "profile": "negative_control",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "us_green_card",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 1615.79
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "us_green_card",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 1662.91
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "us_green_card",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 1699.65
+        }
+      ]
+    },
+    {
+      "id": "symage-us-forms/test/85",
+      "group": "symage-us-forms/950000",
+      "profile": "negative_control",
+      "capture": "render",
+      "split": "expansion",
+      "runs": [
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 828.04
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 887.09
+        },
+        {
+          "fieldMatches": {},
+          "absentFieldMatches": {},
+          "mrzExact": null,
+          "routingMatch": null,
+          "status": "failure",
+          "documentType": "aadhaar",
+          "runtimeError": null,
+          "negativeRejected": true,
+          "elapsedMs": 891.28
+        }
+      ]
+    }
+  ],
+  "policySha256": "e100385b8c89864b74ce5c05942dc4ae3144fd566fcff5dad8a86573c3b21e53",
+  "gates": {
+    "passed": false,
+    "failures": [
+      "negative_control:LATENCY_BUDGET",
+      "passport_card:acceptedPositiveAccuracy",
+      "passport_card:completeRecordAccuracy",
+      "passport_card:fieldAccuracy"
+    ],
+    "regressionPassed": true,
+    "latencyComparison": {
+      "aadhaar_observation": {
+        "comparableCalls": 0,
+        "measured": false
+      },
+      "negative_control": {
+        "comparableCalls": 0,
+        "measured": false
+      },
+      "other_observation": {
+        "comparableCalls": 0,
+        "measured": false
+      },
+      "passport": {
+        "comparableCalls": 60,
+        "measured": true,
+        "medianMs": {
+          "before": 743.595,
+          "after": 573.265
+        },
+        "p95Ms": {
+          "before": 1099.5,
+          "after": 902.58
+        }
+      },
+      "passport_card": {
+        "comparableCalls": 0,
+        "measured": false
+      },
+      "us_driver_license": {
+        "comparableCalls": 0,
+        "measured": false
+      },
+      "us_w9": {
+        "comparableCalls": 0,
+        "measured": false
+      }
+    },
+    "regressions": []
+  }
+}
