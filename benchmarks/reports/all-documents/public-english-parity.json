@@ -1,0 +1,11 @@
+{
+  "purpose": "Public dataset score parity only; no timing-equivalence claim",
+  "cases": 8,
+  "differences": [],
+  "runtimeIntegrity": {
+    "sourceUnchanged": true,
+    "scorerUnchanged": true,
+    "evaluatorUnchanged": true
+  },
+  "passed": true
+}

@@ -16,17 +16,16 @@ documents. `--repeats 3` repeats each sweep. A maximum of 1,000 measured `/scan`
 requests keeps this a bounded smoke evaluation. The report records document
 count and identity-group count separately from requests.
 
-Use `--manifest` repeatedly to select another admitted corpus, including a
-generated contract fixture manifest. `--root` sets its local sample directory.
+Use `--manifest` repeatedly to select another admitted corpus with publisher-linked
+images and annotations. `--root` sets its local sample directory.
 `--case-limit` selects a deterministic, profile-balanced subset and refuses a
 limit too small to cover every included profile. Corpus selection is independent
 of OCR outcomes. No downloads happen during this evaluator.
 
 ```sh
 .venv/bin/python -m benchmarks.http_accuracy \
-  --manifest benchmark-data/synthetic/manifest.json \
   --concurrency 1 2 4 --repeats 1 \
-  --output benchmark-data/http/synthetic.json
+  --output benchmark-data/http/public.json
 ```
 
 The report separates:
@@ -63,8 +62,7 @@ These extra checks and the first scan are excluded from throughput statistics.
 
 For each registered document profile present in the corpus, additional checks
 submit a PNG, a high quality JPEG, an image-only PDF, a scan with an explicit
-document hint, and a scan requesting evidence. The selection prefers the first
-clean generated fixture, otherwise the manifest's first case for that profile;
+document hint, and a scan requesting evidence. The active dataset evaluation uses the manifest's first case for that profile;
 it never chooses a case because OCR succeeded. Encodings are created in memory
 from the original image. The PDF has no native text layer that could substitute
 for image recognition. Each result is scored against the same independent truth
@@ -106,3 +104,8 @@ timing; expected values, OCR fields, uploaded bytes, bearer tokens and job keys
 are not serialized. Server diagnostics remain in the ignored
 `benchmark-data/http/server.log`. The focused unit tests exercise evaluator
 error accounting; only running the CLI produces real OCR HTTP measurements.
+
+Active CI and accuracy reporting use downloaded dataset images only. The runner's
+generic manifest support is not evidence for an unmeasured profile. Locally
+generated fixtures and the agent-transcribed EAD specimen are excluded from
+automatic accuracy evaluation. See [current results](ALL_DOCUMENTS_EVALUATION.md).

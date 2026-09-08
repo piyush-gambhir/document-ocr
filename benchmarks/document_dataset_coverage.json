@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
   "researchDate": "2026-09-07",
-  "purpose": "Evaluation only. Links and metadata; no bulk downloads. Plans are not claims of acquired data.",
+  "purpose": "Evaluation only. Current sample admissions plus linked candidates; no bulk downloads. Public annotated, locally generated and agent-reviewed specimen evidence are reported separately.",
   "sources": {
     "midv-2020": {
       "url": "https://zenodo.org/records/18786808",
       "kind": "paired-images",
       "terms": "CC-BY-SA-2.5",
       "labels": "Template field text, MRZ and capture geometry.",
-      "verified": "Existing catalog and 16 passport baseline images; no Indian passport layout."
+      "verified": "Twenty-four non-Indian passport views across eight source-document groups are admitted in public_samples.json and public_expansion_samples.json; no Indian passport layout."
     },
     "midv-500": {
       "url": "https://zenodo.org/records/18504926",
       "kind": "paired-images",
       "terms": "CC-BY-SA-2.5 with source notices",
       "labels": "Document and capture ground truth.",
-      "verified": "Published archive list includes 48_usa_passportcard.zip; limited independent identities; no Indian passport archive."
+      "verified": "Four US passport-card front views from 48_usa_passportcard.zip are admitted in public_expansion_samples.json with reviewed publisher-template mapping; all share one source-document group. No Indian passport archive."
     },
     "midv-lait": {
       "url": "https://zenodo.org/records/18781343",
@@ -37,7 +37,7 @@
       "terms": "CC-BY-4.0; credit SymageDocs",
       "revision": "bc1126acb41179ca45c637f10d575d3a0a7835a1",
       "labels": "FUNSD entities and links, token boxes/tags, field boxes.",
-      "verified": "Card lists 50 W-9 documents among 525 pages. API verifies licence and train/test Parquet files. Clean synthetic renders only; W-9 rows still need sample-level inspection."
+      "verified": "Six W-9 test rows 60-65 and four unrelated controls are admitted in public_expansion_samples.json. Publisher FUNSD answers and links inspected; selected W-9s contain SSNs, not EINs. Clean synthetic renders only."
     },
     "jwalit-kyc": {
       "url": "https://huggingface.co/datasets/Jwalit/kyc-document-extraction-vlm",
@@ -105,7 +105,7 @@
       "kind": "reference-only",
       "terms": "Review individual official specimen reuse terms",
       "labels": "Official document references, not a paired OCR dataset.",
-      "verified": "Current page fetch returned 403. Green-card/EAD sample acquisition, edition coverage and labels remain unverified."
+      "verified": "Official hub retrieval returned 403 in the source review. No paired green-card corpus admitted; a separately reviewed EAD mirror is recorded under uscis-ead-reviewed."
     },
     "cbp-i94": {
       "url": "https://www.cbp.gov/sites/default/files/documents/CBP%20Form%20I-94%20English%20SAMPLE_Watermark.pdf",
@@ -134,6 +134,13 @@
       "terms": "Check dataset release terms separately",
       "labels": "Synthetic text entity spans.",
       "verified": "Useful candidate for text extraction tests only; no matching document images. Does not establish passport, PAN, DL, EPIC or NPR image accuracy."
+    },
+    "uscis-ead-reviewed": {
+      "url": "https://commons.wikimedia.org/w/index.php?title=File:USCIS_EAD_card.jpg&oldid=916147826",
+      "kind": "reviewed-specimen",
+      "terms": "Commons records USCIS authorship and U.S. federal government public-domain status; preserve source and specimen provenance.",
+      "labels": "Ten agent visual transcriptions made before OCR inspection; no publisher field annotations or independent human double review.",
+      "verified": "One completed fictional historical EAD front admitted with image/truth SHA-256 in additional_profile_samples.json. See ADDITIONAL_SOURCE_REVIEW.md; score separately from public annotated corpus."
     }
   },
   "profiles": {
@@ -149,7 +156,8 @@
       ],
       "status": "partial-paired",
       "gaps": "Non-Indian biodata measured. No admitted Indian biodata/back-page image-and-truth corpus.",
-      "smallSamplePlan": "Keep 16 current passport views. Acquire 10 independently labeled Indian biodata examples and 5 back pages across holders/editions before Indian tuning; include phone captures and partial pages."
+      "smallSamplePlan": "Retain the 24 public non-Indian views and their source groups. Seek 5-10 independently reviewed Indian biodata images plus back pages across holders and editions; generated Indian contracts remain separate.",
+      "syntheticContract": true
     },
     "pan": {
       "sourceIds": [
@@ -159,7 +167,8 @@
       ],
       "status": "candidate-only",
       "gaps": "Independent field truth, licence and source provenance not verified.",
-      "smallSamplePlan": "After admission: 5 current-layout, 5 older-layout images; number, name, relation and DOB labels; positive and invalid/partial cases."
+      "smallSamplePlan": "After admission: 5 current-layout, 5 older-layout images; number, name, relation and DOB labels; positive and invalid/partial cases.",
+      "syntheticContract": true
     },
     "aadhaar": {
       "sourceIds": [
@@ -169,7 +178,8 @@
       ],
       "status": "partial-paired",
       "gaps": "LAIT covers script recognition, not representative valid front/back, masked, VID, QR or full profile accuracy.",
-      "smallSamplePlan": "Keep current LAIT samples; add 10 reviewed front/back/masked/e-Aadhaar cases with identity grouping and explicit checksum expectations."
+      "smallSamplePlan": "Keep current LAIT samples; add 10 reviewed front/back/masked/e-Aadhaar cases with identity grouping and explicit checksum expectations.",
+      "syntheticContract": true
     },
     "driving_licence": {
       "sourceIds": [
@@ -178,7 +188,8 @@
       ],
       "status": "classification-only",
       "gaps": "No verified Indian DL image/field corpus; diffusion metadata is not transcribed truth.",
-      "smallSamplePlan": "10 reviewed PVC/paper/digital examples across states; issue/NT/TR dates and vehicle classes; do not count synthetic prompts as labels."
+      "smallSamplePlan": "10 reviewed PVC/paper/digital examples across states; issue/NT/TR dates and vehicle classes; do not count synthetic prompts as labels.",
+      "syntheticContract": true
     },
     "voter_id": {
       "sourceIds": [
@@ -187,7 +198,8 @@
       ],
       "status": "candidate-only",
       "gaps": "EPIC field labels, image provenance and reuse rights unresolved.",
-      "smallSamplePlan": "10 reviewed old/new/e-EPIC views covering age versus DOB and relation labels."
+      "smallSamplePlan": "10 reviewed old/new/e-EPIC views covering age versus DOB and relation labels.",
+      "syntheticContract": true
     },
     "nrega_job_card": {
       "sourceIds": [
@@ -195,21 +207,24 @@
       ],
       "status": "no-paired-source",
       "gaps": "Public administrative data is not photographed job-card OCR truth.",
-      "smallSamplePlan": "5 reviewed cards across layouts with full member rows, hierarchical identifier and location fields; partial/blank controls."
+      "smallSamplePlan": "5 reviewed cards across layouts with full member rows, hierarchical identifier and location fields; partial/blank controls.",
+      "syntheticContract": true
     },
     "npr_letter": {
       "sourceIds": [],
       "status": "no-paired-source",
       "gaps": "No verified paired National Population Register name/address letter dataset found. NPR news/audio datasets are unrelated.",
-      "smallSamplePlan": "5 reviewed letters with resident name, address, reference/date where present and absent-field labels; requires new collection."
+      "smallSamplePlan": "5 reviewed letters with resident name, address, reference/date where present and absent-field labels; requires new collection.",
+      "syntheticContract": true
     },
     "us_driver_license": {
       "sourceIds": [
         "idnet"
       ],
       "status": "partial-paired",
-      "gaps": "Five SD examples rejected by existing resolution gate; other jurisdictions, front/back and PDF417 need coverage.",
-      "smallSamplePlan": "Keep five SD failures unchanged. Add small AZ/CA/other-state subsets from pinned sources after field/schema inspection, with barcode views where available."
+      "gaps": "Only five South Dakota synthetic source documents are field-scored. Other jurisdictions, design variants, front/back and real PDF417 captures remain unmeasured.",
+      "smallSamplePlan": "Retain five SD cases and their difficult captures. Add small AZ/CA/other-state subsets from pinned sources after field/schema inspection, with barcode views where available.",
+      "syntheticContract": true
     },
     "us_state_id": {
       "sourceIds": [
@@ -218,15 +233,17 @@
       ],
       "status": "candidate-only",
       "gaps": "Do not relabel a driver licence as a state ID. Exact non-driver images and annotations not audited.",
-      "smallSamplePlan": "Select 5 verified non-driver cards with front/back pairing; otherwise leave a coverage gap."
+      "smallSamplePlan": "Select 5 verified non-driver cards with front/back pairing; otherwise leave a coverage gap.",
+      "syntheticContract": true
     },
     "passport_card": {
       "sourceIds": [
         "midv-500"
       ],
-      "status": "paired-source-not-sampled",
-      "gaps": "US passport-card archive identified; exact view/label pairing still needs inspection; one source identity is not population coverage.",
-      "smallSamplePlan": "Select 5 capture conditions from 48_usa_passportcard.zip using bounded member ranges; group all views by identity."
+      "status": "partial-paired",
+      "gaps": "Four admitted US front views share one publisher specimen. More source identities and back-side TD1 images are needed.",
+      "smallSamplePlan": "Keep the four admitted views in public_expansion_samples.json; add a few independently labeled identities and reverse-side examples without counting more views as more holders.",
+      "syntheticContract": true
     },
     "us_green_card": {
       "sourceIds": [
@@ -234,15 +251,18 @@
       ],
       "status": "reference-only",
       "gaps": "No verified open image/field corpus; official examples need transcription and edition/back-side review.",
-      "smallSamplePlan": "5 permitted annotated specimen/consented cases across editions; retain specimen status and rejection expectations."
+      "smallSamplePlan": "5 permitted annotated specimen/consented cases across editions; retain specimen status and rejection expectations.",
+      "syntheticContract": true
     },
     "us_ead": {
       "sourceIds": [
-        "uscis-specimens"
+        "uscis-specimens",
+        "uscis-ead-reviewed"
       ],
-      "status": "reference-only",
-      "gaps": "No verified open paired corpus. I-765 application forms are not I-766 cards.",
-      "smallSamplePlan": "5 permitted annotated front/back cases covering category, USCIS/card numbers and dates; distinguish EAD from green card."
+      "status": "reviewed-specimen-only",
+      "gaps": "One agent-transcribed official fictional front is admitted separately; no independently reviewed open population corpus, back side or edition coverage. I-765 applications are not I-766 cards.",
+      "smallSamplePlan": "Obtain independent transcription review for the admitted specimen, then 5-10 permitted annotated fronts/backs across editions; retain separate specimen provenance and rejection expectations.",
+      "syntheticContract": true
     },
     "visa": {
       "sourceIds": [
@@ -251,7 +271,8 @@
       ],
       "status": "candidate-only",
       "gaps": "No admitted MRV-A/MRV-B image/field set. Generator outcomes may deliberately reject MRV.",
-      "smallSamplePlan": "5 MRV-A plus 5 MRV-B reviewed examples, including partial MRZ; do not substitute TD3 passports."
+      "smallSamplePlan": "5 MRV-A plus 5 MRV-B reviewed examples, including partial MRZ; do not substitute TD3 passports.",
+      "syntheticContract": true
     },
     "us_i94": {
       "sourceIds": [
@@ -259,20 +280,22 @@
       ],
       "status": "blank-reference",
       "gaps": "Official blank paper form is not positive extraction truth; no verified filled electronic/paper dataset.",
-      "smallSamplePlan": "5 reviewed completed specimen cases covering numeric dates and D/S, plus the blank form as a negative control."
+      "smallSamplePlan": "5 reviewed completed specimen cases covering numeric dates and D/S, plus the blank form as a negative control.",
+      "syntheticContract": true
     },
     "us_w9": {
       "sourceIds": [
         "symage-w9"
       ],
-      "status": "paired-source-not-sampled",
-      "gaps": "Synthetic clean render only; no noisy scans/handwriting. Need inspect exact field linking before adapter.",
-      "smallSamplePlan": "Select 5 held-out W-9 rows by form_id=irs_w9_standard_2024 using bounded viewer requests; inspect SSN/EIN and missing-value cases; no full Parquet download."
+      "status": "partial-paired",
+      "gaps": "Six admitted clean publisher-generated W-9s contain SSNs only. EIN is exercised in a separate local contract, not public image coverage; scans and handwriting remain unmeasured.",
+      "smallSamplePlan": "Keep six admitted SSN rows and optional-blank expectations. Select a few publisher-labeled EIN rows and independently reviewed capture variants before expanding field claims.",
+      "syntheticContract": true
     }
   },
   "latestEvaluation": {
     "date": "2026-09-08",
-    "document": "MULTIDOC_EVALUATION.md",
+    "document": "ALL_DOCUMENTS_EVALUATION.md",
     "additionalManifest": "public_expansion_samples.json",
     "totalImages": 62,
     "fieldScoredProfiles": [
@@ -281,6 +304,75 @@
       "us_driver_license",
       "us_w9"
     ],
-    "note": "Later evaluation update; original source-readiness research remains dated separately. This is a small tuning suite, not representative release coverage."
+    "note": "Active results use downloaded public datasets only. Locally generated images and agent-transcribed specimens are excluded. Missing profiles remain gaps; this tuning suite is not representative release coverage."
+  },
+  "updatedDate": "2026-09-08",
+  "currentCoverage": {
+    "date": "2026-09-08",
+    "overview": "DOCUMENT_DATASET_COVERAGE.md",
+    "public": {
+      "manifests": [
+        "public_samples.json",
+        "public_expansion_samples.json"
+      ],
+      "images": 62,
+      "scoredPositiveImages": 39,
+      "negativeControls": 7,
+      "unscoredObservations": 16,
+      "fieldScoredProfiles": [
+        "passport",
+        "passport_card",
+        "us_driver_license",
+        "us_w9"
+      ],
+      "scope": "Small tuning corpus with publisher annotations or renderer labels; includes synthetic source documents. Not an independent release holdout.",
+      "activeAccuracyEvaluation": true
+    },
+    "reviewedSpecimens": {
+      "manifest": "additional_profile_samples.json",
+      "profiles": [
+        "us_ead"
+      ],
+      "images": 1,
+      "sourceDocumentGroups": 1,
+      "expectedFields": 10,
+      "labelProvenance": "Agent visual transcription before OCR; no publisher annotations or independent human double review.",
+      "activeAccuracyEvaluation": false,
+      "automaticOcrEvaluation": false
+    },
+    "syntheticContracts": {
+      "generator": "synthetic_documents.py",
+      "manifest": "../benchmark-data/synthetic/manifest.json",
+      "profiles": [
+        "passport",
+        "pan",
+        "aadhaar",
+        "driving_licence",
+        "voter_id",
+        "nrega_job_card",
+        "npr_letter",
+        "us_driver_license",
+        "us_state_id",
+        "passport_card",
+        "us_green_card",
+        "us_ead",
+        "visa",
+        "us_i94",
+        "us_w9"
+      ],
+      "positiveSourceDocuments": 30,
+      "fictionalNameDateTemplates": 2,
+      "positiveImages": 90,
+      "blankControls": 15,
+      "images": 105,
+      "scope": "Simplified fictional local layouts; not real Indian or US population accuracy.",
+      "activeAccuracyEvaluation": false,
+      "automaticOcrEvaluation": false
+    },
+    "http": "HTTP_EVALUATION.md",
+    "sourceReview": "ADDITIONAL_SOURCE_REVIEW.md",
+    "note": "Only public dataset samples are actively scored. Generated contracts and agent-transcribed specimens are retained as inactive engineering/research references. Repetitions and transformations do not add independent people.",
+    "results": "ALL_DOCUMENTS_EVALUATION.md",
+    "policy": "dataset-sourced-only"
   }
 }
