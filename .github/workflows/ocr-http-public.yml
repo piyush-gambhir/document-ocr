@@ -1,0 +1,91 @@
+name: Public OCR HTTP regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'core/**'
+      - 'deploy/docker/**'
+      - 'benchmarks/**'
+      - '!benchmarks/**/*.md'
+      - '!benchmarks/reports/**'
+      - '!benchmarks/document_dataset_coverage.json'
+      - 'requirements.lock'
+      - 'pyproject.toml'
+      - '.github/workflows/ocr-http-public.yml'
+  pull_request:
+    paths:
+      - 'core/**'
+      - 'deploy/docker/**'
+      - 'benchmarks/**'
+      - '!benchmarks/**/*.md'
+      - '!benchmarks/reports/**'
+      - '!benchmarks/document_dataset_coverage.json'
+      - 'requirements.lock'
+      - 'pyproject.toml'
+      - '.github/workflows/ocr-http-public.yml'
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: Git revision to compare with the same public samples
+        default: HEAD^
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  public-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OCR_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || inputs.base_ref }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - run: uv venv
+      - run: uv pip install -r requirements.lock
+      - run: uv pip install -e '.[dev]' -c requirements.lock
+      - name: Fetch only the checksum-pinned public sample
+        run: |
+          uv run --no-sync python -m benchmarks.public_data fetch-samples
+          uv run --no-sync python -m benchmarks.public_data fetch-samples --manifest benchmarks/public_expansion_samples.json
+      - name: Export baseline core and HTTP server
+        run: |
+          resolved_ref=$(git rev-parse --verify --end-of-options "${OCR_BASE_REF}^{commit}")
+          baseline_dir=$(mktemp -d "$RUNNER_TEMP/ocr-http-base.XXXXXX")
+          git archive "$resolved_ref" core deploy | tar -x -C "$baseline_dir"
+          echo "OCR_BASE_CORE=$baseline_dir" >> "$GITHUB_ENV"
+      - name: Measure baseline using the same evaluator and inputs
+        run: |
+          uv run --no-sync python -m benchmarks.http_accuracy --source "$OCR_BASE_CORE" --output benchmark-data/ci/http-public-before.json || test -s benchmark-data/ci/http-public-before.json
+      - name: Gate public image, JPEG, PDF, API and latency regressions
+        run: |
+          uv run --no-sync python -m benchmarks.http_accuracy --baseline benchmark-data/ci/http-public-before.json --output benchmark-data/ci/http-public-after.json
+      - name: Publish score-only results
+        if: always()
+        run: |
+          uv run --no-sync python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path('benchmark-data/ci/http-public-after.json')
+          if path.exists():
+              r = json.loads(path.read_text())
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+                  output.write('### Public sample HTTP regression\n\n')
+                  output.write('Small fixed tuning corpus; includes publisher-generated specimens. This is not representative population accuracy or a deployed-worker SLA.\n\n')
+                  output.write(f"HTTP operational checks: {r['operationalPassed']}. Comparison: {r.get('comparison', {}).get('passed')}.\n\n")
+                  output.write('| Clients | Requests/s | Warm p95 | Exact fields |\n|---|---:|---:|---:|\n')
+                  for level, run in r['concurrency'].items():
+                      s = run['overall']
+                      output.write(f"| {level} | {run['requestsPerSecond']:.2f} | {s['p95Ms']:.0f} ms | {s['fieldMatches']}/{s['fieldExpectations']} |\n")
+                  losses = [{'profile': item['profile'], 'mode': item['mode'], 'losses': item['regressionsVsAutomatic']}
+                            for item in r['variantChecks'] if item['regressionsVsAutomatic']]
+                  output.write('\nInput-format losses: ' + json.dumps(losses) + '\n')
+                  output.write('\nComparison details: ' + json.dumps(r.get('comparison', {})) + '\n')
+          PY
