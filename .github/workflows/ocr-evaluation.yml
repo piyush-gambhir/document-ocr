@@ -52,8 +52,17 @@ jobs:
       - run: uv pip install -r requirements.lock
       - name: Fetch only checksum-pinned samples
         run: |
-          uv run --no-sync python -m benchmarks.public_data fetch-samples
-          uv run --no-sync python -m benchmarks.public_data fetch-samples --manifest benchmarks/public_expansion_samples.json
+          fetch_samples() {
+            for sample_attempt in 1 2 3; do
+              if uv run --no-sync python -m benchmarks.public_data fetch-samples "$@"; then
+                return 0
+              fi
+              if [ "$sample_attempt" -eq 3 ]; then return 1; fi
+              sleep "$((sample_attempt * 10))"
+            done
+          }
+          fetch_samples
+          fetch_samples --manifest benchmarks/public_expansion_samples.json
       - name: Export baseline core
         run: |
           resolved_ref=$(git rev-parse --verify --end-of-options "${OCR_BASE_REF}^{commit}")
