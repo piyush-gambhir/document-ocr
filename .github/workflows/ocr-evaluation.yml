@@ -36,7 +36,7 @@ permissions:
 
 jobs:
   repeated-ocr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 25
     env:
       OCR_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || inputs.base_ref }}
