@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.1.0 — Unreleased
+## 3.1.0 — 2026-10-05
 
 - Add country-aware experimental US profiles, AAMVA PDF417, TD1 card and visa MRZ
   extraction, I-94/W-9 fields, source evidence and a capability catalog.
