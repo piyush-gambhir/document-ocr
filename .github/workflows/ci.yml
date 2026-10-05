@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   python:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -26,7 +26,7 @@ jobs:
       - run: uv build
 
   typescript:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     defaults:
       run:
         working-directory: packages/passport-ocr
@@ -47,7 +47,7 @@ jobs:
       - run: npm pack --dry-run
 
   cloudflare:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     defaults:
       run:
         working-directory: deploy/cloudflare
