@@ -257,3 +257,10 @@ def test_other_quality_errors_are_not_overridden(monkeypatch):
     monkeypatch.setattr(pipeline, 'preprocess', low_resolution)
     assert pipeline.scan(b'synthetic').errors == ['IMAGE_RESOLUTION_TOO_LOW']
     assert calls == [80]
+
+
+def test_preview_matches_a_scan_admitted_past_the_blur_gate(monkeypatch):
+    _blurry_until_forced(monkeypatch)
+    monkeypatch.setattr(pipeline, '_extract_targeted_regions', lambda _: mrz_regions())
+    monkeypatch.setattr(pipeline, 'input_bytes', lambda _source: b'jpeg')
+    assert pipeline.preview_image(b'synthetic').shape == (1000, 800, 3)

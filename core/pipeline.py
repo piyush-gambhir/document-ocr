@@ -148,13 +148,22 @@ def scan(
             warnings = ["PDF_ADDITIONAL_PAGES_IGNORED"] if page.total > 1 else []
             prep = PreprocessResult(page.image, warnings)
             return _scan_page(prep, start, document_type, country, include_evidence, native=page.regions)
-        prep = preprocess(image_input)
+        prep = _prepare_image(image_input)
+    except ImageQualityError as exc:
+        return DocumentScanResult("failure", "unknown", "unknown", 0.0,
+                                  errors=[str(exc)], processing_ms=_elapsed_ms(start))
+    return _scan_page(prep, start, document_type, country, include_evidence)
+
+
+def _prepare_image(image_input) -> PreprocessResult:
+    """Preprocess an image exactly as scans do, so previews and redaction match them."""
+    try:
+        return preprocess(image_input)
     except ImageQualityError as exc:
         prep = _readable_despite_blur(image_input, exc)
         if prep is None:
-            return DocumentScanResult("failure", "unknown", "unknown", 0.0,
-                                      errors=[str(exc)], processing_ms=_elapsed_ms(start))
-    return _scan_page(prep, start, document_type, country, include_evidence)
+            raise
+        return prep
 
 
 def _readable_despite_blur(image_input, exc: ImageQualityError) -> Optional[PreprocessResult]:
@@ -183,7 +192,7 @@ def preview_image(image_input: Union[str, bytes, Path]):
     data = input_bytes(image_input)
     if data.startswith(b"%PDF-"):
         return pdf_pages(data, first_only=True)[0].image
-    return preprocess(image_input).image
+    return _prepare_image(image_input).image
 
 
 def _structured(regions, prep, start, *, document_type=None, country=None, barcodes=None):
