@@ -1,6 +1,6 @@
 [project]
 name = "india-document-ocr"
-version = "3.1.1"
+version = "3.1.2"
 description = "Local OCR for passports, Indian KYC and US documents, with evidence, review tools, and portable workers"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }

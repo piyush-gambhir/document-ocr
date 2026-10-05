@@ -150,9 +150,32 @@ def scan(
             return _scan_page(prep, start, document_type, country, include_evidence, native=page.regions)
         prep = preprocess(image_input)
     except ImageQualityError as exc:
-        return DocumentScanResult("failure", "unknown", "unknown", 0.0,
-                                  errors=[str(exc)], processing_ms=_elapsed_ms(start))
+        prep = _readable_despite_blur(image_input, exc)
+        if prep is None:
+            return DocumentScanResult("failure", "unknown", "unknown", 0.0,
+                                      errors=[str(exc)], processing_ms=_elapsed_ms(start))
     return _scan_page(prep, start, document_type, country, include_evidence)
+
+
+def _readable_despite_blur(image_input, exc: ImageQualityError) -> Optional[PreprocessResult]:
+    """Overrule the blur gate only for a passport whose MRZ reads with valid check digits.
+
+    The gate scores sharpness over the whole frame, so a sharp passport that
+    fills part of a large photo can fall below it. Check digits cannot validate
+    on a genuinely unreadable image, so they decide; everything else keeps the
+    rejection, including back pages, which carry no MRZ.
+    """
+    if str(exc) != "IMAGE_TOO_BLURRY":
+        return None
+    try:
+        prep = preprocess(image_input, blur_threshold=0)
+    except ImageQualityError:
+        return None
+    mrz = parse_mrz(_extract_targeted_regions(prep.image))
+    if not (mrz and mrz.overall_checksum_valid):
+        return None
+    prep.warnings.append("BLUR_CHECK_OVERRIDDEN_BY_VALID_MRZ")
+    return prep
 
 
 def preview_image(image_input: Union[str, bytes, Path]):

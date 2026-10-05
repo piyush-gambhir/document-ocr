@@ -76,7 +76,7 @@ async def _lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Document OCR", version="3.1.1", lifespan=_lifespan)
+app = FastAPI(title="Document OCR", version="3.1.2", lifespan=_lifespan)
 
 
 @app.middleware("http")

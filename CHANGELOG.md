@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.2 (2026-10-06)
+
+- A photo rejected as `IMAGE_TOO_BLURRY` is scanned anyway when its bottom-page
+  probe reads an MRZ with valid check digits, and gains the warning
+  `BLUR_CHECK_OVERRIDDEN_BY_VALID_MRZ`. The gate scores sharpness over the whole
+  frame, so a sharp passport filling part of a large photo (a 2160x3840 phone
+  shot in production) was rejected although it reads completely. Back pages and
+  unreadable images keep the rejection; other quality errors are unchanged.
+
 ## 3.1.1 (2026-10-05)
 
 Latency fixes for scans that end in failure, measured against 3.0.0 on real

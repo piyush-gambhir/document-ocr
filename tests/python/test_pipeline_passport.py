@@ -208,3 +208,52 @@ def test_direct_page_scans_are_bounded_too(monkeypatch):
                         pipeline.DocumentScanResult('failure', 'unknown', 'unknown', 0.0))
     pipeline._scan_page(PreprocessResult(np.zeros((100, 100, 3), np.uint8)), time.monotonic(), None, None, False)
     assert seen == [False]
+
+
+def _blurry_until_forced(monkeypatch):
+    from core.preprocessor import ImageQualityError
+    image = np.zeros((1000, 800, 3), dtype=np.uint8)
+
+    def fake_preprocess(_source, blur_threshold=80):
+        if blur_threshold:
+            raise ImageQualityError('IMAGE_TOO_BLURRY')
+        return PreprocessResult(image)
+    monkeypatch.setattr(pipeline, 'preprocess', fake_preprocess)
+
+
+def test_blur_gate_yields_to_a_checksum_valid_mrz(monkeypatch):
+    _blurry_until_forced(monkeypatch)
+    monkeypatch.setattr(pipeline, '_extract_targeted_regions', lambda _: mrz_regions())
+    monkeypatch.setattr(pipeline, 'run_ocr', lambda _image, **_k: mrz_regions())
+    monkeypatch.setattr(pipeline, 'run_kyc_ocr', lambda _image, **_k: mrz_regions())
+    result = pipeline.scan(b'synthetic')
+    assert result.status == 'success'
+    assert result.fields.passport_number == 'L898902C3'
+    assert 'BLUR_CHECK_OVERRIDDEN_BY_VALID_MRZ' in result.warnings
+
+
+@pytest.mark.parametrize('probe', [[], [region('Name of Father', 50), region('Address', 100)],
+                                   [region('P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<', 800),
+                                    region('L898902C36UTO7408122F1204159ZE184226B<<<<<19', 850)]])
+def test_blur_rejection_stands_without_a_valid_mrz(monkeypatch, probe):
+    _blurry_until_forced(monkeypatch)
+    monkeypatch.setattr(pipeline, '_extract_targeted_regions', lambda _: probe)
+    full = Mock()
+    monkeypatch.setattr(pipeline, 'run_ocr', full)
+    monkeypatch.setattr(pipeline, 'run_kyc_ocr', full)
+    result = pipeline.scan(b'synthetic')
+    assert result.status == 'failure'
+    assert result.errors == ['IMAGE_TOO_BLURRY']
+    full.assert_not_called()
+
+
+def test_other_quality_errors_are_not_overridden(monkeypatch):
+    from core.preprocessor import ImageQualityError
+    calls = []
+
+    def low_resolution(_source, blur_threshold=80):
+        calls.append(blur_threshold)
+        raise ImageQualityError('IMAGE_RESOLUTION_TOO_LOW')
+    monkeypatch.setattr(pipeline, 'preprocess', low_resolution)
+    assert pipeline.scan(b'synthetic').errors == ['IMAGE_RESOLUTION_TOO_LOW']
+    assert calls == [80]
