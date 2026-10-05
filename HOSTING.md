@@ -32,6 +32,12 @@ use separate images, sharing the same core Python implementation.
 exclude local virtual environments, npm dependencies, credentials, and private
 identity-document fixtures. Keep these files when copying deployment templates.
 
+At runtime, `DOCUMENT_OCR_RECOVERY_BUDGET_SECONDS` (default `5`) bounds MRZ
+recovery: once a scan has run that long it starts no further re-reads and returns
+the best evidence it has. Set it on the service, not at build time. Use `off` for
+no limit or `0` to disable recovery. On 2 vCPU, failed passport scans otherwise
+spent 10+ seconds in re-reads that rarely changed the outcome.
+
 ## Google Cloud Run
 
 Prerequisites: a billed Google Cloud project, `gcloud`, Python 3, authenticated CLI

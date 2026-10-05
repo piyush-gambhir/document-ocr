@@ -1,5 +1,7 @@
 """Passport orchestration regressions with real parsing and synthetic OCR regions."""
 
+from unittest.mock import Mock
+
 import numpy as np
 import pytest
 
@@ -142,3 +144,48 @@ def test_recovered_high_passport_routes_past_background_text(prepare, monkeypatc
     assert result.page_type == 'passport_biodata'
     assert result.mrz_raw == (first.text, second.text)
     assert result.fields.passport_number == 'L898902C3'
+
+
+def _no_recovery(monkeypatch):
+    recover = Mock(side_effect=lambda image, regions, *args, **kwargs: regions)
+    monkeypatch.setattr(pipeline, 'recover_passport_mrz', recover)
+    return recover
+
+
+def test_back_page_skips_passport_recovery(prepare, monkeypatch):
+    back = [region('Name of Father', 50), region('RAM KUMAR', 80),
+            region('Address', 110), region('12 MG ROAD DELHI', 140)]
+    calls = prepare(back, back)
+    recover = _no_recovery(monkeypatch)
+    result = pipeline.scan(b'synthetic')
+    assert result.page_type == 'passport_non_biodata'
+    recover.assert_not_called()
+    assert calls == ['full']
+
+
+def test_valid_probe_mrz_skips_recovery_of_the_full_page(prepare, monkeypatch):
+    prepare(mrz_regions(), [region('Date of Issue', 40), region('15/04/2002', 75)])
+    recover = _no_recovery(monkeypatch)
+    result = pipeline.scan(b'synthetic')
+    assert result.status == 'success'
+    assert result.fields.issue_date == '15/04/2002'
+    recover.assert_not_called()
+
+
+def test_unresolved_biodata_page_recovers_with_the_band_reader(prepare, monkeypatch):
+    damaged = region('L898902C36UTO7408122F1204159ZE184226B<<<<<19', 850)  # bad checksum
+    prepare([region('Unrelated footer', 950)], [region('PASSPORT', 40), damaged])
+    recover = _no_recovery(monkeypatch)
+    pipeline.scan(b'synthetic')
+    recover.assert_called_once()
+    assert recover.call_args.kwargs['band_ocr'] is pipeline.run_band_ocr
+
+
+def test_valid_but_noisy_probe_still_gets_name_cleanup(prepare, monkeypatch):
+    noisy = [region('P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<C<<<<<<<<', 800),
+             region('L898902C36UTO7408122F1204159ZE184226B<<<<<10', 850)]
+    prepare(noisy, [region('Date of Issue', 40)])
+    recover = _no_recovery(monkeypatch)
+    pipeline.scan(b'synthetic')
+    recover.assert_called_once()
+    assert recover.call_args.kwargs['band_ocr'] is None  # default enlargement

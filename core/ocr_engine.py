@@ -43,16 +43,28 @@ _lock = threading.Lock()
 _ocr_instances: dict[str, object] = {}
 
 
-def _get_ocr(lang: str = "en"):
+# RapidOCR's default detector resize enlarges an input until its short side is
+# 736 px, which turns a thin MRZ band into a detector tensor larger than the
+# whole page. Bands still need some enlargement: on the public benchmark a
+# photographed MRZ band failed without it and at 400 px, and read correctly at
+# 480 px and above. 576 keeps a margin and is ~40% less detector work than 736.
+_BAND_DETECTOR_PARAMS = {"Det.limit_type": "min", "Det.limit_side_len": 576}
+
+
+def _get_ocr(lang: str = "en", *, band: bool = False):
     """Get or create a cached RapidOCR instance.
+
+    ``band=True`` returns a separate instance tuned for thin, already-cropped
+    text bands (see ``_BAND_DETECTOR_PARAMS``); it shares model files, not state.
 
     Raises:
         OCRModelInitError: if RapidOCR model initialisation fails. A failed
             instance is never cached, so a subsequent call can retry once the
             underlying problem (network / disk) is resolved.
     """
-    if lang in _ocr_instances:
-        return _ocr_instances[lang]
+    key = f"{lang}:band" if band else lang
+    if key in _ocr_instances:
+        return _ocr_instances[key]
 
     try:
         from rapidocr import LangRec, ModelType, OCRVersion, RapidOCR
@@ -78,8 +90,8 @@ def _get_ocr(lang: str = "en"):
 
     with _lock:
         # Re-check under the lock — another thread may have built it.
-        if lang in _ocr_instances:
-            return _ocr_instances[lang]
+        if key in _ocr_instances:
+            return _ocr_instances[key]
 
         rec_lang = _lang_map.get(lang, LangRec.EN)
         try:
@@ -90,17 +102,18 @@ def _get_ocr(lang: str = "en"):
                 "Rec.lang_type": rec_lang,
                 "Rec.model_type": ModelType.MOBILE,
                 "Rec.ocr_version": OCRVersion.PPOCRV5,
+                **(_BAND_DETECTOR_PARAMS if band else {}),
             })
         except Exception as exc:
             # Do NOT cache — leave the slot empty so a later call can retry.
-            logger.exception("RapidOCR model initialisation failed (lang=%s)", lang)
+            logger.exception("RapidOCR model initialisation failed (lang=%s)", key)
             raise OCRModelInitError(
-                f"MODEL_INIT_FAILED: could not initialise OCR models for lang={lang}: {exc}"
+                f"MODEL_INIT_FAILED: could not initialise OCR models for lang={key}: {exc}"
             ) from exc
 
-        _ocr_instances[lang] = instance
+        _ocr_instances[key] = instance
 
-    return _ocr_instances[lang]
+    return _ocr_instances[key]
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +167,15 @@ def run_line_ocr(image: np.ndarray) -> list[TextRegion]:
     return [TextRegion(result.txts[0].strip(),
                        [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
                        float(result.scores[0]))]
+
+
+def run_band_ocr(image: np.ndarray) -> list[TextRegion]:
+    """Detect and recognize Latin text in a thin, already-cropped band.
+
+    Used for MRZ band re-reads, which the default reader enlarged to a detector
+    input several times the band's own size.
+    """
+    return _parse_rapidocr_results(_get_ocr("en", band=True)(image))
 
 
 def run_ocr(

@@ -1,3 +1,4 @@
+import time
 from unittest.mock import Mock
 
 import numpy as np
@@ -5,6 +6,7 @@ import numpy as np
 from core.mrz_parser import parse_mrz
 from core.mrz_recovery import recover_passport_mrz
 from core.ocr_engine import TextRegion
+from core.recovery_budget import BUDGET_ENV, recovery_deadline
 
 LINE1 = 'P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<'
 LINE2 = 'L898902C36UTO7408122F1204159ZE184226B<<<<<10'
@@ -178,3 +180,32 @@ def test_focus_crop_reuses_new_prefix_evidence_for_only_one_final_band():
     detector = Mock(side_effect=[first_read, []])
     assert recover_passport_mrz(image, rows, detector) is rows
     assert detector.call_count == 2
+
+
+def test_band_reads_use_the_band_reader():
+    anchor = region(LINE2)
+    ocr, band = Mock(), Mock(return_value=[region(LINE1[:-8], 30)])
+    recovered = recover_passport_mrz(np.zeros((500, 900, 3), np.uint8), [anchor], ocr, band_ocr=band)
+    assert parse_mrz(recovered).overall_checksum_valid
+    band.assert_called_once()
+    ocr.assert_not_called()
+
+
+def test_spent_recovery_budget_starts_no_rereads(monkeypatch):
+    monkeypatch.setenv(BUDGET_ENV, '1')
+    rs = [region(LINE2, y) for y in (100, 180)]
+    ocr, line = Mock(return_value=[]), Mock(return_value=[])
+    with recovery_deadline(time.monotonic() - 2):
+        assert recover_passport_mrz(np.zeros((500, 900, 3), np.uint8), rs, ocr, line, band_ocr=ocr) is rs
+    ocr.assert_not_called()
+    line.assert_not_called()
+
+
+def test_spent_budget_skips_quarter_turn_reads(monkeypatch):
+    monkeypatch.setenv(BUDGET_ENV, '0')
+    sideways = [TextRegion('VERTICAL TEXT ROW', [[10, 10], [40, 10], [40, 400], [10, 400]], .99)
+                for _ in range(4)]
+    ocr = Mock(return_value=[])
+    with recovery_deadline(time.monotonic()):
+        assert recover_passport_mrz(np.zeros((500, 900, 3), np.uint8), sideways, ocr) is sideways
+    ocr.assert_not_called()
