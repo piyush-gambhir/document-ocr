@@ -4,6 +4,7 @@ Uses httpx AsyncClient with ASGI transport — does not load OCR models.
 """
 
 import io
+import logging
 import asyncio
 import threading
 
@@ -132,12 +133,18 @@ def test_warm_up_initializes_configured_kyc_models(monkeypatch):
     )
     monkeypatch.setattr(
         "core.ocr_engine._get_ocr",
-        lambda language: calls.append(language),
+        lambda language, band=False: calls.append(f"{language}:band" if band else language),
     )
 
     server_module._warm_up_ocr()
 
-    assert calls == ["en", "devanagari", "ta"]
+    assert calls == ["en", "devanagari", "ta", "en:band"]
+
+
+def test_scan_log_lines_reach_stderr():
+    # uvicorn configures only its own loggers; this one needs its own handler.
+    assert server_module.logger.handlers
+    assert server_module.logger.isEnabledFor(logging.INFO)
 
 
 class TestScan:

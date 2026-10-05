@@ -1,6 +1,31 @@
 # Changelog
 
-## 3.1.0 — Unreleased
+## 3.1.2 (2026-10-06)
+
+- A photo rejected as `IMAGE_TOO_BLURRY` is scanned anyway when its bottom-page
+  probe reads an MRZ with valid check digits, and gains the warning
+  `BLUR_CHECK_OVERRIDDEN_BY_VALID_MRZ`. The gate scores sharpness over the whole
+  frame, so a sharp passport filling part of a large photo (a 2160x3840 phone
+  shot in production) was rejected although it reads completely. Back pages and
+  unreadable images keep the rejection; other quality errors are unchanged.
+
+## 3.1.1 (2026-10-05)
+
+Latency fixes for scans that end in failure, measured against 3.0.0 on real
+passport uploads. Outputs are unchanged on clean scans.
+
+- MRZ band re-reads enlarge thin bands to a 576 px short side instead of the
+  default 736. The default turned a 1600x150 band into a detector input larger
+  than the whole page; 576 keeps the public benchmark's photographed-MRZ
+  recovery (which fails at 400 px) at ~40% less detector work.
+- Try the bottom-page probe before passport MRZ recovery. Back pages and pages
+  whose probe already has a checksum-valid MRZ no longer pay for recovery.
+- Bound optional recovery re-reads per scan with
+  `DOCUMENT_OCR_RECOVERY_BUDGET_SECONDS` (default 5; `off` for no limit).
+- The HTTP server's per-scan log lines (status, page type, confidence,
+  processing time; never document text) now reach stderr.
+
+## 3.1.0 — 2026-10-05
 
 - Add country-aware experimental US profiles, AAMVA PDF417, TD1 card and visa MRZ
   extraction, I-94/W-9 fields, source evidence and a capability catalog.

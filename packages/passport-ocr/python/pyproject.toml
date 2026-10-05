@@ -1,6 +1,6 @@
 [project]
 name = "india-document-ocr-runtime"
-version = "3.1.0"
+version = "3.1.2"
 description = "Local Python runtime bundled with the document-ocr npm package"
 requires-python = ">=3.12,<3.14"
 license = { text = "MIT" }

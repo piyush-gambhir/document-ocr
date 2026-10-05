@@ -126,6 +126,18 @@ class TestGetOCRModelInit:
         ocr_engine._ocr_instances["en"] = sentinel
         assert _get_ocr("en") is sentinel
 
+    def test_band_instance_is_separate_and_enlarges_less(self, clean_ocr_cache, monkeypatch):
+        """Thin MRZ bands must not be upscaled to the default 736 px short side."""
+        built = []
+        monkeypatch.setattr("rapidocr.RapidOCR", lambda params: built.append(params) or object())
+        page, band = _get_ocr("en"), _get_ocr("en", band=True)
+        assert page is not band
+        assert _get_ocr("en", band=True) is band  # cached, not rebuilt
+        assert "Det.limit_type" not in built[0]
+        assert built[1]["Det.limit_type"] == "min"
+        assert built[1]["Det.limit_side_len"] == 576
+        assert len(built) == 2
+
 
 class TestNonLatinDetection:
     def test_ascii_text_returns_false(self):

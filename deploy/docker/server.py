@@ -35,6 +35,15 @@ from core.preprocessor import ImageQualityError
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
 SCAN_TIMEOUT_SECONDS = 60.0
 logger = logging.getLogger("document-ocr")
+# uvicorn configures only its own loggers, so without a handler these per-scan
+# INFO lines (status, page type, confidence, timing; never document text) were
+# dropped. Scoped to this logger so core modules keep their default level.
+if not logger.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    logger.addHandler(_handler)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
 # Matches the sibling pdf-worker service so a deployment sets one variable name
 # everywhere. Unset means no auth is enforced, which is what local development wants.
 API_TOKEN = os.getenv("API_TOKEN") or None
@@ -67,7 +76,7 @@ async def _lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Document OCR", version="3.1.0", lifespan=_lifespan)
+app = FastAPI(title="Document OCR", version="3.1.2", lifespan=_lifespan)
 
 
 @app.middleware("http")
@@ -84,6 +93,7 @@ def _warm_up_ocr():
 
     for language in dict.fromkeys(("en", *configured_kyc_languages())):
         _get_ocr(language)
+    _get_ocr("en", band=True)  # MRZ band re-reads; avoid loading on a live scan
 
 
 @app.get("/health")

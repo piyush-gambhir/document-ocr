@@ -15,6 +15,7 @@ import numpy as np
 from .document_registry import is_known_mrz_country
 from .mrz_parser import _clean_mrz_text, parse_mrz, verify_check_digit
 from .ocr_engine import TextRegion
+from .recovery_budget import recovery_allowed
 from .travel_mrz import parse_travel_mrz
 
 
@@ -157,8 +158,12 @@ def recover_travel_mrz(image, regions: list[TextRegion], recognize_line) -> list
     for region, good in ((header, first_ok), (body, second_ok)):
         if good:
             continue
-        reads = [_read_line(image, region, recognize_line, 0, .12),
-                 _read_line(image, region, recognize_line, .01, .2)]
+        if not recovery_allowed():
+            return regions
+        first_read = _read_line(image, region, recognize_line, 0, .12)
+        if not recovery_allowed():
+            return regions  # An unconfirmed reread is never admitted.
+        reads = [first_read, _read_line(image, region, recognize_line, .01, .2)]
         if (any(read is None for read in reads) or reads[0].text != reads[1].text
                 or max(read.confidence for read in reads) < .90):
             return regions

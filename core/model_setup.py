@@ -6,6 +6,7 @@ from .ocr_engine import _get_ocr
 def warm_up() -> None:
     for language in dict.fromkeys(("en", *configured_kyc_languages())):
         _get_ocr(language)
+    _get_ocr("en", band=True)
 
 
 if __name__ == "__main__":
