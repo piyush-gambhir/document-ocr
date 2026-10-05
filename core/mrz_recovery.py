@@ -39,6 +39,11 @@ def _anchors(regions: list[TextRegion]) -> list[TextRegion]:
     return result
 
 
+def has_mrz_anchor(regions: list[TextRegion]) -> bool:
+    """True when the regions contain a row recovery could re-read as an MRZ."""
+    return bool(_anchors(regions))
+
+
 def _read_crop(image, src, width, height, reader) -> list[TextRegion]:
     """Read a deskewed crop and map evidence back to page coordinates."""
     dst = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]], np.float32)
@@ -72,6 +77,10 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
     existing = parse_mrz(regions)
     if existing and existing.overall_checksum_valid and 'MRZ_NAME_PADDING_NOISE' not in existing.errors:
         return regions
+    if existing and existing.overall_checksum_valid:
+        # Only name-padding cleanup remains. It reads filler more reliably at
+        # the default enlargement and runs on already-valid scans, so keep it.
+        band_ocr = ocr
     long_rows = [r for r in regions if len(r.text) >= 8 and len(r.bbox) == 4]
     vertical_rows = [r for r in long_rows if
                      abs(r.bbox[1][1] - r.bbox[0][1]) > 2 * abs(r.bbox[1][0] - r.bbox[0][0])

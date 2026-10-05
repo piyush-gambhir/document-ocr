@@ -46,7 +46,13 @@ def configured_budget(raw: Optional[str] = None) -> Optional[float]:
 
 @contextmanager
 def recovery_deadline(start: float) -> Iterator[None]:
-    """Bound optional recovery for the scan that began at ``start`` (monotonic)."""
+    """Bound optional recovery for the scan that began at ``start`` (monotonic).
+
+    A nested call inside an active scan keeps the outer deadline.
+    """
+    if _deadline.get() is not None:
+        yield
+        return
     budget = configured_budget()
     token = _deadline.set(None if budget is None else start + budget)
     try:

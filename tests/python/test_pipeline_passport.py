@@ -189,3 +189,22 @@ def test_valid_but_noisy_probe_still_gets_name_cleanup(prepare, monkeypatch):
     pipeline.scan(b'synthetic')
     recover.assert_called_once()
     assert recover.call_args.kwargs['band_ocr'] is None  # default enlargement
+
+
+def test_background_back_page_hints_do_not_skip_recovery_of_a_visible_mrz(prepare, monkeypatch):
+    damaged = region('L898902C36UTO7408122F1204159ZE184226B<<<<<19', 300)  # passport high in frame
+    prepare([region('Address', 900), region('Place of Issue', 950)], [region('PASSPORT', 40), damaged])
+    recover = _no_recovery(monkeypatch)
+    pipeline.scan(b'synthetic')
+    recover.assert_called_once()
+
+
+def test_direct_page_scans_are_bounded_too(monkeypatch):
+    import time
+    from core.recovery_budget import BUDGET_ENV, recovery_allowed
+    monkeypatch.setenv(BUDGET_ENV, '0')
+    seen = []
+    monkeypatch.setattr(pipeline, '_scan_prepared', lambda prep, start: seen.append(recovery_allowed()) or
+                        pipeline.DocumentScanResult('failure', 'unknown', 'unknown', 0.0))
+    pipeline._scan_page(PreprocessResult(np.zeros((100, 100, 3), np.uint8)), time.monotonic(), None, None, False)
+    assert seen == [False]

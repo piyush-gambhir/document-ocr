@@ -160,8 +160,10 @@ def recover_travel_mrz(image, regions: list[TextRegion], recognize_line) -> list
             continue
         if not recovery_allowed():
             return regions
-        reads = [_read_line(image, region, recognize_line, 0, .12),
-                 _read_line(image, region, recognize_line, .01, .2)]
+        first_read = _read_line(image, region, recognize_line, 0, .12)
+        if not recovery_allowed():
+            return regions  # An unconfirmed reread is never admitted.
+        reads = [first_read, _read_line(image, region, recognize_line, .01, .2)]
         if (any(read is None for read in reads) or reads[0].text != reads[1].text
                 or max(read.confidence for read in reads) < .90):
             return regions

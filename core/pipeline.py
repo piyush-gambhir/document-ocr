@@ -22,7 +22,7 @@ from .kyc_validation import (
     assess_kyc_extraction,
 )
 from .mrz_parser import MRZResult, parse_mrz
-from .mrz_recovery import recover_passport_mrz
+from .mrz_recovery import has_mrz_anchor, recover_passport_mrz
 from .form_recovery import recover_form_fields
 from .card_recovery import recover_card_fields
 from .travel_recovery import recover_travel_mrz
@@ -141,11 +141,6 @@ def scan(
     """
     document_type, country = validate_document_hint(document_type, country)
     start = time.monotonic()
-    with recovery_deadline(start):
-        return _scan(image_input, start, document_type, country, include_evidence)
-
-
-def _scan(image_input, start, document_type, country, include_evidence) -> DocumentScanResult:
     try:
         data = input_bytes(image_input)
         if data.startswith(b"%PDF-"):
@@ -196,6 +191,13 @@ def _prepare_pdf_ocr(prep):
 
 
 def _scan_page(prep, start, document_type, country, include_evidence, *, native=None):
+    # Every page entry point (scan, scan_document's PDF pages) bounds optional
+    # recovery re-reads from the page's start.
+    with recovery_deadline(start):
+        return _scan_page_bounded(prep, start, document_type, country, include_evidence, native=native)
+
+
+def _scan_page_bounded(prep, start, document_type, country, include_evidence, *, native=None):
     barcodes = decode_barcodes(prep.image)
     full = None
     source = "ocr"
@@ -290,9 +292,7 @@ def _scan_prepared(prep, start):
     mrz = parse_mrz(full)
     if mrz and mrz.overall_checksum_valid:
         # Returns at once unless the valid MRZ still carries name-padding noise.
-        # That cleanup only runs on already-valid scans and reads noise-free
-        # filler more reliably at the default band enlargement, so it keeps it.
-        full = recover_passport_mrz(prep.image, full, run_ocr, run_line_ocr)
+        full = recover_passport_mrz(prep.image, full, run_ocr, run_line_ocr, band_ocr=run_band_ocr)
         mrz = parse_mrz(full)
     if mrz and mrz.overall_checksum_valid:
         probe = full
@@ -303,8 +303,12 @@ def _scan_prepared(prep, start):
         probe = _extract_targeted_regions(prep.image)
         probe_mrz = parse_mrz(probe)
         probe_valid = bool(probe_mrz and probe_mrz.overall_checksum_valid)
-        if (classify_passport_page(probe).page_type != "passport_non_biodata"
-                and not (probe_valid and "MRZ_NAME_PADDING_NOISE" not in probe_mrz.errors)):
+        # Back-page hints in the probe can be background text below a passport
+        # photographed high in the frame, so they veto recovery only when the
+        # full page shows no MRZ evidence at all.
+        back_page = (classify_passport_page(probe).page_type == "passport_non_biodata"
+                     and not (mrz or has_mrz_anchor(full)))
+        if not back_page and not (probe_valid and "MRZ_NAME_PADDING_NOISE" not in probe_mrz.errors):
             # A valid but noisy probe needs only the name cleanup, which keeps
             # the default band enlargement; unresolved pages use the cheaper one.
             full = recover_passport_mrz(prep.image, full, run_ocr, run_line_ocr,

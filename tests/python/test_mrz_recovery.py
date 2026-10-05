@@ -209,3 +209,11 @@ def test_spent_budget_skips_quarter_turn_reads(monkeypatch):
     with recovery_deadline(time.monotonic()):
         assert recover_passport_mrz(np.zeros((500, 900, 3), np.uint8), sideways, ocr) is sideways
     ocr.assert_not_called()
+
+
+def test_cleanup_of_an_already_valid_mrz_keeps_the_default_reader():
+    noisy = region('P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<C<<<<<<<<', 260)
+    ocr, band = Mock(return_value=[]), Mock(return_value=[])
+    recover_passport_mrz(np.zeros((500, 900, 3), np.uint8), [noisy, region(LINE2)], ocr, band_ocr=band)
+    assert ocr.called
+    band.assert_not_called()

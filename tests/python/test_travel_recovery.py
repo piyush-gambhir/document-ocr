@@ -197,3 +197,13 @@ def test_implausible_geometry_does_not_allocate_or_read_crop():
     reader = Mock()
     assert recover_travel_mrz(IMAGE, rows, reader) is rows
     reader.assert_not_called()
+
+
+def test_confirmation_read_does_not_start_after_the_budget_expires(monkeypatch):
+    import core.travel_recovery as travel
+    rows = pair([PASSPORT[0].replace('UTO', 'UT0', 1), PASSPORT[1]])
+    allowed = iter([True, False])
+    monkeypatch.setattr(travel, 'recovery_allowed', lambda: next(allowed))
+    reader = Mock(return_value=reread(PASSPORT[0]))
+    assert recover_travel_mrz(IMAGE, rows, reader) is rows
+    reader.assert_called_once()
