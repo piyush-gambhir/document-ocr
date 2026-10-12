@@ -52,12 +52,12 @@
     "test": "vitest run ../../tests/typescript"
   },
   "optionalDependencies": {
-    "@aws-sdk/client-lambda": "^3.500.0"
+    "@aws-sdk/client-lambda": "^3.1149.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
-    "tsup": "^8.0.0",
-    "typescript": "^5.5.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.11"
   },
   "overrides": {
