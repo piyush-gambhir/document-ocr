@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.12
+FROM public.ecr.aws/lambda/python:3.14
 RUN microdnf install -y mesa-libGL glib2 libgomp && microdnf clean all
 COPY requirements.lock ${LAMBDA_TASK_ROOT}/requirements.lock
 RUN python -m pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.lock

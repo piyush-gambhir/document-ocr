@@ -6,7 +6,7 @@ Contributions are welcome.
 
 Requirements:
 
-- Python 3.12
+- Python 3.14
 - Node.js 22 or later
 - [uv](https://docs.astral.sh/uv/)
 

@@ -34,6 +34,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   repeated-ocr:
     runs-on: ubuntu-24.04-arm
@@ -41,13 +45,13 @@ jobs:
     env:
       OCR_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || inputs.base_ref }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+          python-version: '3.14'
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
       - run: uv venv
       - run: uv pip install -r requirements.lock
       - name: Fetch only checksum-pinned samples

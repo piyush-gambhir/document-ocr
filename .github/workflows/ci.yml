@@ -8,15 +8,20 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   python:
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+          python-version: '3.14'
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           enable-cache: true
       - run: uv venv
@@ -27,16 +32,17 @@ jobs:
 
   typescript:
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: packages/passport-ocr
     env:
       PASSPORT_OCR_SKIP_PYTHON: '1'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
           cache-dependency-path: packages/passport-ocr/package-lock.json
       - run: npm ci
@@ -48,14 +54,15 @@ jobs:
 
   cloudflare:
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: deploy/cloudflare
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
           cache-dependency-path: deploy/cloudflare/package-lock.json
       - run: npm ci

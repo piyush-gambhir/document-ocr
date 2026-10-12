@@ -90,7 +90,7 @@ export class LocalServer {
     if (!existsSync(markerFile)) {
       throw new Error(
         'document-ocr: Python environment not set up. ' +
-          'Run "npm rebuild document-ocr" or ensure Python 3.12+ and uv are installed. ' +
+          'Run "npm rebuild document-ocr" or ensure Python 3.14 and uv are installed. ' +
           'Check that the postinstall script ran successfully.',
       )
     }
