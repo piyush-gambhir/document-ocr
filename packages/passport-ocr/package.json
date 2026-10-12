@@ -55,7 +55,7 @@
     "@aws-sdk/client-lambda": "^3.500.0"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^24.19.2",
     "tsup": "^8.0.0",
     "typescript": "^5.5.0",
     "vitest": "^4.1.11"

@@ -16,7 +16,7 @@ catalog reports each family’s required fields and experimental status.
 npm install document-ocr
 ```
 
-Python 3.12 or 3.13 is required. If [`uv`](https://docs.astral.sh/uv/) is
+Python 3.14 is required. If [`uv`](https://docs.astral.sh/uv/) is
 available, the postinstall script can create the local environment
 automatically.
 

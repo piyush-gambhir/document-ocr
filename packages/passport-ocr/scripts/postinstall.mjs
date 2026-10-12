@@ -6,8 +6,8 @@
  * Sets up a Python virtual environment and installs dependencies
  * required for local document OCR processing.
  *
- * Uses uv to install a compatible Python version (3.12) if the system
- * Python is too new or missing.
+ * Uses uv to install a compatible Python version (3.14) if the system
+ * Python is a different version or missing.
  *
  * Exits 0 even on failure — errors will surface on first scan() call.
  */
@@ -25,7 +25,7 @@ const markerFile = join(venvDir, '.setup-complete')
 const constraints = join(pythonDir, 'requirements.lock')
 
 // Python version used by the bundled runtime
-const TARGET_PYTHON = '3.12'
+const TARGET_PYTHON = '3.14'
 
 function log(msg) {
   process.stderr.write(`[document-ocr] ${msg}\n`)
@@ -53,10 +53,10 @@ function hasUv() {
 
 function findCompatiblePython() {
   /**
-   * Find a Python supported by the bundled runtime (3.12 or 3.13).
+   * Find a Python supported by the bundled runtime (3.14).
    * Check versioned commands first, then generic ones.
    */
-  const candidates = ['python3.12', 'python3.13', 'python3', 'python']
+  const candidates = ['python3.14', 'python3', 'python']
 
   for (const cmd of candidates) {
     try {
@@ -65,7 +65,7 @@ function findCompatiblePython() {
       if (match) {
         const major = parseInt(match[1], 10)
         const minor = parseInt(match[2], 10)
-        if (major === 3 && minor >= 12 && minor <= 13) {
+        if (major === 3 && minor === 14) {
           log(`Found compatible ${version} via "${cmd}"`)
           return cmd
         }
@@ -95,7 +95,7 @@ async function main() {
   const uvAvailable = hasUv()
 
   // Strategy 1: Use uv to create venv with a pinned Python version
-  // uv can auto-download Python 3.12 even if the system only has 3.14
+  // uv can auto-download Python 3.14 even if the system has another version
   if (uvAvailable && !existsSync(venvDir)) {
     log(`Creating virtual environment with Python ${TARGET_PYTHON} via uv...`)
     try {
@@ -159,7 +159,7 @@ async function main() {
 
   // Strategy 3: Nothing worked
   log('Warning: Could not set up Python environment.')
-  log('The bundled runtime requires Python 3.12-3.13.')
+  log('The bundled runtime requires Python 3.14.')
   if (!uvAvailable) {
     log('Install uv to auto-download a compatible Python:')
     log('  curl -LsSf https://astral.sh/uv/install.sh | sh')

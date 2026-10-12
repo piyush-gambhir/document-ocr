@@ -57,7 +57,7 @@ generic passport-like labels. Unknown or conflicting document hints fail explici
 
 ### Python
 
-Requires Python 3.12+ and [`uv`](https://github.com/astral-sh/uv).
+Requires Python 3.14 and [`uv`](https://github.com/astral-sh/uv).
 
 ```bash
 make install
