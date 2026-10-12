@@ -8,9 +8,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   python:
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -27,6 +32,7 @@ jobs:
 
   typescript:
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: packages/passport-ocr
@@ -48,6 +54,7 @@ jobs:
 
   cloudflare:
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: deploy/cloudflare

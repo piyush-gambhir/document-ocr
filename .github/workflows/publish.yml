@@ -19,6 +19,7 @@ jobs:
   npm:
     name: npm (passport-ocr)
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
     if: vars.PUBLISH_NPM == 'true'
     permissions:
       contents: read
@@ -45,7 +46,8 @@ jobs:
 
   docker:
     name: GHCR (server)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
       packages: write
@@ -95,7 +97,8 @@ jobs:
 
   docker-lambda:
     name: GHCR (lambda)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
       packages: write
