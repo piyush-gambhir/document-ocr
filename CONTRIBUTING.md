@@ -7,7 +7,7 @@ Contributions are welcome.
 Requirements:
 
 - Python 3.14
-- Node.js 22 or later
+- Node.js 24.22.1 for development and CI
 - [uv](https://docs.astral.sh/uv/)
 
 ```bash
@@ -15,6 +15,9 @@ make install
 make test
 make build
 ```
+
+The published TypeScript SDK keeps its existing Node.js 18 or later runtime support.
+The deployment packages and development toolchain use the patched Node.js 24 LTS release.
 
 Keep changes focused, add tests for changed behavior, and update the public
 types and documentation when the response schema changes.
