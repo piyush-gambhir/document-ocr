@@ -7,9 +7,10 @@ describes the review and release sequence.
 ## Changes
 
 - Node 26.12.1 is pinned locally and in SDK, gateway, and publishing CI.
-- Release 3.1.3 retains the SDK's existing Node 18 runtime requirement.
+- SDK release 3.1.3 retains the SDK's existing Node 18 runtime requirement.
   Development and deployment tooling use Node 26. Python still requires 3.14.
-  Application source and inference dependencies are unchanged.
+  The Python package and server remain at 3.1.2. Application source and inference
+  dependencies are unchanged.
 - SDK checks use TypeScript 7.0.2. `tsup` declaration generation keeps the
   TypeScript 6.0.3 compiler API, with a separate compatibility check in CI.
   Both checks must pass because the native compiler and API consumers can
