@@ -50,7 +50,7 @@
     "dev": "tsup --watch",
     "typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit",
     "test": "vitest run ../../tests/typescript",
-    "typecheck:compat": "tsc --noEmit"
+    "typecheck:compat": "node node_modules/typescript/bin/tsc --noEmit"
   },
   "optionalDependencies": {
     "@aws-sdk/client-lambda": "^3.1156.0"
