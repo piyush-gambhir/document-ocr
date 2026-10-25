@@ -82,8 +82,19 @@ The image pre-downloads PP-OCRv5 models at build time so the first request is fa
 
 ### Node.js (npm package)
 
+Development and publishing use Node.js 26.12.1. The SDK retains its Node.js 18
+or later runtime requirement.
+
 ```bash
 npm install document-ocr
+```
+
+When npm blocks dependency install scripts, approve this package and finish its
+local Python setup:
+
+```bash
+npm install-scripts approve document-ocr
+npm rebuild document-ocr
 ```
 
 ```ts
