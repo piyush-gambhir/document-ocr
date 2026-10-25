@@ -128,7 +128,7 @@ required or installed here. [Official Web Adapter](https://github.com/aws/aws-la
 
 ## Cloudflare Worker and Container
 
-Prerequisites: a Workers Paid plan, Node.js 20+, Docker with Buildx, and Wrangler
+Prerequisites: a Workers Paid plan, Node.js 26+, Docker with Buildx, and Wrangler
 credentials. The Worker authenticates document requests before selecting a container; the
 container runs native Python on Linux/amd64. Plain Python Workers are not an
 interchangeable target. [Container setup](https://developers.cloudflare.com/containers/get-started/)

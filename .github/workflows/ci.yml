@@ -42,11 +42,12 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '24.22.1'
+          node-version: '26.12.1'
           cache: npm
           cache-dependency-path: packages/passport-ocr/package-lock.json
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run typecheck:compat
       - run: npm test
       - run: node --test ../../tests/javascript/review.test.cjs
       - run: npm run build
@@ -62,7 +63,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '24.22.1'
+          node-version: '26.12.1'
           cache: npm
           cache-dependency-path: deploy/cloudflare/package-lock.json
       - run: npm ci

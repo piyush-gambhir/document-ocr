@@ -1,6 +1,6 @@
 # document-ocr
 
-Document OCR for Node.js, with a bundled local Python/RapidOCR runtime and
+Document OCR for Node.js 18+, with a bundled local Python/RapidOCR runtime and
 HTTP/Lambda clients. It extracts structured fields from passports, Indian and
 experimental US identity, immigration and tax documents. The server
 catalog reports each family’s required fields and experimental status.
@@ -16,7 +16,11 @@ catalog reports each family’s required fields and experimental status.
 npm install document-ocr
 ```
 
-Python 3.14 is required. If [`uv`](https://docs.astral.sh/uv/) is
+When npm blocks dependency install scripts, run `npm install-scripts approve
+document-ocr` followed by `npm rebuild document-ocr` to enable local Python setup.
+HTTP and Lambda client modes do not require that setup.
+
+Development uses Node.js 26.12.1. Local OCR requires Python 3.14. If [`uv`](https://docs.astral.sh/uv/) is
 available, the postinstall script can create the local environment
 automatically.
 
