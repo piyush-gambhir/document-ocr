@@ -50,7 +50,7 @@ omegaconf==2.4.0
     # via rapidocr
 onnxruntime==1.31.0
     # via india-document-ocr (pyproject.toml)
-opencv-python==4.13.0.92
+opencv-python==5.0.0.93
     # via
     #   india-document-ocr (pyproject.toml)
     #   rapidocr
