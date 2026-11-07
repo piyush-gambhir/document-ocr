@@ -21,6 +21,46 @@ redaction, and optional encrypted jobs. See [FEATURES.md](FEATURES.md) for the
 contracts and coverage limits and [HOSTING.md](HOSTING.md) for Cloud Run, Lambda,
 Cloudflare Containers, servers, Terraform, and the deployment CLI.
 
+## Example
+
+A fictional passport data page using the ICAO Doc 9303 "Utopia" specimen data,
+rendered by [`scripts/render_readme_specimen.py`](scripts/render_readme_specimen.py):
+
+<img src="docs/images/specimen-passport.png" alt="Fictional Utopia passport data page marked SPECIMEN, NOT A REAL ID" width="420">
+
+```bash
+curl -s -F image=@docs/images/specimen-passport.png http://localhost:8000/scan \
+  | jq '{status, documentType, confidence, mrzValid, fields}'
+```
+
+```json
+{
+  "status": "success",
+  "documentType": "passport",
+  "confidence": 0.995,
+  "mrzValid": true,
+  "fields": {
+    "surname": "ERIKSSON",
+    "givenNames": "ANNA MARIA",
+    "fullName": "ANNA MARIA ERIKSSON",
+    "passportNumber": "L898902C3",
+    "nationality": "UTO",
+    "dateOfBirth": "1974-08-12",
+    "sex": "F",
+    "expiryDate": "2012-04-15",
+    "issueDate": "16 APR 2007",
+    "placeOfBirth": "ZENITH",
+    "countryCode": "UTO"
+  }
+}
+```
+
+Identity fields come from the MRZ, whose check digits passed. `issueDate` and
+`placeOfBirth` are read from the printed labels and returned as printed. The
+`/review` page shows each value next to the OCR or MRZ region it came from:
+
+<img src="docs/images/review-ui.png" alt="Review page with the specimen loaded and the surname field highlighted on the image and in the MRZ" width="720">
+
 ## Supported documents
 
 | Document | Key fields extracted | Identifier validation |
