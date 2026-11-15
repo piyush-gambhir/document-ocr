@@ -114,7 +114,7 @@ class TestGetOCRModelInit:
             _get_ocr("en")
         assert "en" not in ocr_engine._ocr_instances
 
-        # Now the underlying problem is fixed — a retry succeeds and caches.
+
         sentinel = object()
         monkeypatch.setattr("rapidocr.RapidOCR", lambda *a, **k: sentinel)
         assert _get_ocr("en") is sentinel
@@ -132,7 +132,7 @@ class TestGetOCRModelInit:
         monkeypatch.setattr("rapidocr.RapidOCR", lambda params: built.append(params) or object())
         page, band = _get_ocr("en"), _get_ocr("en", band=True)
         assert page is not band
-        assert _get_ocr("en", band=True) is band  # cached, not rebuilt
+        assert _get_ocr("en", band=True) is band
         assert "Det.limit_type" not in built[0]
         assert built[1]["Det.limit_type"] == "min"
         assert built[1]["Det.limit_side_len"] == 576
@@ -175,7 +175,7 @@ def test_line_recognition_leaves_cached_detector_enabled(clean_ocr_cache):
     model.assert_not_called()
     assert model.use_det is True
 
-    # A later full-page request still uses the normal cached model path.
+
     model.return_value.boxes = None
     ocr_engine.run_ocr(image)
     model.assert_called_once_with(image)

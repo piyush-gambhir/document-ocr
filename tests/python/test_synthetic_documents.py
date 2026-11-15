@@ -20,7 +20,7 @@ def test_generated_images_cover_every_registered_profile_with_traceable_truth(tm
         fields, _ = expected(cases[0], root)
         assert fields == definition(kind, 0)['fields']
     assert len([c for c in manifest['cases'] if c['profile'] == 'negative_control']) == 15
-    # Reproduction is byte-identical on the pinned renderer, independent of OCR.
+
     assert generate(root, tmp_path / 'second.json') == manifest
     assert sum(f['bytes'] for f in manifest['files']) < 15 * 1024**2
     image = root / manifest['cases'][0]['image']

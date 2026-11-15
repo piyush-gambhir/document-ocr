@@ -5,19 +5,19 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 
-// Resolve package directory — works for both ESM and CJS builds
+
 function resolvePackageDir(): string {
-  // In ESM context, use import.meta.url
-  // In CJS context, use __dirname
+
+
   try {
     if (typeof import.meta?.url === 'string') {
-      // dist/index.js -> package root
+
       return join(dirname(fileURLToPath(import.meta.url)), '..')
     }
   } catch {
-    // fallback
+
   }
-  // CJS fallback: __dirname is dist/, go up one level
+
   if (typeof __dirname === 'string') {
     return join(__dirname, '..')
   }
@@ -25,11 +25,11 @@ function resolvePackageDir(): string {
 }
 
 const HEALTH_POLL_INTERVAL_MS = 500
-const HEALTH_TIMEOUT_MS = 120_000 // 120s for first-time model download
+const HEALTH_TIMEOUT_MS = 120_000
 
-/**
- * Finds a free port by briefly binding to port 0.
- */
+
+
+
 function findFreePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const srv = createServer()
@@ -46,23 +46,23 @@ function findFreePort(): Promise<number> {
   })
 }
 
-/**
- * Manages a local Python FastAPI server for passport OCR.
- *
- * Uses a module-level singleton so multiple PassportOCR instances
- * share a single server process.
- */
+
+
+
+
+
+
 export class LocalServer {
   private process: ChildProcess | null = null
   private ready: Promise<string> | null = null
   private startupAbort: AbortController | null = null
   private cleanupHandler: (() => void) | null = null
 
-  /**
-   * Ensure the local Python server is running and return its endpoint URL.
-   */
+
+
+
   async ensureRunning(): Promise<string> {
-    // If already starting or running, return the existing promise
+
     if (this.ready) {
       return this.ready
     }
@@ -72,7 +72,7 @@ export class LocalServer {
     const ready = this._start(controller)
     this.ready = ready
 
-    // If start fails, clear the promise so we can retry
+
     ready.catch(() => {
       if (this.ready === ready) this.ready = null
     })
@@ -85,7 +85,7 @@ export class LocalServer {
     const pythonDir = join(packageDir, 'python')
     const venvDir = join(packageDir, '.venv')
 
-    // Check that setup was completed
+
     const markerFile = join(venvDir, '.setup-complete')
     if (!existsSync(markerFile)) {
       throw new Error(
@@ -95,7 +95,7 @@ export class LocalServer {
       )
     }
 
-    // Find the venv python executable
+
     const isWindows = process.platform === 'win32'
     const pythonExe = isWindows
       ? join(venvDir, 'Scripts', 'python.exe')
@@ -108,12 +108,12 @@ export class LocalServer {
       )
     }
 
-    // Find a free port
+
     const port = await findFreePort()
     controller.signal.throwIfAborted()
     const endpoint = `http://127.0.0.1:${port}`
 
-    // Spawn the uvicorn server
+
     const args = [
       '-m',
       'uvicorn',
@@ -132,16 +132,16 @@ export class LocalServer {
         ...process.env,
         PYTHONPATH: pythonDir,
         PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK: 'True',
-        // Suppress paddle logging noise
+
         GLOG_minloglevel: '2',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
-      // Detach on Windows to avoid blocking
+
       detached: isWindows,
     })
     this.process = child
 
-    // Drain child output so startup can't deadlock on a full pipe buffer.
+
     let processLogs = ''
     const appendLogs = (chunk: Buffer) => {
       processLogs += chunk.toString()
@@ -157,7 +157,7 @@ export class LocalServer {
     this.cleanupHandler = cleanup
     process.once('exit', cleanup)
 
-    // Handle unexpected exit
+
     const exitPromise = new Promise<never>((_, reject) => {
       const failed = (error: Error) => {
         process.removeListener('exit', cleanup)
@@ -217,7 +217,7 @@ export class LocalServer {
         }
       } catch {
         signal?.throwIfAborted()
-        // Server not ready yet, keep polling
+
       } finally {
         clearTimeout(timeout)
         signal?.removeEventListener('abort', cancelProbe)
@@ -232,16 +232,16 @@ export class LocalServer {
       await delay(HEALTH_POLL_INTERVAL_MS, undefined, { signal })
     }
 
-    // Timed out
+
     throw new Error(
       `document-ocr: Python server did not become ready within ${HEALTH_TIMEOUT_MS / 1000}s. ` +
         'This might happen on first run while models are being downloaded.',
     )
   }
 
-  /**
-   * Stop the local Python server if running.
-   */
+
+
+
   async stop(): Promise<void> {
     if (this.cleanupHandler) {
       process.removeListener('exit', this.cleanupHandler)
@@ -279,7 +279,7 @@ export class LocalServer {
   }
 }
 
-// Module-level singleton — shared across all PassportOCR instances
+
 let _instance: LocalServer | null = null
 
 export function getLocalServer(): LocalServer {

@@ -16,8 +16,8 @@ def recover_form_fields(image, regions: list[TextRegion], recognize_line) -> lis
     if parsed and parsed.fields.get('taxpayer_id'):
         return regions
     output = list(regions)
-    # At most two reads for each of the two labelled TIN boxes. The original
-    # full image determines evidence coordinates; no expected digits are used.
+
+
     for label in ('social security number', 'employer identification number'):
         anchor = next((r for r in regions if r.text.strip().lower() == label), None)
         if not anchor or len(anchor.bbox) != 4:
@@ -34,17 +34,17 @@ def recover_form_fields(image, regions: list[TextRegion], recognize_line) -> lis
             continue
         crop = image[y1:y2, x1:x2]
         for row in recognize_line(crop):
-            # Box borders and printed hyphens can be recognized as separators.
-            # Letters/guessed substitutions and non-nine-digit reads fail closed.
+
+
             if row.confidence < .8 or not re.fullmatch(r'[0-9\s|\[\]{}()_.:;\-]+', row.text):
                 continue
             digits = re.sub(r'\D', '', row.text)
             if len(digits) != 9:
                 continue
             if row.confidence < .9:
-                # Printed box borders lower the whole-string confidence. For
-                # an uncertain read, require all nine digits to agree after
-                # removing long straight ruling lines and reading once more.
+
+
+
                 gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
                 ink = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
                 vertical = cv2.morphologyEx(ink, cv2.MORPH_OPEN, np.ones((int(height * 1.6), 1), np.uint8))

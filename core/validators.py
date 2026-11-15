@@ -15,11 +15,11 @@ from __future__ import annotations
 
 import re
 
-# ---------------------------------------------------------------------------
-# PAN — Permanent Account Number
-# Format: 5 letters + 4 digits + 1 letter, e.g. ABCDE1234F.
-# The 4th letter encodes holder type (P=individual, C=company, ...).
-# ---------------------------------------------------------------------------
+
+
+
+
+
 
 _PAN_RE = re.compile(
     r"(?<![A-Z0-9])(?:[A-Z][ \t-]*){5}(?:[0-9][ \t-]*){4}[A-Z](?![A-Z0-9])"
@@ -49,10 +49,10 @@ def is_valid_pan(text: str) -> bool:
     return pan[3] in _PAN_HOLDER_TYPES
 
 
-# ---------------------------------------------------------------------------
-# EPIC — Voter ID (Elector's Photo Identity Card)
-# Format: 3 letters + 7 digits, e.g. ABC1234567.
-# ---------------------------------------------------------------------------
+
+
+
+
 
 _EPIC_RE = re.compile(
     r"(?<![A-Z0-9])(?:[A-Z][ \t-]*){3}(?:[0-9][ \t-]*){6}[0-9](?![A-Z0-9])"
@@ -67,13 +67,13 @@ def is_valid_epic(text: str) -> bool:
     return normalize_epic(text) is not None
 
 
-# ---------------------------------------------------------------------------
+
 # Driving Licence
-# Format varies by state, but most follow: 2-letter state code, 2-digit RTO,
-# optional space, then 11 digits (often YYYY + 7-digit serial), e.g.
-#   MH1220110012345, DL0420110149646, HR-06 19850034761.
-# We accept a loose shape and surface the compact form.
-# ---------------------------------------------------------------------------
+
+
+
+
+
 
 _DL_RE = re.compile(
     r"(?<![A-Z0-9])(?:[A-Z][ \t-]*){2}(?:[0-9][ \t-]*){12}[0-9](?![A-Z0-9])"
@@ -88,12 +88,12 @@ def is_valid_dl(text: str) -> bool:
     return normalize_dl(text) is not None
 
 
-# ---------------------------------------------------------------------------
-# NREGA / MGNREGA job-card number
-# State-issued identifiers vary in component widths, but the common public
-# form is a two-letter state prefix followed by at least three numeric
-# hierarchy components, for example RJ-27-001-002-0008147/00.
-# ---------------------------------------------------------------------------
+
+
+
+
+
+
 
 _NREGA_JOB_CARD_RE = re.compile(
     r"^[A-Z]{2}-[0-9]{1,10}(?:[-/][0-9]{1,10}){2,7}$"
@@ -117,11 +117,11 @@ def is_valid_nrega_job_card(text: str) -> bool:
     return normalize_nrega_job_card(text) is not None
 
 
-# ---------------------------------------------------------------------------
-# Aadhaar — 12 digits, 12th digit is a Verhoeff checksum over the first 11.
-# ---------------------------------------------------------------------------
 
-# Verhoeff algorithm tables (dihedral group D5).
+
+
+
+
 _VERHOEFF_D = (
     (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
     (1, 2, 3, 4, 0, 6, 7, 8, 9, 5),
@@ -173,7 +173,7 @@ def is_valid_aadhaar(text: str) -> bool:
     if grouped is None:
         return False
     digits = grouped.replace(" ", "")
-    # Aadhaar never starts with 0 or 1.
+
     if digits[0] in "01":
         return False
     return verhoeff_validate(digits)

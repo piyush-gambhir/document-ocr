@@ -148,7 +148,7 @@ class TestClassifyDocument:
         assert classify_document(regions).document_type == "unknown"
 
     def test_pan_not_confused_with_voter(self):
-        # A PAN token must not be mistaken for an EPIC and vice-versa.
+
         regions = [
             _r("INCOME TAX DEPARTMENT"),
             _r("ABCPE1234F", y1=60, y2=90),

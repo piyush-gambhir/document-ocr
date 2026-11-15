@@ -37,7 +37,7 @@ def expected_fields(case: dict, root: Path) -> tuple[dict, list[str] | None]:
             raise ValueError('source is not an annotated TD3 pair')
         surname, given = first[5:].split('<<', 1)
         clean = lambda text: ' '.join(text.replace('<', ' ').split())
-        # MRZ dates encode YYMMDD only. Century inference is deliberately unscored.
+
         return {'surname': clean(surname), 'givenNames': clean(given),
                 'passportNumber': second[:9].replace('<', ''), 'countryCode': first[2:5],
                 'nationality': second[10:13], 'dateOfBirth': second[13:19],

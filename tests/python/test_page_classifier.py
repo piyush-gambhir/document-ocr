@@ -66,6 +66,6 @@ def test_valid_mrz_above_background_text_is_still_biodata():
         _make_region('Text on the desk below the passport', 950),
     ]
     assert classify_passport_page(regions).page_type == 'passport_biodata'
-    # A damaged pair outside the expected area does not gain strong evidence.
+
     regions[1].text = regions[1].text[:-1] + '9'
     assert classify_passport_page(regions).page_type == 'unknown'

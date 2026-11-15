@@ -23,9 +23,9 @@ from .ocr_engine import TextRegion
 from .validator import find_label_row_left_edge, find_visual_field, find_visual_value_near
 
 
-# ---------------------------------------------------------------------------
-# Result type
-# ---------------------------------------------------------------------------
+
+
+
 
 @dataclass
 class BackPageFields:
@@ -42,9 +42,9 @@ class BackPageFields:
     old_passport_place_of_issue: Optional[str] = None
 
 
-# ---------------------------------------------------------------------------
-# Indian state codes for address parsing
-# ---------------------------------------------------------------------------
+
+
+
 
 _STATE_CODES: dict[str, str] = {
     "AP": "Andhra Pradesh", "AR": "Arunachal Pradesh", "AS": "Assam",
@@ -67,12 +67,12 @@ _STATE_NAMES_UPPER = {name.upper() for name in _STATE_CODES.values()}
 _UPPER_TO_CANONICAL_STATE = {name.upper(): name for name in _STATE_CODES.values()}
 
 
-# ---------------------------------------------------------------------------
-# Label keywords (English + common OCR misreads)
-# Bilingual Hindi/English labels appear on all Indian passport formats.
-# OCR mostly reads the English portion; Hindi text is noise-filtered by
-# the label matcher.
-# ---------------------------------------------------------------------------
+
+
+
+
+
+
 
 _FATHER_LABELS = [
     "NAME OF FATHER", "FATHER LEGAL GUARDIAN", "NAME OF FATHER LEGAL GUARDIAN",
@@ -109,9 +109,9 @@ _OLD_PASSPORT_POI_LABELS = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Multi-line collection
-# ---------------------------------------------------------------------------
+
+
+
 
 def _collect_multiline_value(
     regions: list[TextRegion],
@@ -130,7 +130,7 @@ def _collect_multiline_value(
     label_bottom = max(p[1] for p in label_region.bbox)
     label_left = find_label_row_left_edge(regions, label_region)
 
-    # All stop-label keywords
+
     stop_keywords: set[str] = set()
     if stop_labels:
         for label_group in stop_labels:
@@ -141,8 +141,8 @@ def _collect_multiline_value(
         norm = re.sub(r"[^A-Z0-9 ]", "", text.upper()).strip()
         return any(kw in norm for kw in stop_keywords)
 
-    # Group regions by row so we can stop on a row that contains a stop label
-    # *anywhere* (including columns far from the address column).
+
+
     row_for_top: dict[int, list[TextRegion]] = {}
     for region in regions:
         if region is label_region:
@@ -152,7 +152,7 @@ def _collect_multiline_value(
             continue
         if top - label_bottom > 300:
             continue
-        # bucket by ~half-line height (assume ≥ 12 px lines)
+
         bucket = top // 12
         row_for_top.setdefault(bucket, []).append(region)
 
@@ -163,10 +163,10 @@ def _collect_multiline_value(
     for _, row_regions in sorted_rows:
         if len(collected) >= max_lines:
             break
-        # Stop if any region in this row matches a stop label.
+
         if any(_is_stop_label(r.text) for r in row_regions):
             break
-        # Pick the value-aligned region(s) — same column as the label.
+
         for region in row_regions:
             left = min(p[0] for p in region.bbox)
             if abs(left - label_left) >= 250:
@@ -177,9 +177,9 @@ def _collect_multiline_value(
             text = region.text.strip()
             if len(text) < 2:
                 continue
-            # Drop rows that are mostly non-Latin script (Hindi labels) — the
-            # address proper is in Latin script even when adjacent labels are
-            # bilingual.
+
+
+
             if _is_mostly_non_latin(text):
                 continue
             collected.append(region)
@@ -199,52 +199,52 @@ def _is_mostly_non_latin(text: str) -> bool:
     return non_latin / len(alpha) > 0.5
 
 
-# ---------------------------------------------------------------------------
-# Address parsing
-# ---------------------------------------------------------------------------
+
+
+
 
 def _parse_address(address_regions: list[TextRegion]) -> tuple[str, Optional[str], Optional[str], Optional[str]]:
     """Parse address regions into (full_address, pincode, city, state)."""
     lines = [r.text.strip() for r in address_regions if r.text.strip()]
     full_address = ", ".join(lines)
 
-    # Extract 6-digit pincode from anywhere in the address
+
     pincode_match = re.search(r"\b(\d{6})\b", full_address)
     pincode = pincode_match.group(1) if pincode_match else None
 
-    # First pass: comma-tokenized scan. Handles addresses where the state
-    # appears as its own token among other comma-separated tokens — e.g.
-    # "NEW MAHAVIR NAGAR,DELHI" or "PIN:110018,DELHI,INDIA".
+
+
+
     state, city = _scan_state_and_city_from_tokens(full_address)
 
-    # Second pass (fallback): per-line regex patterns. These handle line-
-    # oriented formats where the state info is at the END of a single line.
+
+
     if state is None or city is None:
         for i in range(len(lines) - 1, -1, -1):
             line = lines[i].strip()
 
-            # Pattern: "CITY - PINCODE STATE_ABBREV"
+
             m = re.match(r"^([A-Za-z\s.]+?)[\s-]+\d{6}\s+([A-Z]{2,3})$", line)
             if m and m.group(2).upper() in _STATE_CODES:
                 city = city or m.group(1).strip()
                 state = state or _STATE_CODES[m.group(2).upper()]
                 continue
 
-            # Pattern: "CITY PINCODE STATE_ABBREV"
+
             m = re.match(r"^([A-Za-z\s.]+?)\s+(\d{6})\s+([A-Z]{2,3})$", line)
             if m and m.group(3).upper() in _STATE_CODES:
                 city = city or m.group(1).strip()
                 state = state or _STATE_CODES[m.group(3).upper()]
                 continue
 
-            # Pattern: standalone full state name
+
             if line.upper() in _STATE_NAMES_UPPER:
                 state = state or line.strip()
                 if i > 0 and not city:
                     city = lines[i - 1].strip()
                 continue
 
-            # Pattern: "STATE_FULLNAME - PINCODE" or "STATE_FULLNAME PINCODE"
+
             m = re.match(r"^([A-Za-z\s]+?)[\s-]*\d{6}$", line)
             if m and m.group(1).strip().upper() in _STATE_NAMES_UPPER:
                 state = state or m.group(1).strip()
@@ -252,15 +252,15 @@ def _parse_address(address_regions: list[TextRegion]) -> tuple[str, Optional[str
                     city = lines[i - 1].strip()
                 continue
 
-            # Pattern: "CITY - PINCODE" (state on a different line)
+
             m = re.match(r"^([A-Za-z\s.]+?)[\s-]+\d{6}$", line)
             if m and not city:
                 city = m.group(1).strip()
                 continue
 
-    # Normalise the resolved state to canonical title case regardless of which
-    # path set it (the per-line fallback patterns above capture the raw, often
-    # all-caps, OCR text). Keeps output consistent — e.g. "KARNATAKA" → "Karnataka".
+
+
+
     if state and state.upper() in _UPPER_TO_CANONICAL_STATE:
         state = _UPPER_TO_CANONICAL_STATE[state.upper()]
 
@@ -280,14 +280,14 @@ def _scan_state_and_city_from_tokens(
     tokens: list[str] = []
     for raw in re.split(r"[,;|/]", full_address):
         tok = raw.strip()
-        # Strip "PIN:" / "PIN " prefixes commonly stuck on the pincode token
+
         tok = re.sub(r"^PIN[\s:]*", "", tok, flags=re.IGNORECASE).strip()
         if not tok or re.fullmatch(r"\d{4,6}", tok):
             continue
         tokens.append(tok)
 
-    # Map UPPER -> canonical title-case name so output is consistent
-    # whether the OCR caught the full name or just the 2-letter code.
+
+
     upper_to_canonical = {name.upper(): name for name in _STATE_CODES.values()}
 
     state: Optional[str] = None
@@ -318,9 +318,9 @@ def _scan_state_and_city_from_tokens(
     return state, city
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+
+
+
 
 def extract_back_page(regions: list[TextRegion]) -> BackPageFields:
     """Extract structured fields from a passport back page using spatial layout.
@@ -331,7 +331,7 @@ def extract_back_page(regions: list[TextRegion]) -> BackPageFields:
     """
     fields = BackPageFields()
 
-    # --- Single-value fields (find label, get value below) ---
+
     father_label = find_visual_field(regions, _FATHER_LABELS)
     if father_label:
         val = find_visual_value_near(regions, father_label)
@@ -356,10 +356,10 @@ def extract_back_page(regions: list[TextRegion]) -> BackPageFields:
         if val:
             fields.file_number = val.text.strip()
 
-    # --- Address (multi-line) ---
+
     address_label = find_visual_field(regions, _ADDRESS_LABELS)
     if address_label:
-        # Collect lines below "Address" until we hit the next section
+
         address_regions = _collect_multiline_value(
             regions, address_label,
             max_lines=6,
@@ -372,12 +372,12 @@ def extract_back_page(regions: list[TextRegion]) -> BackPageFields:
             fields.city = city
             fields.state = state
 
-    # --- Old passport (renewals) ---
-    # The Indian passport has a single compound label "Old Passport No. with
-    # Date and Place of Issue" sitting above THREE columnar values:
-    # passport_number | date_of_issue | place_of_issue. So instead of running
-    # `find_visual_value_near` separately for each, we collect the whole row
-    # below the label and assign by content shape.
+
+
+
+
+
+
     old_pp_label = find_visual_field(regions, _OLD_PASSPORT_LABELS)
     if old_pp_label:
         pp_no, doi, poi = _extract_old_passport_row(regions, old_pp_label)
@@ -385,9 +385,9 @@ def extract_back_page(regions: list[TextRegion]) -> BackPageFields:
         fields.old_passport_date_of_issue = doi
         fields.old_passport_place_of_issue = poi
 
-        # Fall back to the separate-label path if we did not find the
-        # passport number in the columnar row (e.g. layouts where the labels
-        # are split into separate regions).
+
+
+
         if fields.old_passport_number is None:
             val = find_visual_value_near(regions, old_pp_label)
             if val:
@@ -415,9 +415,9 @@ def extract_back_page(regions: list[TextRegion]) -> BackPageFields:
     return fields
 
 
-# ---------------------------------------------------------------------------
-# Old-passport row extraction (3 columns: passport_no | date | place_of_issue)
-# ---------------------------------------------------------------------------
+
+
+
 
 _PASSPORT_NUMBER_RE = re.compile(r"[A-Z]\d{7}")
 _DATE_RE = re.compile(r"^\s*\d{1,2}[/.\-]\d{1,2}[/.\-]\d{2,4}\s*$")
@@ -443,10 +443,10 @@ def _extract_old_passport_row(
     label_bottom = max(p[1] for p in old_pp_label.bbox)
     label_center_y = (label_top + label_bottom) // 2
 
-    # Use the label's vertical center as the lower bound, not the bottom —
-    # OCR bboxes for labels are routinely taller than the visible glyphs, so
-    # the value row often starts a few pixels above the label_bottom while
-    # still being clearly the next form row.
+
+
+
+
     min_y = label_center_y
     max_y = label_bottom + 60
 
@@ -460,7 +460,7 @@ def _extract_old_passport_row(
         text = region.text.strip()
         if len(text) < 2 or _is_mostly_non_latin(text):
             continue
-        # Skip neighbouring labels (File No., the next row's bilingual prefix, etc.)
+
         normalised_words = set(re.sub(r"[^A-Z]+", " ", text.upper()).split())
         if normalised_words & _OLD_PASSPORT_ROW_LABEL_KEYWORDS:
             continue
@@ -478,8 +478,8 @@ def _extract_old_passport_row(
     for region in row_regions:
         text = region.text.strip()
         upper = text.upper()
-        # Passport number must MATCH the whole region exactly — otherwise we
-        # would slice "L2072369" out of file-number text like "DL2072369058018".
+
+
         if pp_no is None and _PASSPORT_NUMBER_RE.fullmatch(upper):
             pp_no = upper
             continue

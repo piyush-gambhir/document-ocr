@@ -57,8 +57,8 @@ def _english_job_card():
         _r("RAM LAL", 300, 565, 415, 591),
         _r("Male", 535, 565, 595, 591),
         _r("42", 690, 565, 720, 591),
-        # A later sensitive account section must neither extend nor corrupt
-        # the member table.
+
+
         _r("Aadhaar No.", 20, 630, 150, 656),
         _r("1234 5678 9012", 180, 630, 360, 656),
     ]
@@ -259,8 +259,8 @@ class TestNregaExtractor:
 
         fields = extract_nrega(regions)
 
-        # Rows remain available when gender is usable, but impossible OCR ages
-        # are not emitted as facts.
+
+
         assert [member.age for member in fields.members] == [None, None]
 
     def test_partial_card_does_not_fabricate_missing_fields(self):

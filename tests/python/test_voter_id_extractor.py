@@ -12,9 +12,9 @@ def _r(text, x1, y1, x2, y2, conf=0.95):
     return TextRegion(text=text, bbox=_bbox(x1, y1, x2, y2), confidence=conf)
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
+
+
+
 
 def _voter_regions():
     """Standard new-style card: Elector's Name + Father's Name + DOB, value-right."""
@@ -32,9 +32,9 @@ def _voter_regions():
     ]
 
 
-# ---------------------------------------------------------------------------
-# EPIC + names + gender + DOB on the standard card
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestVoterIdStandardCard:
     def test_epic_and_names(self):
@@ -54,9 +54,9 @@ class TestVoterIdStandardCard:
         assert isinstance(extract_voter_id(_voter_regions()), VoterIdFields)
 
 
-# ---------------------------------------------------------------------------
-# Name vs relation disambiguation
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestNameRelationDisambiguation:
     def test_bare_name_label_does_not_collapse_into_relation(self):
@@ -97,9 +97,9 @@ class TestNameRelationDisambiguation:
         assert f.relation_type == "mother"
 
 
-# ---------------------------------------------------------------------------
-# Husband / mother relation variants
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestRelationVariants:
     def test_husband_relation(self):
@@ -131,9 +131,9 @@ class TestRelationVariants:
         assert f.relation_type == "father"
 
 
-# ---------------------------------------------------------------------------
-# Value-below layout (old laminated card)
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestValueBelowLayout:
     def test_value_below_label(self):
@@ -153,9 +153,9 @@ class TestValueBelowLayout:
         assert f.date_of_birth == "05/06/1985"
 
 
-# ---------------------------------------------------------------------------
-# Gender normalisation, incl. Hindi
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestGender:
     def test_hindi_male_value_with_english_label(self):
@@ -199,9 +199,9 @@ class TestGender:
         assert extract_voter_id(regions).gender == "MALE"
 
 
-# ---------------------------------------------------------------------------
-# Age fallback
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestAgeFallback:
     def test_age_inline_with_label(self):
@@ -248,9 +248,9 @@ class TestAgeFallback:
         assert f.age is None
 
 
-# ---------------------------------------------------------------------------
-# EPIC extraction from noisy text
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestEpicExtraction:
     def test_epic_from_noisy_region(self):
@@ -278,9 +278,9 @@ class TestEpicExtraction:
         assert f.epic_number is None
 
 
-# ---------------------------------------------------------------------------
-# Edge cases
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestEdgeCases:
     def test_empty_regions(self):

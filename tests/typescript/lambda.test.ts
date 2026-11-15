@@ -75,7 +75,7 @@ describe('Lambda S3 and payload limits', () => {
   it('accepts a serialized payload at exactly 6 MiB', async () => {
     send.mockResolvedValueOnce({ Payload: payload(result) })
     const client = new DocumentOCR({ mode: 'lambda', functionName: 'ocr', retries: 0 })
-    // Keep base64 valid while padding the options to reach the exact byte limit.
+
     const base64 = 'A'.repeat(6 * 1024 * 1024 - 40)
     const options = { country: 'A'.repeat(8) }
     expect(Buffer.byteLength(JSON.stringify({ image_base64: base64, country: options.country }))).toBe(6 * 1024 * 1024)

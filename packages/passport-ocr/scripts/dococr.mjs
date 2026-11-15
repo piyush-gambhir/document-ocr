@@ -69,7 +69,7 @@ function run(command, args, options) {
   return { status: result.status ?? 1, error: result.error?.message }
 }
 
-/** Injectable command runner keeps CLI tests local and never deploys infrastructure. */
+
 export async function main(args = process.argv.slice(2), dependencies = {}) {
   const log = dependencies.log ?? console.log
   const execute = dependencies.run ?? run

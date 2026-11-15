@@ -35,6 +35,6 @@ def td1_lines(kind="IP", issuer="USA", number="C12345678", optional="", birth="9
 
 
 def visa_lines(width=44):
-    # The number/DOB/expiry check digits are the independent ICAO specimen
-    # values 6, 2 and 9. Visas have no composite check digit.
+
+
     return ["V<USASAMPLE<<ANNA<MARIA".ljust(width, "<"), "L898902C36USA7408122F1204159".ljust(width, "<")]

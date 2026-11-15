@@ -33,8 +33,8 @@ def redact(data: bytes, boxes: str | list) -> bytes:
         points = np.array(box, dtype=np.int32)
         if abs(cv2.contourArea(points)) < 1:
             raise ValueError('INVALID_REDACTION_BOXES')
-        # Bounding rectangles intentionally cover the entire text quad with a
-        # small ink margin. PNG output has no retained PDF text layer or EXIF.
+
+
         x0, y0 = np.maximum(points.min(axis=0) - 3, 0)
         x1, y1 = np.minimum(points.max(axis=0) + 4, (width, height))
         image[y0:y1, x0:x1] = 0

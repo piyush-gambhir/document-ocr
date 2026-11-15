@@ -18,50 +18,50 @@ import cv2
 import numpy as np
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
-MIN_RESOLUTION = 600          # shortest dimension must be >= this
-BLUR_THRESHOLD = 80           # Laplacian variance below this → blurry
-GLARE_V_THRESHOLD = 250       # HSV V channel threshold for glare
-GLARE_PIXEL_RATIO = 0.15      # reject if > 15 % pixels exceed V threshold
-TARGET_WIDTH = 1600            # normalise output to this width
+
+
+
+MIN_RESOLUTION = 600
+BLUR_THRESHOLD = 80
+GLARE_V_THRESHOLD = 250
+GLARE_PIXEL_RATIO = 0.15
+TARGET_WIDTH = 1600
 CLAHE_CLIP = 2.0
 CLAHE_GRID = (8, 8)
 
-# Document-detection sanity thresholds. Polygon approximation can produce
-# degenerate quads from noise (perforations, watermarks, form-field rectangles).
-# A real document boundary should cover most of the frame and be roughly
-# convex with a passport-like aspect ratio.
-MIN_QUAD_AREA_RATIO = 0.30    # quad must cover ≥ 30 % of image area
-MIN_QUAD_ASPECT = 0.5         # reject very narrow / very tall quads
+
+
+
+
+MIN_QUAD_AREA_RATIO = 0.30
+MIN_QUAD_ASPECT = 0.5
 MAX_QUAD_ASPECT = 3.0
-MIN_WARPED_AREA_RATIO = 0.50  # if perspective-corrected image is < 50 %
-                              # of the input area, discard and use raw
+MIN_WARPED_AREA_RATIO = 0.50
 
 
-# ---------------------------------------------------------------------------
-# Result type
-# ---------------------------------------------------------------------------
+
+
+
+
 
 @dataclass
 class PreprocessResult:
     image: np.ndarray
     warnings: list[str] = field(default_factory=list)
-    # Same geometry and resolution as image, without contrast enhancement.
-    # Retained for bounded rereads when security backgrounds worsen with CLAHE.
+
+
     unenhanced_image: Optional[np.ndarray] = field(default=None, repr=False)
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+
+
+
 
 def _load_image(source: Union[str, bytes, Path]) -> np.ndarray:
     """Load image from file path, bytes, or Path and return BGR numpy array."""
-    # Decode paths and uploads identically: OpenCV's path/byte decoders do not
-    # consistently handle EXIF orientation or HEIF, especially for phone photos.
+
+
     data = Path(source).read_bytes() if isinstance(source, (str, Path)) else source
     if data.startswith(b"%PDF-"):
         return _load_pdf_first_page(data)
@@ -79,9 +79,9 @@ def _load_image(source: Union[str, bytes, Path]) -> np.ndarray:
             oriented = ImageOps.exif_transpose(image)
             pixels = np.asarray(oriented)
             if pixels.dtype.kind == "u" and pixels.dtype.itemsize == 2:
-                # Pillow's direct RGB conversion clips 16-bit grayscale at 255,
-                # erasing nearly all contrast. Match 8-bit image decoding by
-                # retaining the high byte across the full 16-bit range.
+
+
+
                 oriented = Image.fromarray((pixels >> 8).astype(np.uint8))
             return cv2.cvtColor(np.array(oriented.convert("RGB")), cv2.COLOR_RGB2BGR)
     except Image.DecompressionBombError as exc:
@@ -98,9 +98,9 @@ def _load_pdf_first_page(source: Union[str, bytes, Path]) -> np.ndarray:
 
 def _check_resolution(img: np.ndarray) -> None:
     h, w = img.shape[:2]
-    # Card scans can retain readable text at ~800 x 480. Keep the existing
-    # general threshold while admitting a bounded compact-card size; blur and
-    # extraction completeness still have to pass independently.
+
+
+
     compact_card = min(h, w) >= 450 and max(h, w) >= 750
     if min(h, w) < MIN_RESOLUTION and not compact_card:
         raise ImageQualityError("RESOLUTION_TOO_LOW")
@@ -139,7 +139,7 @@ def _detect_document(img: np.ndarray) -> tuple[np.ndarray | None, list[str]]:
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     edges = cv2.Canny(blurred, 50, 150)
 
-    # dilate to close gaps
+
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     edges = cv2.dilate(edges, kernel, iterations=1)
 
@@ -149,7 +149,7 @@ def _detect_document(img: np.ndarray) -> tuple[np.ndarray | None, list[str]]:
         warnings.append("NO_DOCUMENT_BOUNDARY_DETECTED")
         return None, warnings
 
-    # sort by area descending
+
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
     for cnt in contours[:5]:
@@ -180,8 +180,8 @@ def _is_plausible_document_quad(approx: np.ndarray, img_area: float) -> bool:
 
 def _order_points(pts: np.ndarray) -> np.ndarray:
     """Order points: top-left, top-right, bottom-right, bottom-left."""
-    # Sorting each extremum separately can select the same vertex twice when
-    # sums/differences tie (for example a document rotated by 45 degrees).
+
+
     points = np.asarray(pts, dtype=np.float32).reshape(4, 2)
     center = points.mean(axis=0)
     angles = np.arctan2(points[:, 1] - center[1], points[:, 0] - center[0])
@@ -232,7 +232,7 @@ def _normalise(img: np.ndarray) -> np.ndarray:
 def enhance_contrast(img: np.ndarray) -> np.ndarray:
     """Enhance contrast without resizing or moving any evidence coordinates."""
 
-    # CLAHE on L channel in LAB
+
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(lab)
     clahe = cv2.createCLAHE(clipLimit=CLAHE_CLIP, tileGridSize=CLAHE_GRID)
@@ -241,17 +241,17 @@ def enhance_contrast(img: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
 
-# ---------------------------------------------------------------------------
-# Errors
-# ---------------------------------------------------------------------------
+
+
+
 
 class ImageQualityError(Exception):
     """Raised when image quality is insufficient for OCR."""
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+
+
+
 
 def preprocess(
     source: Union[str, bytes, Path],
@@ -287,8 +287,8 @@ def preprocess(
         if warped_area >= original_area * MIN_WARPED_AREA_RATIO:
             img = warped
         else:
-            # Perspective transform produced a degenerate strip — the detected
-            # quad must have been bogus. Discard it and use the raw image.
+
+
             warnings.append("PERSPECTIVE_CORRECTION_DISCARDED")
 
     unenhanced = _resize(img)

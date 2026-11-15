@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
-/**
- * postinstall script for document-ocr
- *
- * Sets up a Python virtual environment and installs dependencies
- * required for local document OCR processing.
- *
- * Uses uv to install a compatible Python version (3.14) if the system
- * Python is a different version or missing.
- *
- * Exits 0 even on failure — errors will surface on first scan() call.
- */
+
+
+
+
+
+
+
+
+
+
+
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, rmSync, writeFileSync } from 'node:fs'
@@ -24,7 +24,7 @@ const venvDir = join(packageDir, '.venv')
 const markerFile = join(venvDir, '.setup-complete')
 const constraints = join(pythonDir, 'requirements.lock')
 
-// Python version used by the bundled runtime
+
 const TARGET_PYTHON = '3.14'
 
 function log(msg) {
@@ -36,7 +36,7 @@ function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, {
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
-    timeout: 600000, // 10 minutes (OCR dependencies are large)
+    timeout: 600000,
     ...opts,
   })
 }
@@ -52,10 +52,10 @@ function hasUv() {
 }
 
 function findCompatiblePython() {
-  /**
-   * Find a Python supported by the bundled runtime (3.14).
-   * Check versioned commands first, then generic ones.
-   */
+
+
+
+
   const candidates = ['python3.14', 'python3', 'python']
 
   for (const cmd of candidates) {
@@ -70,13 +70,13 @@ function findCompatiblePython() {
           return cmd
         }
       }
-    } catch { /* not found */ }
+    } catch {                 }
   }
   return null
 }
 
 async function main() {
-  // Skip if already set up
+
   if (existsSync(markerFile)) {
     log('Python environment already set up.')
     return
@@ -94,8 +94,8 @@ async function main() {
 
   const uvAvailable = hasUv()
 
-  // Strategy 1: Use uv to create venv with a pinned Python version
-  // uv can auto-download Python 3.14 even if the system has another version
+
+
   if (uvAvailable && !existsSync(venvDir)) {
     log(`Creating virtual environment with Python ${TARGET_PYTHON} via uv...`)
     try {
@@ -111,12 +111,12 @@ async function main() {
     } catch (err) {
       log(`uv setup failed: ${err.message?.split('\n')[0]}`)
       log('Trying fallback...')
-      // Clean up failed venv
+
       try { rmSync(venvDir, { recursive: true, force: true }) } catch {}
     }
   }
 
-  // Strategy 2: Use a compatible system Python directly
+
   const pythonCmd = findCompatiblePython()
   if (pythonCmd) {
     if (!existsSync(venvDir)) {
@@ -157,7 +157,7 @@ async function main() {
     return
   }
 
-  // Strategy 3: Nothing worked
+
   log('Warning: Could not set up Python environment.')
   log('The bundled runtime requires Python 3.14.')
   if (!uvAvailable) {

@@ -1,4 +1,4 @@
-# Remote amd64 build. Deployment is owned by deploy.sh and render_service.py.
+
 substitutions:
   _IMAGE_URI: 'IMAGE_URI_REQUIRED'
   _KYC_LANGS: en

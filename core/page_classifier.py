@@ -126,12 +126,12 @@ def _has_mrz_like_lines(regions: list[TextRegion]) -> bool:
         region for region in regions
         if region.bbox and max(point[1] for point in region.bbox) >= bottom_threshold
     ]
-    # Optional data may occupy all of line two: it need not contain fillers.
-    # Require a paired TD3 header instead of counting arbitrary long strings.
+
+
     if _find_mrz_lines(bottom_regions) is not None:
         return True
-    # A passport may sit high in a larger photograph, with background text
-    # below it. Strong MRZ evidence should not depend on its position in that
-    # photograph. Keep checksum validation for this location-independent path.
+
+
+
     mrz = parse_mrz(regions)
     return bool(mrz and mrz.overall_checksum_valid)

@@ -83,8 +83,8 @@ def _checked(first, second, header, body):
 
 
 def _preserves_checked_body(original, candidate):
-    # Protect each previously verified field even when the original pair was
-    # incomplete and no complete MRZ result could be parsed.
+
+
     for start, stop, check in ((0, 9, 9), (13, 19, 19), (21, 27, 27), (28, 42, 42)):
         if len(original) > check and verify_check_digit(original[start:stop], original[check]):
             if original[start:stop] != candidate[start:stop]:
@@ -149,8 +149,8 @@ def recover_travel_mrz(image, regions: list[TextRegion], recognize_line) -> list
                     and re.fullmatch(r"[PV][A-Z<][A-Z<]{3}[A-Z<]+", first)
                     and is_known_mrz_country(first[2:5]))
     second_ok = bool(existing and is_known_mrz_country(second[10:13]))
-    # A malformed header alone does not invalidate an otherwise complete,
-    # checked body. Preserve it so an unchecked name is not reread needlessly.
+
+
     if not first_ok and len(second) in (36, 44) and is_known_mrz_country(second[10:13]):
         second_ok = all(verify_check_digit(second[start:stop], second[check])
                         for start, stop, check in ((0, 9, 9), (13, 19, 19), (21, 27, 27)))
@@ -162,7 +162,7 @@ def recover_travel_mrz(image, regions: list[TextRegion], recognize_line) -> list
             return regions
         first_read = _read_line(image, region, recognize_line, 0, .12)
         if not recovery_allowed():
-            return regions  # An unconfirmed reread is never admitted.
+            return regions
         reads = [first_read, _read_line(image, region, recognize_line, .01, .2)]
         if (any(read is None for read in reads) or reads[0].text != reads[1].text
                 or max(read.confidence for read in reads) < .90):
@@ -180,7 +180,7 @@ def recover_travel_mrz(image, regions: list[TextRegion], recognize_line) -> list
     for old, new in ((first[2:5], new_first[2:5]), (second[10:13], new_second[10:13])):
         if is_known_mrz_country(old) and old != new:
             return regions
-    # A valid name has no checksum. Repairing an issuer must not rewrite it.
+
     if (re.fullmatch(r"[A-Z<]+", first[5:])
             and first[5:].rstrip("<") != new_first[5:].rstrip("<")):
         return regions

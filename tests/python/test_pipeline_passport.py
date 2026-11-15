@@ -112,7 +112,7 @@ def test_checksum_valid_mrz_wins_over_competing_reading(prepare, full_is_valid):
 def test_checksum_valid_impossible_date_cannot_be_success(prepare):
     from core.mrz_parser import icao_check_digit
 
-    # Correct check digits alone cannot establish that February has 31 days.
+
     good = mrz_regions()
     line = list(good[1].text)
     line[13:19] = '740231'
@@ -121,7 +121,7 @@ def test_checksum_valid_impossible_date_cannot_be_success(prepare):
     regions = [good[0], region(''.join(line), 850)]
     prepare(regions, regions)
     result = pipeline.scan(b'synthetic')
-    assert result.mrz_valid  # checksums and calendar validity are distinct
+    assert result.mrz_valid
     assert result.status == 'failure'
     assert 'INVALID_DATE_OF_BIRTH' in result.errors
 
@@ -133,8 +133,8 @@ def test_recovered_high_passport_routes_past_background_text(prepare, monkeypatc
     second.bbox = [[40, 220], [740, 220], [740, 250], [40, 250]]
     background = region('Background writing', 950)
     prepare([background], [second, background])
-    # The detector misses the name line even in the recovery band. The
-    # recognition-only read returns it in crop coordinates.
+
+
     monkeypatch.setattr(pipeline, 'run_ocr', lambda pixels:
                         [second, background] if pixels.shape == (1000, 800, 3) else [])
     monkeypatch.setattr(pipeline, 'run_line_ocr', lambda _: [
@@ -173,7 +173,7 @@ def test_valid_probe_mrz_skips_recovery_of_the_full_page(prepare, monkeypatch):
 
 
 def test_unresolved_biodata_page_recovers_with_the_band_reader(prepare, monkeypatch):
-    damaged = region('L898902C36UTO7408122F1204159ZE184226B<<<<<19', 850)  # bad checksum
+    damaged = region('L898902C36UTO7408122F1204159ZE184226B<<<<<19', 850)
     prepare([region('Unrelated footer', 950)], [region('PASSPORT', 40), damaged])
     recover = _no_recovery(monkeypatch)
     pipeline.scan(b'synthetic')
@@ -188,11 +188,11 @@ def test_valid_but_noisy_probe_still_gets_name_cleanup(prepare, monkeypatch):
     recover = _no_recovery(monkeypatch)
     pipeline.scan(b'synthetic')
     recover.assert_called_once()
-    assert recover.call_args.kwargs['band_ocr'] is None  # default enlargement
+    assert recover.call_args.kwargs['band_ocr'] is None
 
 
 def test_background_back_page_hints_do_not_skip_recovery_of_a_visible_mrz(prepare, monkeypatch):
-    damaged = region('L898902C36UTO7408122F1204159ZE184226B<<<<<19', 300)  # passport high in frame
+    damaged = region('L898902C36UTO7408122F1204159ZE184226B<<<<<19', 300)
     prepare([region('Address', 900), region('Place of Issue', 950)], [region('PASSPORT', 40), damaged])
     recover = _no_recovery(monkeypatch)
     pipeline.scan(b'synthetic')

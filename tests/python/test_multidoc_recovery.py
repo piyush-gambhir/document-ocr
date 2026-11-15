@@ -19,14 +19,14 @@ def row(text, x=10, y=10, width=500, height=25, confidence=.99):
 
 
 def test_sideways_mrz_pairs_follow_local_line_axes():
-    # Map upright text back through a quarter-turn: page-Y order is reversed.
+
     def rotate(r):
         return TextRegion(r.text, [[y, 1000-x] for x, y in r.bbox], r.confidence)
     first, second = rotate(row(FIRST, y=10)), rotate(row(SECOND, y=50))
     parsed = parse_mrz([second, first])
     assert parsed and parsed.overall_checksum_valid
     assert parsed.raw_lines == (FIRST, SECOND)
-    # An unrelated distant bottom line must not pair with the header.
+
     second.bbox = [[x+400, y] for x, y in second.bbox]
     assert parse_mrz([second, first]) is None
 
@@ -123,7 +123,7 @@ def test_numbered_us_licence_fields_and_country_state_marker():
 
 @pytest.mark.parametrize('second,accepted', [('123 45 6789', True), ('123 45 6780', False)])
 def test_uncertain_boxed_tin_requires_agreement_after_line_removal(second, accepted):
-    # One label avoids a second, unrelated TIN box in this confirmation test.
+
     regions = w9_rows()[:-1]
     reader = Mock(side_effect=[[row('123 45 6789', confidence=.85)], [row(second, confidence=.86)]])
     image = np.zeros((500, 1100, 3), np.uint8)

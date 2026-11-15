@@ -20,7 +20,7 @@ TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com iam.googleapis.com secretmanager.googleapis.com --project "$GCP_PROJECT" --quiet
-# List succeeds or the script fails; permission failures never mean "not found".
+
 ACCOUNTS="$(gcloud iam service-accounts list --project "$GCP_PROJECT" --filter="email=${DOCUMENT_OCR_SERVICE_ACCOUNT}" --format='value(email)')"
 if [[ -z "$ACCOUNTS" ]]; then
   gcloud iam service-accounts create "${DOCUMENT_OCR_SERVICE_ACCOUNT%%@*}" --project "$GCP_PROJECT" --display-name 'Document OCR runtime' --quiet

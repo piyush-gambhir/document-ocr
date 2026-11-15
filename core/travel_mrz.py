@@ -75,7 +75,7 @@ def parse_travel_mrz(regions: list[TextRegion]) -> TravelMRZResult | None:
                 parsed.append(_parse_visa([first, second[1]], [region, second[2]]))
     if not parsed:
         return None
-    # Multiple independent documents cannot safely be collapsed into one result.
+
     if len(parsed) > 1:
         parsed[0].errors.append("MULTIPLE_MRZ_DOCUMENTS")
     return parsed[0]
@@ -115,8 +115,8 @@ def _parse_td1(document_type: str, lines: list[str], regions: list[TextRegion]) 
         "sex": "X" if second[7] == "<" else second[7],
         "nationality": second[15:18].replace("<", "") or None,
     }
-    # ICAO TD1 extended document numbers move their check digit into optional
-    # data, immediately after the continuation and before a filler.
+
+
     if document_type == "passport_card" and number_check == "<":
         continuation = first[15:30].split("<", 1)[0]
         if len(continuation) >= 2 and continuation[-1].isdigit():
@@ -134,7 +134,7 @@ def _parse_td1(document_type: str, lines: list[str], regions: list[TextRegion]) 
         fields.pop("nationality")
         fields["uscis_number"] = number.rstrip("<")
         fields["card_number"] = first[15:30].rstrip("<") or None
-        # US profiles encode country of birth here, not citizenship.
+
         fields["country_of_birth"] = second[15:18].replace("<", "") or None
     result = _finish(document_type, [first, second, surname_line], regions, fields, checks, surname_line)
     if document_type in ("us_green_card", "us_ead"):

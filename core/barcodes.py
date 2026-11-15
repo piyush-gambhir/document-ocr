@@ -31,8 +31,8 @@ def decode_barcodes(image: np.ndarray) -> list[BarcodeResult]:
         return []
     import zxingcpp
 
-    # OCR images are BGR. Grayscale conversion also makes channel ordering
-    # irrelevant to the native decoder and avoids an additional cv2 dependency.
+
+
     if image.ndim == 3:
         image = np.mean(image[:, :, :3], axis=2).astype(np.uint8)
     results = []
@@ -107,8 +107,8 @@ def parse_aamva(barcode: BarcodeResult | str) -> AAMVAResult | None:
     if len(identities) != 1:
         raise ValueError("AMBIGUOUS_AAMVA_DOCUMENT_TYPE")
     kind, start, end = identities[0]
-    # Annex D.6 specifies ISO 8859-1. Offsets count bytes, including accented
-    # Latin characters; UTF-8 encoding would shift the subfile boundaries.
+
+
     content = data[start + 2:end].decode("latin-1")
     elements: dict[str, str] = {}
     errors: list[str] = []

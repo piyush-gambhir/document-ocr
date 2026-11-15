@@ -133,7 +133,7 @@ async def local_server(source: Path, log: Path, startup_timeout: float, request_
                        'DOCUMENT_OCR_JOBS_DIR': jobs,
                        'DOCUMENT_OCR_JOB_KEY': Fernet.generate_key().decode(),
                        'DOCUMENT_OCR_JOB_RETENTION_SECONDS': '60'}
-        # The benchmark owns an isolated local queue and never sends webhooks.
+
         environment.pop('DOCUMENT_OCR_WEBHOOK_URL', None)
         environment.pop('DOCUMENT_OCR_WEBHOOK_SECRET', None)
         runtime_config = Path(jobs) / 'benchmark-runtime.json'
@@ -174,8 +174,8 @@ async def scan_request(client: httpx.AsyncClient, case: dict, data: bytes) -> tu
     elapsed = (time.perf_counter() - start) * 1000
     processing = actual['processingMs'] if actual is not None else None
     return {'elapsedMs': round(elapsed, 2), 'processingMs': processing,
-            # Includes upload, queue wait, HTTP/serialization and measurement
-            # differences; never label this as a directly measured queue time.
+
+
             'overheadAndQueueMs': round(max(0, elapsed - processing), 2) if processing is not None else None,
             'httpStatus': status_code, 'error': error}, actual
 
@@ -240,8 +240,8 @@ def compare(report: dict, baseline: dict) -> dict:
             for a, b in zip(old['runs'], case['runs']):
                 regressions.extend({'concurrency': int(level), 'id': identifier, 'metric': metric}
                                    for metric in correctness_regressions(a, b))
-                # Newly accepted documents must not be compared with an old
-                # pre-OCR rejection. Stable rejections still consume capacity.
+
+
                 if (a['runtimeError'] is None and b['runtimeError'] is None
                         and a['status'] == b['status'] and a['documentType'] == b['documentType']):
                     matches.setdefault(case['profile'], []).append((a['elapsedMs'], b['elapsedMs']))
@@ -282,8 +282,8 @@ async def variant_checks(client: httpx.AsyncClient, cases: list[dict], payloads:
     registered = {item['documentType'] for item in (await client.get('/documents')).json()['documents']}
     output = []
     for kind in sorted({profile(c) for c in cases} & registered):
-        # Freeze selection independently of scan success; clean contract fixtures
-        # take precedence, then the manifest's existing order.
+
+
         candidates = [case for case in cases if profile(case) == kind]
         case = next((c for c in candidates if c.get('capture') == 'clean'), candidates[0])
         original = score(case, truths[case['id']], sequential[case['id']], 0, None)
@@ -332,7 +332,7 @@ async def route_checks(client: httpx.AsyncClient, cases: list[dict], payloads: d
                                        ('invalid.txt', b'not an image', 'text/plain')})).status_code == 400
     checks['invalidHintRejected'] = (await client.post('/scan', data={'document_type': 'not-a-profile'},
                                    files={'image': ('invalid.jpg', b'x', 'image/jpeg')})).status_code == 400
-    # Keep total multipart payload under the server's shared 10 MiB bound.
+
     chosen, size = [], 0
     for case in cases:
         if case.get('options') or sequential.get(case['id']) is None:
@@ -356,9 +356,9 @@ async def route_checks(client: httpx.AsyncClient, cases: list[dict], payloads: d
     if case:
         upload = ('images', (Path(case['image']).name, payloads[case['id']],
                             mimetypes.guess_type(case['image'])[0] or 'image/jpeg'))
-        # Grouped pages deliberately use the evidence extraction path internally.
-        # Compare with that same /scan option, then remove evidence omitted by
-        # the default grouped response, rather than equating distinct schemas.
+
+
+
         evidence_stats, evidence_actual = await scan_request(client,
             {**case, 'options': {'include_evidence': True}}, payloads[case['id']])
         if evidence_actual is not None:
@@ -372,8 +372,8 @@ async def route_checks(client: httpx.AsyncClient, cases: list[dict], payloads: d
              and all(semantic_response(r) == semantic_response(evidence_actual) for r in body['results']))
     else:
         checks['groupedDuplicateAgrees'] = None
-    # Exercise upload -> encrypted local queue -> actual worker OCR -> polling
-    # -> delete. A separate temporary queue prevents touching application jobs.
+
+
     response = await client.post('/jobs', files=[files[0]])
     body = response.json()
     checks['jobQueued'] = response.status_code == 202 and body.get('status') == 'queued'
@@ -500,8 +500,8 @@ async def run(manifests: list[Path], root: Path, source: Path, concurrency: list
         and all(item['score']['runtimeError'] is None and not item['regressionsVsAutomatic']
                 for item in report['variantChecks']))
     report['provenance']['modelSha256'] = {p.name: fingerprint(p) for p in sorted(model_directory.glob('*.onnx'))}
-    # Accuracy is reported independently. Stable incorrect outputs do not become
-    # correct merely because the transport and concurrency checks passed.
+
+
     return report
 
 
@@ -528,8 +528,8 @@ def main():
         try:
             report['comparison'] = compare(report, json.loads(args.baseline.read_text()))
         except ValueError as exc:
-            # Keep the new measurements reviewable even when the chosen
-            # baseline is incompatible; never report such a run as an uplift.
+
+
             report['comparison'] = {'passed': False, 'compatible': False, 'error': str(exc)}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')

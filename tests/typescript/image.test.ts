@@ -61,10 +61,10 @@ describe('normalizeToBlob', () => {
   })
 
   it('converts a Buffer slice using the correct byte offset', async () => {
-    // A Buffer that is a view into a larger ArrayBuffer must copy only its
-    // own window, not the whole backing buffer.
+
+
     const backing = Buffer.from('XXXXHello WorldYYYY')
-    const view = backing.subarray(4, 15) // "Hello World"
+    const view = backing.subarray(4, 15)
     const blob = await normalizeToBlob(view)
     expect(Buffer.from(await blob.arrayBuffer()).toString()).toBe('Hello World')
   })

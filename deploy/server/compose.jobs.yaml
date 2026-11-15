@@ -1,4 +1,4 @@
-# Opt-in only: use with compose.yaml and --profile jobs.
+
 services:
   ocr:
     environment:

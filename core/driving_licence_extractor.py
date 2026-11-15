@@ -37,20 +37,20 @@ from .validator import (
 )
 from .validators import normalize_dl
 
-# A DD/MM/YYYY-style date anywhere in a string (also tolerates 2-digit years
-# and '.'/'-'/'/' separators that OCR emits interchangeably).
+
+
 _DATE_RE = re.compile(r"\b(\d{1,2}[/.\-]\d{1,2}[/.\-]\d{2,4})\b")
 
-# Blood group as a standalone token, e.g. "B+", "O-", "AB+VE", "A POSITIVE".
-# A trailing sign/word is REQUIRED so a bare "B" inside a label like "BG" or a
-# word like "BIHAR" is not mistaken for a blood group.
+
+
+
 _BLOOD_GROUP_RE = re.compile(
     r"\b(AB|A|B|O)\s*"
     r"(\+VE|-VE|\+|-|POS(?:ITIVE)?|NEG(?:ATIVE)?)"
     r"(?![A-Z])",
     re.IGNORECASE,
 )
-# Canonical class-of-vehicle tokens that appear on Indian DLs.
+
 _COV_TOKENS = [
     "MCWOG", "MCWG", "MCEX50CC", "MGV", "HGMV", "HMV", "HPMV", "LMV-NT",
     "LMV-TR", "LMV", "TRANS", "TRACTOR", "ERIG", "ROAD ROLLER", "MC", "FVG",
@@ -58,7 +58,7 @@ _COV_TOKENS = [
 ]
 
 _NAME_LABELS = ["NAME", "HOLDER S NAME", "HOLDERS NAME", "HOLDER NAME"]
-# S/D/W of => relation/guardian. Many OCRs collapse the slashes.
+
 _RELATION_LABELS = [
     "SON DAUGHTER WIFE OF",
     "S D W OF",
@@ -74,7 +74,7 @@ _RELATION_LABELS = [
 ]
 _DOB_LABELS = ["DATE OF BIRTH", "DOB", "BIRTH"]
 _DOI_LABELS = ["DATE OF ISSUE", "ISSUE DATE", "DOI", "ISSUE"]
-# Generic validity labels (used when there is a single validity date).
+
 _VALIDITY_LABELS = [
     "VALID TILL",
     "VALID UPTO",
@@ -83,14 +83,14 @@ _VALIDITY_LABELS = [
     "DATE OF EXPIRY",
     "EXPIRY",
 ]
-# Non-transport (primary) validity labels — preferred when both NT and TR exist.
+
 _VALIDITY_NT_LABELS = [
     "VALIDITY NT",
     "VALID TILL NT",
     "NON TRANSPORT",
     "NT",
 ]
-# Transport validity labels — only used if no NT/primary date is found.
+
 _VALIDITY_TR_LABELS = [
     "VALIDITY TR",
     "VALID TILL TR",
@@ -106,7 +106,7 @@ _COV_LABELS = [
     "AUTHORISATION TO DRIVE",
     "AUTHORIZATION TO DRIVE",
 ]
-# Present/current address preferred over permanent.
+
 _PRESENT_ADDRESS_LABELS = [
     "PRESENT ADDRESS",
     "CURRENT ADDRESS",
@@ -129,13 +129,13 @@ class DrivingLicenceFields:
     relation_name: Optional[str] = None
     blood_group: Optional[str] = None
     class_of_vehicle: Optional[str] = None
-    # Secondary (transport) validity date, when a card lists both NT and TR.
+
     validity_date_transport: Optional[str] = None
 
 
-# ---------------------------------------------------------------------------
-# DL number
-# ---------------------------------------------------------------------------
+
+
+
 
 def _find_dl_number(regions: list[TextRegion]) -> Optional[str]:
     """Recover the DL number, including the case where OCR splits it in two.
@@ -151,11 +151,11 @@ def _find_dl_number(regions: list[TextRegion]) -> Optional[str]:
         if dl:
             return dl
 
-    # Adjacency fallback: join same-row neighbours left-to-right and re-scan.
+
     ordered = sorted(
         regions,
         key=lambda r: (
-            round(min(p[1] for p in r.bbox) / 20),  # row band
+            round(min(p[1] for p in r.bbox) / 20),
             min(p[0] for p in r.bbox),
         ),
     )
@@ -177,9 +177,9 @@ def _find_dl_number(regions: list[TextRegion]) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Dates
-# ---------------------------------------------------------------------------
+
+
+
 
 def _first_date(text: Optional[str]) -> Optional[str]:
     if not text:
@@ -204,7 +204,7 @@ def _labelled_date(
     if label_region is None:
         return None
 
-    # Date embedded in the label region itself.
+
     self_date = _first_date(label_region.text)
     if self_date:
         return self_date
@@ -235,28 +235,28 @@ def _find_validity_date(regions: list[TextRegion]) -> tuple[Optional[str], Optio
 
     transport = _labelled_date(regions, _VALIDITY_TR_LABELS, label_region=tr_label)
 
-    # Avoid letting a generic "VALIDITY" match collide with the TR row: if the
-    # generic match resolved to the same region as the TR label, ignore it.
+
+
     primary = None
     if nt_label is not None:
         primary = _labelled_date(regions, _VALIDITY_NT_LABELS, label_region=nt_label)
     if primary is None and generic_label is not None and generic_label is not tr_label:
         primary = _labelled_date(regions, _VALIDITY_LABELS, label_region=generic_label)
 
-    # If we only found a transport date, surface it as the primary too so the
-    # field is never silently empty when a validity date plainly exists.
+
+
     if primary is None and transport is not None:
         primary = transport
 
     return primary, transport
 
 
-# ---------------------------------------------------------------------------
-# Name / relation
-# ---------------------------------------------------------------------------
 
-# Any region whose normalised text matches one of these is a field label, not a
-# value — used to reject a label that was mistakenly picked up as a name/relation.
+
+
+
+
+
 _ALL_LABEL_WORDS = frozenset(
     word
     for label_set in (
@@ -308,13 +308,13 @@ def _find_relation(regions: list[TextRegion]) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Blood group / class of vehicle
-# ---------------------------------------------------------------------------
+
+
+
 
 def _normalise_blood_group(text: str) -> Optional[str]:
     upper = text.upper()
-    # Never read a blood group out of the label words themselves.
+
     if re.search(r"BLOOD|GROUP|\bBG\b", upper):
         return None
     m = _BLOOD_GROUP_RE.search(upper)
@@ -332,7 +332,7 @@ def _find_blood_group(regions: list[TextRegion]) -> Optional[str]:
         return group
     label = find_visual_field(regions, _BLOOD_GROUP_LABELS)
     if label is not None:
-        # Value may sit to the right, below, or (rarely) on the label region.
+
         for candidate_text in (
             getattr(find_visual_value_right(regions, label), "text", "") or "",
             getattr(find_visual_value_near(regions, label), "text", "") or "",
@@ -360,7 +360,7 @@ def _find_class_of_vehicle(regions: list[TextRegion]) -> Optional[str]:
             if tokens:
                 return ", ".join(tokens)
 
-    # Fallback: scan the whole card for canonical COV tokens.
+
     found: list[str] = []
     for region in regions:
         for tok in _extract_cov_tokens(region.text):
@@ -372,16 +372,16 @@ def _find_class_of_vehicle(regions: list[TextRegion]) -> Optional[str]:
 def _extract_cov_tokens(text: str) -> list[str]:
     upper = re.sub(r"\s+", " ", text.upper())
     found: list[str] = []
-    for tok in _COV_TOKENS:  # longest-first ordering in the list avoids LMV ⊂ LMV-NT
+    for tok in _COV_TOKENS:
         if re.search(rf"(?<![A-Z0-9-]){re.escape(tok)}(?![A-Z0-9])", upper):
             if not any(tok in existing for existing in found):
                 found.append(tok)
     return found
 
 
-# ---------------------------------------------------------------------------
-# Address
-# ---------------------------------------------------------------------------
+
+
+
 
 def _collect_address_block(
     regions: list[TextRegion], label: TextRegion
@@ -393,22 +393,22 @@ def _collect_address_block(
 
     lines: list[tuple[int, int, str]] = []
 
-    # Inline value on the same row as the label (e.g. "Address : 14 Nehru Nagar").
+
     inline = find_visual_value_right(regions, label)
     if inline is not None and not _is_other_label(inline.text):
         lines.append((label_top, min(p[0] for p in inline.bbox), inline.text.strip()))
 
-    # Candidate rows below the label, left-aligned with the label column.
+
     candidates: list[tuple[int, int, str]] = []
     for region in regions:
         if region is label or region is inline:
             continue
         top = min(p[1] for p in region.bbox)
         left = min(p[0] for p in region.bbox)
-        # Must start below the label and within a reasonable block height.
+
         if top <= label_bottom - 5 or top - label_bottom > 220:
             continue
-        # Roughly left-aligned with the label column.
+
         if abs(left - label_left) > 320:
             continue
         text = region.text.strip()
@@ -416,8 +416,8 @@ def _collect_address_block(
             continue
         candidates.append((top, left, text))
 
-    # Walk the rows top-to-bottom and stop at the first row that begins a
-    # *different* field (its label), so the next field's value cannot leak in.
+
+
     candidates.sort(key=lambda x: (x[0], x[1]))
     stop_y: Optional[int] = None
     for top, _left, text in candidates:
@@ -490,9 +490,9 @@ def _find_address(regions: list[TextRegion]) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+
+
+
 
 def extract_driving_licence(regions: list[TextRegion]) -> DrivingLicenceFields:
     fields = DrivingLicenceFields()

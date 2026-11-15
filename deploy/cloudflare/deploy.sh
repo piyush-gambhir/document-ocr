@@ -35,8 +35,8 @@ config.containers[0].image_vars.DOCUMENT_OCR_KYC_LANGS = process.env.DOCUMENT_OC
 if (process.env.IMAGE_URI) config.containers[0].image = process.env.IMAGE_URI
 fs.writeFileSync('.wrangler.deploy.json', JSON.stringify(config, null, 2))
 JS
-# A temporary mode-0600 file passes environment secrets without CLI-value leakage.
-# Otherwise use existing Wrangler secrets; required-secret validation fails closed.
+
+
 if [[ -n "$SECRETS_FILE" ]]; then
   node_modules/.bin/wrangler deploy --config "$CONFIG" --secrets-file "$SECRETS_FILE" "$@"
 else

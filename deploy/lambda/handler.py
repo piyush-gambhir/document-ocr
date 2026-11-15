@@ -60,8 +60,8 @@ def _read_s3(reference):
         raise ValueError('S3_OBJECT_NOT_ALLOWED')
     if version is not None and (not isinstance(version, str) or not version):
         raise ValueError('INVALID_S3_REFERENCE')
-    # The execution role grants GetObject/GetObjectVersion only for this prefix.
-    # S3 keys are opaque: no decoding, filesystem traversal or remote URL fetch.
+
+
     import boto3
     args = {'Bucket': bucket, 'Key': key}
     if version is not None:
@@ -123,7 +123,7 @@ def handler(event, context=None):
     except KycOCRConfigError:
         return _error(503, 'INVALID_KYC_OCR_CONFIG')
     except Exception:
-        # Cloud SDK errors may contain bucket/key details; do not log payloads.
+
         logger.error('scan_failed')
         return _error(500, 'INTERNAL_ERROR')
     output = result.to_dict()

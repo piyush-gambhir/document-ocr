@@ -37,7 +37,7 @@ def configured_budget(raw: Optional[str] = None) -> Optional[float]:
     try:
         seconds = float(value)
     except ValueError:
-        # A typo in deployment config must not fail every scan.
+
         logger.warning("%s=%r is not a number of seconds or 'off'; using %s",
                        BUDGET_ENV, value, DEFAULT_BUDGET_SECONDS)
         return DEFAULT_BUDGET_SECONDS

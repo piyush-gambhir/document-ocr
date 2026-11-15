@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 
 
-# Intentionally artificial text-only specimens with no issuer artwork.
+
 CASES = {
     "pan": {
         "rows": [

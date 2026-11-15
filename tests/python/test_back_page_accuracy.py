@@ -19,9 +19,9 @@ def _r(text, x1, y1, x2, y2, conf=0.97):
     return TextRegion(text=text, bbox=_bbox(x1, y1, x2, y2), confidence=conf)
 
 
-# ---------------------------------------------------------------------------
-# Variant 1 — newer layout, "CITY - PINCODE STATECODE" on a single address line
-# ---------------------------------------------------------------------------
+
+
+
 
 def _new_layout_regions():
     return [
@@ -63,9 +63,9 @@ class TestNewLayoutAddressLine:
         assert f.file_number == "HR1234567890123"
 
 
-# ---------------------------------------------------------------------------
-# Variant 2 — unmarried holder: no spouse row at all
-# ---------------------------------------------------------------------------
+
+
+
 
 def _no_spouse_regions():
     return [
@@ -93,5 +93,5 @@ class TestNoSpouse:
         f = extract_back_page(_no_spouse_regions())
         assert f.state == "Karnataka"
         assert f.pincode == "560001"
-        # City is the locality line preceding the state line.
+
         assert f.city == "BANGALORE"

@@ -92,7 +92,7 @@ class TestInputErrors:
         assert json.loads(resp["body"])["error"] == "INVALID_BASE64"
 
     def test_file_too_large_returns_400(self, mod, monkeypatch):
-        # Must not reach scan() — size is checked first.
+
         monkeypatch.setattr(mod, "scan", lambda data: pytest.fail("scan should not run"))
         big = _b64(b"\x00" * (10 * 1024 * 1024 + 1))
         resp = mod.handler({"image_base64": big})

@@ -169,7 +169,7 @@ class TestRouting:
         assert result.pan_fields.pan_number == "ABCPE1234F"
         assert result.pan_fields.name == "ROHIT SHARMA"
         assert result.probe_text == []
-        # Passport blocks stay empty for a PAN scan.
+
         assert result.fields is None
         assert result.back_page_fields is None
 
@@ -457,10 +457,10 @@ class TestResultShape:
             ),
         )
         d = result.to_dict()
-        # New block is camelCased and populated.
+
         assert d["panFields"]["panNumber"] == "ABCPE1234F"
         assert d["panFields"]["name"] == "ROHIT SHARMA"
-        # Other document blocks present but null (additive, backward-compatible).
+
         assert d["aadhaarFields"] is None
         assert d["drivingLicenceFields"] is None
         assert d["voterIdFields"] is None
@@ -477,7 +477,7 @@ class TestResultShape:
             }
         ]
         assert d["nprLetterFields"] is None
-        # Passport contract keys remain.
+
         assert d["fields"] is None
         assert d["backPageFields"] is None
         assert "mrzValid" in d and "documentType" in d

@@ -3,14 +3,14 @@ import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { DocumentOCR } from '../../packages/passport-ocr/src/client'
 
-// ---------------------------------------------------------------------------
-// Test HTTP server harness
-//
-// We spin a real ephemeral node:http server and point a `mode: 'http'` client
-// at it. This exercises the real fetch / FormData / AbortSignal paths rather
-// than mocking globalThis.fetch, so retry, timeout and status handling are
-// tested end-to-end through the SDK.
-// ---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 type Responder = (count: number) => {
   status: number
@@ -33,7 +33,7 @@ function startServer(responder: Responder): Promise<TestServer> {
     count += 1
     paths.push(req.url ?? '')
     const thisCount = count
-    // Drain the request body (multipart form upload) so the socket frees up.
+
     req.resume()
     req.on('end', () => {
       const { status, body, delayMs = 0 } = responder(thisCount)
@@ -128,7 +128,7 @@ describe('DocumentOCR.scan (http mode, real server)', () => {
     expect(result.status).toBe('success')
     expect(result.documentType).toBe('passport')
     expect(result.fields?.passportNumber).toBe('J1234567')
-    // Non-passport blocks are present and null on a passport result.
+
     expect(result.panFields).toBeNull()
     expect(result.aadhaarFields).toBeNull()
     expect(server.requestCount()).toBe(1)
@@ -203,7 +203,7 @@ describe('DocumentOCR.scan (http mode, real server)', () => {
   })
 
   it('retries on 5xx and then succeeds', async () => {
-    // First attempt → 503, second attempt → 200.
+
     const server = await withServer((count) =>
       count === 1
         ? { status: 503, body: { error: 'TEMPORARILY_UNAVAILABLE' } }
@@ -232,7 +232,7 @@ describe('DocumentOCR.scan (http mode, real server)', () => {
 
     expect(result.status).toBe('failure')
     expect(result.errors).toContain('LOW_CONFIDENCE_EXTRACTION')
-    // 422 is a definitive answer — the SDK must not retry it.
+
     expect(server.requestCount()).toBe(1)
   })
 
@@ -284,8 +284,8 @@ describe('DocumentOCR.scan (http mode, real server)', () => {
   })
 
   it('aborts via timeout and rejects when the server is too slow', async () => {
-    // Server responds well after the client timeout → the per-attempt
-    // AbortController fires and fetch rejects.
+
+
     const server = await withServer(() => ({
       status: 200,
       body: successBody(),

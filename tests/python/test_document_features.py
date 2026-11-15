@@ -14,7 +14,7 @@ from core.preprocessor import ImageQualityError
 
 
 def make_pdf(lines, *, pages=1, width=612, height=792):
-    # A real, minimal PDF with a native text layer. No OCR/parsing stubs.
+
     objects = [b'<< /Type /Catalog /Pages 2 0 R >>', b'', b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>']
     kids = []
     for _ in range(pages):

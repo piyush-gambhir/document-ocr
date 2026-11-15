@@ -32,13 +32,13 @@ _DATE_RE = re.compile(r"\b(\d{1,2}[/.\-]\d{1,2}[/.\-]\d{4})\b")
 _YEAR_RE = re.compile(r"\b(19\d{2}|20\d{2})\b")
 _PINCODE_RE = re.compile(r"\b(\d{6})\b")
 
-# A Virtual ID is 16 digits, printed grouped 4-4-4-4 (optionally spaced) — or as
-# a bare 16-digit run. Either form must be removed before Aadhaar extraction.
+
+
 _VID_RE = re.compile(r"\b\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\b")
 _VID_LABEL_RE = re.compile(r"\bVID\b", re.IGNORECASE)
 
-# Masked Aadhaar: leading groups are X'd out and only the final 4 digits show,
-# e.g. "XXXX XXXX 9012" / "xxxxxxxx9012" / "**** **** 9012".
+
+
 _MASKED_AADHAAR_RE = re.compile(
     r"(?:[Xx*]{4}[\s-]?){2}(\d{4})\b"
 )
@@ -49,7 +49,7 @@ _GENDER_WORDS = {
     "TRANSGENDER": "TRANSGENDER",
 }
 
-# Hindi (Devanagari) gender words map to the same canonical values.
+
 _GENDER_HINDI = {
     "पुरुष": "MALE",
     "महिला": "FEMALE",
@@ -58,7 +58,7 @@ _GENDER_HINDI = {
     "ट्रांसजेंडर": "TRANSGENDER",
 }
 
-# Header / label noise that must never be mistaken for the holder name.
+
 _NAME_STOPWORDS = {
     "GOVERNMENT", "GOVT", "INDIA", "BHARAT", "AADHAAR", "AADHAR", "UNIQUE",
     "IDENTIFICATION", "AUTHORITY", "UIDAI", "MALE", "FEMALE", "TRANSGENDER",
@@ -67,7 +67,7 @@ _NAME_STOPWORDS = {
     "ISSUED", "HELP", "EMAIL", "WWW", "PHONE", "MERA", "AADHAR", "VALID",
 }
 
-# Care-of prefixes that introduce the address on the back.
+
 _CARE_OF_RE = re.compile(r"\b([SCDWscdw])\s*/\s*[Oo]\b")
 
 
@@ -81,7 +81,7 @@ class AadhaarFields:
     address: Optional[str] = None
     pincode: Optional[str] = None
     checksum_valid: bool = False
-    # --- additive fields (do not rename existing ones) ---
+
     aadhaar_masked: bool = False
     aadhaar_last4: Optional[str] = None
     vid: Optional[str] = None
@@ -103,12 +103,12 @@ def _is_name_like(text: str) -> bool:
     letters = [c for c in stripped if c.isalpha()]
     if not letters:
         return False
-    # Mostly Latin letters (Aadhaar prints the name in English too).
+
     if _devanagari_ratio(stripped) > 0.5:
         return False
     if sum(1 for c in letters if ord(c) > 127) / len(letters) > 0.5:
         return False
-    # A care-of address line ("S/O ...") is not the holder name.
+
     if _CARE_OF_RE.search(stripped):
         return False
     words = re.sub(r"[^A-Z ]", " ", stripped.upper()).split()
@@ -120,13 +120,13 @@ def _is_name_like(text: str) -> bool:
 def _find_gender(regions: list[TextRegion]) -> Optional[str]:
     for region in regions:
         text = region.text
-        # English / Latin gender words, matched as whole words.
+
         upper = re.sub(r"[^A-Z]", " ", text.upper())
         padded = f" {upper} "
         for word, value in _GENDER_WORDS.items():
             if f" {word} " in padded:
                 return value
-        # Hindi (Devanagari) gender words.
+
         for word, value in _GENDER_HINDI.items():
             if word in text:
                 return value
@@ -150,7 +150,7 @@ def _find_dob_region(regions: list[TextRegion]) -> Optional[TextRegion]:
             or "YEAR OF BIRTH" in upper
             or "YOB" in upper
             or "BIRTH" in upper
-            or "जन्म" in region.text  # Hindi "janm" (birth)
+            or "जन्म" in region.text
         )
         has_date = bool(_DATE_RE.search(region.text))
         if has_birth_label and has_date and labelled_with_date is None:
@@ -177,7 +177,7 @@ def _find_name(
         dob_left = min(p[0] for p in dob_region.bbox)
         above = [r for r in candidates if max(p[1] for p in r.bbox) <= dob_top + 5]
         if above:
-            # Closest line above the DOB, breaking ties by horizontal proximity.
+
             above.sort(
                 key=lambda r: (
                     dob_top - max(p[1] for p in r.bbox),
@@ -185,12 +185,12 @@ def _find_name(
                 )
             )
             return above[0].text.strip()
-    # No DOB anchor: only guess a name on a front page (a back/address page has
-    # no holder name, and address/locality lines must not be fabricated as one).
+
+
     if not is_front:
         return None
-    # Fall back to the topmost name-like line (the "Government of India" band is
-    # already filtered out by the stopword list).
+
+
     candidates.sort(key=lambda r: min(p[1] for p in r.bbox))
     return candidates[0].text.strip()
 
@@ -207,22 +207,22 @@ def _find_address(regions: list[TextRegion]) -> Optional[str]:
             continue
         top = min(p[1] for p in region.bbox)
         bottom = max(p[1] for p in region.bbox)
-        # Keep lines that begin at/below the label and within a reasonable span.
-        # Also allow a line that shares the label's row (inline "Address: ...").
+
+
         on_label_row = bottom > label_top and top < label_bottom
         if not on_label_row and (top < label_bottom - 10 or top - label_bottom > 300):
             continue
         text = region.text.strip()
         if _devanagari_ratio(text) > 0.5:
-            continue  # skip mostly-Devanagari noise lines
-        # Skip a standalone Aadhaar/VID number line printed below the address.
+            continue
+
         if not any(c.isalpha() for c in text) and sum(c.isdigit() for c in text) >= 8:
             continue
         if len(text) >= 2:
             lines.append((top, text))
     lines.sort(key=lambda x: x[0])
     if not lines:
-        # Address may be on the same line as the label ("Address: ...").
+
         inline = find_label_value(regions, ["ADDRESS"])
         return inline
     return ", ".join(text for _, text in lines[:6])
@@ -252,14 +252,14 @@ def extract_aadhaar(regions: list[TextRegion]) -> AadhaarFields:
     fields = AadhaarFields()
     joined = " ".join(r.text for r in regions if r.text.strip())
 
-    # Strip any 16-digit VID first so it can't be misread as the Aadhaar number.
+
     cleaned, fields.vid = _strip_vid(joined)
 
     fields.aadhaar_number = extract_aadhaar_number(cleaned)
     fields.checksum_valid = is_valid_aadhaar(cleaned)
 
-    # Masked Aadhaar handling: when no full number is present but a masked form
-    # ("XXXX XXXX 9012") is, surface the visible tail without claiming validity.
+
+
     if fields.aadhaar_number is None:
         masked = _MASKED_AADHAAR_RE.search(cleaned)
         if masked:
@@ -280,9 +280,9 @@ def extract_aadhaar(regions: list[TextRegion]) -> AadhaarFields:
             if year_match:
                 fields.year_of_birth = year_match.group(1)
 
-    # A page is "front-like" when it carries a DOB/year or a gender word, and is
-    # not an address (back) page. The name heuristic only fabricates a fallback
-    # name on front-like pages.
+
+
+
     has_address_label = find_visual_field(regions, ["ADDRESS", "पता"]) is not None
     is_front = (
         dob_region is not None or fields.gender is not None

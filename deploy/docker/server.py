@@ -28,33 +28,33 @@ from core.jobs import configured_store
 from core.redaction import redact, render_preview
 from core.preprocessor import ImageQualityError
 
-# ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
 
-MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
+
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 SCAN_TIMEOUT_SECONDS = 60.0
 logger = logging.getLogger("document-ocr")
-# uvicorn configures only its own loggers, so without a handler these per-scan
-# INFO lines (status, page type, confidence, timing; never document text) were
-# dropped. Scoped to this logger so core modules keep their default level.
+
+
+
 if not logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
     logger.propagate = False
-# Matches the sibling pdf-worker service so a deployment sets one variable name
-# everywhere. Unset means no auth is enforced, which is what local development wants.
+
+
 API_TOKEN = os.getenv("API_TOKEN") or None
 
 _ocr_semaphore = asyncio.Semaphore(1)
 _models_ready = False
 _model_init_error: str | None = None
 
-# ---------------------------------------------------------------------------
-# App lifecycle
-# ---------------------------------------------------------------------------
+
+
+
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
@@ -66,8 +66,8 @@ async def _lifespan(app: FastAPI):
     try:
         await loop.run_in_executor(None, _warm_up_ocr)
     except (OCRModelInitError, KycOCRConfigError) as exc:
-        # Stay up so /ready and /scan can report a clear error instead of the
-        # process crash-looping. Liveness (/health) remains green.
+
+
         _model_init_error = str(exc)
         logger.error("OCR model initialisation failed: %s", exc)
     else:
@@ -93,7 +93,7 @@ def _warm_up_ocr():
 
     for language in dict.fromkeys(("en", *configured_kyc_languages())):
         _get_ocr(language)
-    _get_ocr("en", band=True)  # MRZ band re-reads; avoid loading on a live scan
+    _get_ocr("en", band=True)
 
 
 @app.get("/health")
@@ -115,7 +115,7 @@ async def ready():
 
 def _scan_finished(future: asyncio.Future) -> None:
     _ocr_semaphore.release()
-    # Consume late exceptions after a disconnected/timed-out caller has gone.
+
     if not future.cancelled():
         future.exception()
 
@@ -157,7 +157,7 @@ def _options(document_type, country, include_evidence):
         document_type, country = validate_document_hint(document_type, country)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    # Omit defaults for compatibility with one-argument pipeline integrations.
+
     return {key: value for key, value in {
         'document_type': document_type, 'country': country,
         'include_evidence': include_evidence,

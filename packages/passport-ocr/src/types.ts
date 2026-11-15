@@ -4,12 +4,12 @@ export interface PassportFields {
   fullName: string | null
   passportNumber: string | null
   nationality: string | null
-  dateOfBirth: string | null // ISO 8601
+  dateOfBirth: string | null
   sex: 'M' | 'F' | 'X' | null
-  expiryDate: string | null // ISO 8601
+  expiryDate: string | null
   issueDate: string | null
   placeOfBirth: string | null
-  countryCode: string | null // ISO 3166-1 alpha-3
+  countryCode: string | null
 }
 
 export interface BackPageFields {
@@ -34,7 +34,7 @@ export interface PanFields {
 }
 
 export interface AadhaarFields {
-  aadhaarNumber: string | null // grouped 'XXXX XXXX XXXX'
+  aadhaarNumber: string | null
   name: string | null
   dateOfBirth: string | null
   yearOfBirth: string | null
@@ -42,9 +42,9 @@ export interface AadhaarFields {
   address: string | null
   pincode: string | null
   checksumValid: boolean
-  aadhaarMasked: boolean // true when only a masked 'XXXX XXXX 9012' form was found
+  aadhaarMasked: boolean
   aadhaarLast4: string | null
-  vid: string | null // 16-digit Virtual ID, grouped, if present
+  vid: string | null
 }
 
 export interface DrivingLicenceFields {
@@ -52,19 +52,19 @@ export interface DrivingLicenceFields {
   name: string | null
   dateOfBirth: string | null
   issueDate: string | null
-  validityDate: string | null // non-transport (NT) / primary validity
+  validityDate: string | null
   address: string | null
   relationName: string | null
   bloodGroup: string | null
-  classOfVehicle: string | null // comma-joined COV tokens (MCWG, LMV, ...)
-  validityDateTransport: string | null // transport (TR) validity, if present
+  classOfVehicle: string | null
+  validityDateTransport: string | null
 }
 
 export interface VoterIdFields {
   epicNumber: string | null
   name: string | null
   relationName: string | null
-  relationType: string | null // 'father' | 'husband' | 'mother' | null
+  relationType: string | null
   gender: string | null
   dateOfBirth: string | null
   age: string | null
@@ -141,21 +141,21 @@ export interface BaseDocumentScanResult {
   issuingCountry?: string | null
   issuingRegion?: string | null
   fieldEvidence?: Record<string, FieldEvidence[]>
-  imageSize?: [number, number] | null // [width, height] in evidence coordinates
+  imageSize?: [number, number] | null
   checks?: Record<string, boolean | string | null>
   status: DocumentStatus
   documentType: DocumentType
   pageType: PageType
-  confidence: number // 0.0 - 1.0
+  confidence: number
   lowConfidence: boolean
   mrzRaw: [string, string] | null
   mrzValid: boolean
   unsupportedReason: UnsupportedReason | null
-  identifierValid: boolean | null // offline checksum/format validation only; not authenticity
+  identifierValid: boolean | null
   missingRequiredFields: string[]
   backPageFields: BackPageFields | null
-  // Per-document field blocks — null unless documentType matches:
-  // a passport result has all blocks null, a PAN result populates `panFields`, etc.
+
+
   panFields: PanFields | null
   aadhaarFields: AadhaarFields | null
   drivingLicenceFields: DrivingLicenceFields | null
@@ -170,7 +170,7 @@ export interface BaseDocumentScanResult {
 
 export interface SuccessfulDocumentScanResult extends BaseDocumentScanResult {
   status: 'success'
-  fields: PassportFields | null // populated for passport biodata; null otherwise
+  fields: PassportFields | null
 }
 
 export interface UnsupportedPageDocumentScanResult extends BaseDocumentScanResult {
@@ -191,19 +191,19 @@ export type DocumentScanResult =
 
 export type PassportScanResult = DocumentScanResult
 
-export type ImageInput = File | Blob | Buffer | ArrayBuffer | string // string = base64 or URL
+export type ImageInput = File | Blob | Buffer | ArrayBuffer | string
 
 export type ClientMode = 'local' | 'http' | 'lambda'
 
 export interface DocumentOCROptions {
-  mode?: ClientMode // default: 'local'
-  endpoint?: string // required for mode: 'http'
-  functionName?: string // required for mode: 'lambda'
-  timeoutMs?: number // default: 30000
-  retries?: number // default: 2
-  apiKey?: string // optional bearer token for HTTP mode
-  // Called on every HTTP attempt so short-lived IAM tokens can be refreshed.
-  // Returned headers override apiKey, which remains the fallback.
+  mode?: ClientMode
+  endpoint?: string
+  functionName?: string
+  timeoutMs?: number
+  retries?: number
+  apiKey?: string
+
+
   authHeaders?: (url: string, signal?: AbortSignal) => HeadersInit | Promise<HeadersInit>
 }
 

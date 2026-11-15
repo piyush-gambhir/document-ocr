@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Local deploy. Builds the Docker image and pushes to Docker Hub.
-# Run as `bash scripts/deploy.sh [production|development]`.
-#
-# Reads credentials from .env.deploy.<env> (gitignored).
-# See .env.deploy.example for the full list.
-#
-# For Cloud Run, Lambda, Cloudflare or a server, use the kits in HOSTING.md.
+
+
+
+
+
+
+
 
 set -euo pipefail
 
@@ -37,7 +37,7 @@ docker buildx version >/dev/null
 IMAGE_NAME="${IMAGE_NAME:-${DOCKERHUB_USERNAME}/document-ocr}"
 DOCKERFILE_PATH="${DOCKERFILE_PATH:-deploy/docker/Dockerfile}"
 
-# Tag derivation: env-suffix + git short sha + UTC date
+
 GIT_SHA="$(git rev-parse --short HEAD)"
 UTC_DATE="$(date -u +%Y%m%d)"
 SHA_TAG="${IMAGE_NAME}:${ENV}-${UTC_DATE}-${GIT_SHA}"

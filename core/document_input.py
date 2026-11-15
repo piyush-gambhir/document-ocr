@@ -71,8 +71,8 @@ def pdf_pages(data: bytes, *, first_only: bool = False) -> list[InputPage]:
                     image = cv2.cvtColor(np.array(bitmap.to_pil().convert('RGB')), cv2.COLOR_RGB2BGR)
                     textpage = page.get_textpage()
                     regions = _native_regions(textpage, bitmap.get_posconv(page), image.shape[1], image.shape[0])
-                    # Character boxes are in unrotated PDF space. On a rotated
-                    # page fall back to rendered OCR until its transform is known.
+
+
                     if page.get_rotation():
                         regions = []
                     output.append(InputPage(image, regions, index + 1, total))
@@ -117,8 +117,8 @@ def _native_regions(textpage, converter, width: int, height: int) -> list[TextRe
             chars.append(' ')
             continue
         left, bottom, right, top = textpage.get_charbox(index)
-        # PDFium's own transform handles CropBox/MediaBox offsets and bitmap
-        # rounding. Scaling page coordinates ourselves misaligns redaction.
+
+
         corners = [converter.to_bitmap(x, y) for x, y in
                    ((left, bottom), (right, bottom), (right, top), (left, top))]
         box = [max(0, min(p[0] for p in corners)), max(0, min(p[1] for p in corners)),

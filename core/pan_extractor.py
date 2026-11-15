@@ -27,14 +27,14 @@ from .ocr_engine import TextRegion
 from .validator import find_label_value, find_visual_field
 from .validators import is_valid_pan, normalize_pan
 
-# A printed PAN-card date: DD/MM/YYYY or DD-MM-YYYY (also tolerates "." and a
-# 2-digit year). The PAN itself never contains these separators, so a date can
-# never be mistaken for a PAN and vice-versa.
+
+
+
 _DATE_RE = re.compile(r"\b(\d{1,2}[/.\-]\d{1,2}[/.\-]\d{2,4})\b")
 
-# Label vocabularies. ``find_visual_field`` normalises OCR noise (case,
-# punctuation, "&" -> "AND") and favours exact phrase matches, so we list the
-# most specific spellings first.
+
+
+
 _NAME_LABELS = [
     "NAME",
     "NAME OF THE CARDHOLDER",
@@ -66,9 +66,9 @@ class PanFields:
     date_of_birth: Optional[str] = None
 
 
-# ---------------------------------------------------------------------------
-# PAN number
-# ---------------------------------------------------------------------------
+
+
+
 
 def _find_pan_number(regions: list[TextRegion]) -> Optional[str]:
     """Locate the PAN by shape, preferring a holder-type-valid token.
@@ -104,9 +104,9 @@ def _find_pan_number(regions: list[TextRegion]) -> Optional[str]:
     return shaped_fallback
 
 
-# ---------------------------------------------------------------------------
-# Date of birth
-# ---------------------------------------------------------------------------
+
+
+
 
 def _find_date(regions: list[TextRegion]) -> Optional[str]:
     """Prefer a date adjacent to a DOB label; fall back to the first date.
@@ -128,16 +128,16 @@ def _find_date(regions: list[TextRegion]) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Name / father's name
-# ---------------------------------------------------------------------------
+
+
+
 
 def _clean_value(text: Optional[str]) -> Optional[str]:
     """Strip leftover label punctuation/whitespace from a resolved value."""
     if text is None:
         return None
-    # Drop a leading "value-side" colon that occasionally rides along when the
-    # label and value were merged or mis-split by OCR (e.g. ": ROHIT SHARMA").
+
+
     cleaned = text.strip().lstrip(":").strip()
     return cleaned or None
 
@@ -157,12 +157,12 @@ def _resolve_names(regions: list[TextRegion]) -> tuple[Optional[str], Optional[s
 
     name_value = _clean_value(find_label_value(regions, _NAME_LABELS))
 
-    # Guard against the substring collapse: if the "Name" lookup latched onto
-    # the father's-name label/value, discard it rather than duplicate.
+
+
     if name_value is not None and name_value == father_value:
-        # Make sure we did not simply read the same label region. Re-resolve the
-        # plain-name label and confirm it is a distinct region from the father
-        # label before trusting the duplicate; otherwise drop the name.
+
+
+
         name_label = find_visual_field(regions, _NAME_LABELS)
         father_label = find_visual_field(regions, _FATHER_LABELS)
         if name_label is None or name_label is father_label:
@@ -171,9 +171,9 @@ def _resolve_names(regions: list[TextRegion]) -> tuple[Optional[str], Optional[s
     return name_value, father_value
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+
+
+
 
 def extract_pan(regions: list[TextRegion]) -> PanFields:
     fields = PanFields()

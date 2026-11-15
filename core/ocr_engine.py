@@ -15,14 +15,14 @@ import numpy as np
 
 logger = logging.getLogger("document-ocr.ocr_engine")
 
-# ---------------------------------------------------------------------------
-# Types
-# ---------------------------------------------------------------------------
+
+
+
 
 @dataclass
 class TextRegion:
     text: str
-    bbox: list[list[int]]  # [[x1,y1], [x2,y2], [x3,y3], [x4,y4]]
+    bbox: list[list[int]]
     confidence: float
 
 
@@ -35,19 +35,19 @@ class OCRModelInitError(RuntimeError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Singleton OCR instance
-# ---------------------------------------------------------------------------
+
+
+
 
 _lock = threading.Lock()
 _ocr_instances: dict[str, object] = {}
 
 
-# RapidOCR's default detector resize enlarges an input until its short side is
-# 736 px, which turns a thin MRZ band into a detector tensor larger than the
-# whole page. Bands still need some enlargement: on the public benchmark a
-# photographed MRZ band failed without it and at 400 px, and read correctly at
-# 480 px and above. 576 keeps a margin and is ~40% less detector work than 736.
+
+
+
+
+
 _BAND_DETECTOR_PARAMS = {"Det.limit_type": "min", "Det.limit_side_len": 576}
 
 
@@ -72,7 +72,7 @@ def _get_ocr(lang: str = "en", *, band: bool = False):
         logger.exception("Failed to import rapidocr")
         raise OCRModelInitError(f"MODEL_INIT_FAILED: rapidocr import failed: {exc}") from exc
 
-    # Map string language codes to RapidOCR Enum values
+
     _lang_map = {
         "en": LangRec.EN,
         "latin": LangRec.LATIN,
@@ -89,7 +89,7 @@ def _get_ocr(lang: str = "en", *, band: bool = False):
     }
 
     with _lock:
-        # Re-check under the lock — another thread may have built it.
+
         if key in _ocr_instances:
             return _ocr_instances[key]
 
@@ -105,7 +105,7 @@ def _get_ocr(lang: str = "en", *, band: bool = False):
                 **(_BAND_DETECTOR_PARAMS if band else {}),
             })
         except Exception as exc:
-            # Do NOT cache — leave the slot empty so a later call can retry.
+
             logger.exception("RapidOCR model initialisation failed (lang=%s)", key)
             raise OCRModelInitError(
                 f"MODEL_INIT_FAILED: could not initialise OCR models for lang={key}: {exc}"
@@ -116,9 +116,9 @@ def _get_ocr(lang: str = "en", *, band: bool = False):
     return _ocr_instances[key]
 
 
-# ---------------------------------------------------------------------------
-# Result parsing
-# ---------------------------------------------------------------------------
+
+
+
 
 def _parse_rapidocr_results(result) -> list[TextRegion]:
     """Parse RapidOCR output into TextRegion list."""
@@ -136,9 +136,9 @@ def _parse_rapidocr_results(result) -> list[TextRegion]:
     return regions
 
 
-# ---------------------------------------------------------------------------
-# Script detection
-# ---------------------------------------------------------------------------
+
+
+
 
 def _is_likely_non_latin(regions: list[TextRegion]) -> bool:
     """Heuristic: if > 40% of characters in detected text are non-ASCII, re-run
@@ -150,9 +150,9 @@ def _is_likely_non_latin(regions: list[TextRegion]) -> bool:
     return (non_ascii / len(all_text)) > 0.4
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+
+
+
 
 def run_line_ocr(image: np.ndarray) -> list[TextRegion]:
     """Recognize one already-localized Latin text line without running detection.
@@ -200,7 +200,7 @@ def run_ocr(
     result = ocr(image)
     regions = _parse_rapidocr_results(result)
 
-    # Auto-detect non-Latin and retry with multilingual
+
     if lang is None and _is_likely_non_latin(regions):
         return run_ocr(image, lang="latin")
 

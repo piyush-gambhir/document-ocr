@@ -19,13 +19,13 @@ def _r(text, x1, y1, x2, y2, conf=0.95):
     return TextRegion(text=text, bbox=_bbox(x1, y1, x2, y2), confidence=conf)
 
 
-# A known-valid Aadhaar number used across fixtures.
+
 VALID_AADHAAR = "9998 8877 7669"
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
+
+
+
 
 def _aadhaar_front():
     return [
@@ -84,9 +84,9 @@ def _aadhaar_back_hindi_noise():
     """Back page with a Devanagari label and Devanagari noise lines mixed in."""
     return [
         _r("पता / Address:", 60, 60, 260, 88),
-        _r("पता का हिंदी पाठ", 60, 96, 360, 124),  # Devanagari-only noise
+        _r("पता का हिंदी पाठ", 60, 96, 360, 124),
         _r("C/O SUNITA DEVI, 12 NEHRU MARG", 60, 130, 560, 158),
-        _r("सेक्टर 5", 60, 166, 220, 194),  # Devanagari-only noise
+        _r("सेक्टर 5", 60, 166, 220, 194),
         _r("JAIPUR, RAJASTHAN 302001", 60, 200, 460, 228),
         _r("9998 8877 7669", 60, 290, 320, 322),
     ]
@@ -127,9 +127,9 @@ def _aadhaar_masked():
     ]
 
 
-# ---------------------------------------------------------------------------
-# Sanity
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestFixtureSanity:
     def test_fixture_number_is_verhoeff_valid(self):
@@ -143,9 +143,9 @@ class TestFixtureSanity:
         assert f.name is None
 
 
-# ---------------------------------------------------------------------------
-# Front page
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestAadhaarFront:
     def test_number_name_dob_gender(self):
@@ -190,8 +190,8 @@ class TestAadhaarFront:
         """Two name-like lines exist; the one just above DOB wins."""
         regions = [
             _r("Government of India", 120, 20, 480, 50),
-            _r("UNITED COLOURS", 120, 70, 360, 100),  # decoy line, higher up
-            _r("ROHIT BANSAL", 120, 120, 360, 150),    # real name, above DOB
+            _r("UNITED COLOURS", 120, 70, 360, 100),
+            _r("ROHIT BANSAL", 120, 120, 360, 150),
             _r("DOB : 05/05/1995", 120, 160, 360, 188),
             _r("Male", 120, 196, 240, 224),
             _r("9998 8877 7669", 120, 260, 380, 292),
@@ -200,9 +200,9 @@ class TestAadhaarFront:
         assert f.name == "ROHIT BANSAL"
 
 
-# ---------------------------------------------------------------------------
-# VID handling
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestVidIsolation:
     def test_vid_after_number_not_picked(self):
@@ -217,7 +217,7 @@ class TestVidIsolation:
         f = extract_aadhaar(_aadhaar_front_vid_before_number())
         assert f.aadhaar_number == "9998 8877 7669"
         assert f.checksum_valid is True
-        # The VID's leading 12 digits must never be the Aadhaar number.
+
         assert f.aadhaar_number != "9148 6541 8231"
         assert f.vid == "9148 6541 8231 2156"
 
@@ -232,9 +232,9 @@ class TestVidIsolation:
         assert f.vid == "9148 6541 8231 2156"
 
 
-# ---------------------------------------------------------------------------
-# Masked Aadhaar
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestMaskedAadhaar:
     def test_masked_number_does_not_crash_and_flags_partial(self):
@@ -243,15 +243,15 @@ class TestMaskedAadhaar:
         assert f.checksum_valid is False
         assert f.aadhaar_masked is True
         assert f.aadhaar_last4 == "9012"
-        # Other fields still extracted from a masked card.
+
         assert f.name == "DEEPA NAIR"
         assert f.date_of_birth == "30/12/1980"
         assert f.gender == "FEMALE"
 
 
-# ---------------------------------------------------------------------------
-# Back page
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestAadhaarBack:
     def test_address_and_pincode(self):
@@ -264,13 +264,13 @@ class TestAadhaarBack:
     def test_back_with_hindi_label_and_noise_lines(self):
         f = extract_aadhaar(_aadhaar_back_hindi_noise())
         assert f.address is not None
-        # Real Latin address lines are present.
+
         assert "NEHRU MARG" in f.address
         assert "JAIPUR" in f.address
-        # Devanagari-only noise lines are excluded.
+
         assert "हिंदी" not in f.address
         assert "सेक्टर" not in f.address
-        # Pincode parsed from the address block.
+
         assert f.pincode == "302001"
 
     def test_back_page_does_not_fabricate_a_name(self):
@@ -288,9 +288,9 @@ class TestAadhaarBack:
         assert "GANDHI ROAD" in f.address
 
 
-# ---------------------------------------------------------------------------
-# Resilience
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestResilience:
     def test_number_with_extra_ocr_spacing(self):

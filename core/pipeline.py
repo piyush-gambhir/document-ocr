@@ -217,14 +217,14 @@ def _structured(regions, prep, start, *, document_type=None, country=None, barco
 
 
 def _prepare_pdf_ocr(prep):
-    # PDF text and previews use the rendered coordinate plane. Enhance colors
-    # only; perspective correction or resizing here would invalidate boxes.
+
+
     return PreprocessResult(enhance_contrast(prep.image), prep.warnings, prep.image)
 
 
 def _scan_page(prep, start, document_type, country, include_evidence, *, native=None):
-    # Every page entry point (scan, scan_document's PDF pages) bounds optional
-    # recovery re-reads from the page's start.
+
+
     with recovery_deadline(start):
         return _scan_page_bounded(prep, start, document_type, country, include_evidence, native=native)
 
@@ -233,8 +233,8 @@ def _scan_page_bounded(prep, start, document_type, country, include_evidence, *,
     barcodes = decode_barcodes(prep.image)
     full = None
     source = "ocr"
-    # Native text avoids re-OCR of digital forms and preserves exact characters.
-    # A document that cannot be identified from it falls back to visible OCR.
+
+
     if native and sum(len(r.text) for r in native) >= 30:
         full = native
         source = "pdf_text"
@@ -302,9 +302,9 @@ def _scan_page_bounded(prep, start, document_type, country, include_evidence, *,
 
 
 def _scan_prepared(prep, start):
-    # All document shapes need a complete read. Reuse it for routing and
-    # extraction; an already identified card should not also pay for a footer
-    # OCR pass. Passport recovery remains bounded and checksum validated.
+
+
+
     from .kyc_ocr import configured_kyc_languages
     configured = configured_kyc_languages()
     english_only = configured == ('en',)
@@ -323,26 +323,26 @@ def _scan_prepared(prep, start):
         return _scan_non_passport(prep, start, full_regions=full, doc_cls=classification, try_structured=False)
     mrz = parse_mrz(full)
     if mrz and mrz.overall_checksum_valid:
-        # Returns at once unless the valid MRZ still carries name-padding noise.
+
         full = recover_passport_mrz(prep.image, full, run_ocr, run_line_ocr, band_ocr=run_band_ocr)
         mrz = parse_mrz(full)
     if mrz and mrz.overall_checksum_valid:
         probe = full
     else:
-        # The bottom-page probe costs one pass on part of the page and settles
-        # back pages and cleanly cropped MRZs, so try it before recovery, whose
-        # re-reads only help a biodata page that both reads left unresolved.
+
+
+
         probe = _extract_targeted_regions(prep.image)
         probe_mrz = parse_mrz(probe)
         probe_valid = bool(probe_mrz and probe_mrz.overall_checksum_valid)
-        # Back-page hints in the probe can be background text below a passport
-        # photographed high in the frame, so they veto recovery only when the
-        # full page shows no MRZ evidence at all.
+
+
+
         back_page = (classify_passport_page(probe).page_type == "passport_non_biodata"
                      and not (mrz or has_mrz_anchor(full)))
         if not back_page and not (probe_valid and "MRZ_NAME_PADDING_NOISE" not in probe_mrz.errors):
-            # A valid but noisy probe needs only the name cleanup, which keeps
-            # the default band enlargement; unresolved pages use the cheaper one.
+
+
             full = recover_passport_mrz(prep.image, full, run_ocr, run_line_ocr,
                                         band_ocr=None if probe_valid else run_band_ocr)
             mrz = parse_mrz(full)
@@ -351,8 +351,8 @@ def _scan_prepared(prep, start):
     page = classify_passport_page(probe)
     if page.page_type in {"passport_biodata", "passport_non_biodata"}:
         return _scan_passport(prep, page, probe, start, full_page_regions=full)
-    # Sparse output alone does not justify repeating the same English model
-    # on identical pixels. Only an additional language changes the evidence.
+
+
     if configured and not english_only:
         full = recover_passport_mrz(prep.image,
             recover_travel_mrz(prep.image, run_kyc_ocr(prep.image), run_line_ocr), run_ocr, run_line_ocr,
@@ -372,8 +372,8 @@ def _scan_prepared(prep, start):
 
 
 def _scan_passport(prep, classification, regions, start, *, full_page_regions=None):
-    # The crop establishes routing; the full page supplies visual fields and
-    # cross-checks even when the cropped MRZ already has valid check digits.
+
+
     if full_page_regions is None:
         full_page_regions = recover_passport_mrz(prep.image, run_ocr(prep.image), run_ocr, run_line_ocr,
                                                  band_ocr=run_band_ocr)
@@ -465,7 +465,7 @@ def _scan_passport(prep, classification, regions, start, *, full_page_regions=No
     )
 
 
-# Maps a classified document type to (result attribute, extractor function).
+
 _NON_PASSPORT_EXTRACTORS = {
     "pan": ("pan_fields", extract_pan),
     "aadhaar": ("aadhaar_fields", extract_aadhaar),
@@ -542,7 +542,7 @@ def _scan_non_passport(
     extractor_entry = _NON_PASSPORT_EXTRACTORS.get(doc_cls.document_type)
 
     if extractor_entry is None:
-        # Passport missed by the cheap probe, or an unsupported/unknown document.
+
         return DocumentScanResult(
             status="unsupported_page",
             document_type=doc_cls.document_type,
@@ -644,7 +644,7 @@ def _offset_regions(regions: list[TextRegion], *, x_offset: int = 0, y_offset: i
 
 
 def _candidate_score(mrz: Optional[MRZResult], regions: list[TextRegion]) -> tuple:
-    # A checksum-valid reading must always outrank one that fails its checksum.
+
     return (
         bool(mrz and mrz.overall_checksum_valid),
         bool(mrz and "MRZ_NAME_PADDING_NOISE" not in mrz.errors),
