@@ -99,8 +99,8 @@ class ManifestError(ValueError):
 def _ratio(numerator: int, denominator: int) -> float | None:
     if denominator == 0:
         return None
-    # Gate on the measured ratio; display rounding can otherwise turn a value
-    # just below a release threshold into a passing result.
+
+
     return numerator / denominator
 
 
@@ -728,8 +728,8 @@ def _compare(
     actual_document_type = str(result.get("documentType", "unknown"))
     actual_accepted = result.get("status") == "success"
 
-    # A classification error is an end-to-end extraction error, even if a
-    # malformed result happens to populate the expected document block.
+
+
     classification_correct = (
         not runtime_error and actual_document_type == expected_document_type
     )
@@ -810,8 +810,8 @@ def evaluate_manifest(
     threshold_config = dict(
         manifest["thresholds"] if thresholds is None else thresholds
     )
-    # Reuse full manifest validation for override validation without changing
-    # dataset content.
+
+
     override_manifest = dict(manifest)
     override_manifest["thresholds"] = threshold_config
     validate_manifest(override_manifest, field_blocks=field_blocks)
@@ -844,7 +844,7 @@ def evaluate_manifest(
                 runtime_error=False,
                 field_blocks=field_blocks,
             )
-        except Exception:  # benchmark must record, not hide, scanner failures
+        except Exception:
             observation = _compare(
                 sample,
                 {"status": "failure", "documentType": "unknown"},
@@ -986,8 +986,8 @@ def evaluate_manifest(
                         )
                     )
 
-    # Runtime exceptions are never allowed to pass merely because an override
-    # omitted maxRuntimeErrorRate at a narrower scope.
+
+
     if summary_metrics["runtimeErrors"]:
         checks.append(
             {

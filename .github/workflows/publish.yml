@@ -1,11 +1,11 @@
 name: Publish
 
-# Fires on a version tag. The container jobs need no secrets — GITHUB_TOKEN is
-# enough for GHCR — so tagging always publishes images. npm publishing needs a
-# token, so it is opt-in and skips cleanly rather than failing the release:
-#
-#   gh secret   set NPM_TOKEN    # token with publish rights
-#   gh variable set PUBLISH_NPM --body 'true'
+
+
+
+
+
+
 on:
   push:
     tags:
@@ -79,9 +79,9 @@ jobs:
         with:
           context: .
           file: deploy/docker/Dockerfile
-          # amd64 only: the OCR stack (onnxruntime, OpenCV) has patchy arm64
-          # wheels and emulated builds are slow enough to time out. Revisit with
-          # native arm64 runners.
+
+
+
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}

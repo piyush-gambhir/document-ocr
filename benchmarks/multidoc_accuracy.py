@@ -92,7 +92,7 @@ def expected(case: dict, root: Path) -> tuple[dict, list[str] | None]:
         return form_truth(json.loads((root / case['truth']).read_text())), None
     if kind == 'passport_card':
         truth = json.loads((root / case['truth']).read_text())
-        # Field mapping is reviewed against the publisher's source specimen.
+
         mapping = case['fieldMapping']
         fields = {target: truth[source]['value'] for target, source in mapping.items()}
         for key in ('dateOfBirth', 'expiryDate'):
@@ -220,9 +220,9 @@ def gate(report: dict, policy: dict, baseline: dict | None = None) -> dict:
                         raise ValueError('incompatible metric denominators')
                     if was is True and now is False:
                         regressions.append({'id': case['id'], 'metric': metric})
-        # Compare successful extraction and unchanged rejection workloads.
-        # Newly readable documents cannot be compared with pre-OCR rejection.
-        # Rejecting unsupported input is also work with a latency budget.
+
+
+
         def comparable(a, b):
             if a['runtimeError'] or b['runtimeError']:
                 return False
@@ -299,7 +299,7 @@ def run(manifests: list[Path], root: Path, repeats: int, seed: int, raw_path: Pa
         cold = measure(cases[0], -1)
         if cold['runtimeError'] == 'OCRModelInitError':
             raise RuntimeError('OCR model initialization failed; refusing to retry setup for every case')
-        # Warm every family before timing. Cold model startup is reported separately.
+
         seen = set()
         for case in cases:
             if profile(case) not in seen:

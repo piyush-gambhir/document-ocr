@@ -123,8 +123,8 @@ def assess_kyc_extraction(
             "name": _value(extracted, "name"),
             "address": _value(extracted, "address"),
         }
-        # RBI defines the NPR name/address letter as an OVD but there is no
-        # public universal checksum for a printed reference number.
+
+
         identifier_valid = None
         warnings = ["IDENTIFIER_NOT_OFFLINE_VERIFIABLE"]
     else:
@@ -148,7 +148,7 @@ def _assess_aadhaar(
     last4 = _value(extracted, "aadhaar_last4")
     identifier_present = number or (masked and last4)
 
-    # A back/address side usually omits the holder name and birth details.
+
     address = _value(extracted, "address")
     pincode = _value(extracted, "pincode")
     has_front_demographics = bool(
@@ -248,10 +248,10 @@ def _build_assessment(
 
 
 def _ocr_geometry_confidences(regions: list[TextRegion]) -> list[float]:
-    # Multiple configured recognizers can emit different script readings for
-    # the same physical box.  Count that geometry once so adding a model does
-    # not multiply-weight a region or turn an otherwise identical extraction
-    # into a low-confidence failure.
+
+
+
+
     confidence_by_geometry: dict[tuple[tuple[int, int], ...], float] = {}
     for region in regions:
         geometry = tuple(tuple(point) for point in region.bbox)

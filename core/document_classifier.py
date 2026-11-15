@@ -23,10 +23,10 @@ from .validators import (
     normalize_pan,
 )
 
-# ---------------------------------------------------------------------------
-# Keyword hints (normalised: upper-case, alphanumerics only). Deliberately
-# avoid generic phrases like "GOVERNMENT OF INDIA" that appear on several docs.
-# ---------------------------------------------------------------------------
+
+
+
+
 
 _PAN_KEYWORDS = ["INCOME TAX DEPARTMENT", "PERMANENT ACCOUNT NUMBER", "INCOME TAX"]
 _AADHAAR_KEYWORDS = [
@@ -76,9 +76,9 @@ def _count_keyword_matches(normalised_regions: list[str], keywords: list[str]) -
             if padded in f" {region_text} ":
                 matched.add(norm_kw)
                 break
-    # Treat nested phrases as one piece of evidence.  For example,
-    # ``ELECTION COMMISSION`` must not also count as an independent match for
-    # ``ELECTION`` merely because both strings occur in the same phrase.
+
+
+
     independent = {
         keyword
         for keyword in matched
@@ -102,7 +102,7 @@ def classify_document(regions: list[TextRegion]) -> DocumentClassification:
     joined_raw = " ".join(r.text for r in regions if r.text.strip())
     joined_normalised = _normalise_text(joined_raw)
 
-    # --- per-type evidence ---
+
     pan_kw = _count_keyword_matches(normalised_regions, _PAN_KEYWORDS)
     aadhaar_kw = _count_keyword_matches(normalised_regions, _AADHAAR_KEYWORDS)
     dl_kw = _count_keyword_matches(normalised_regions, _DL_KEYWORDS)
@@ -166,7 +166,7 @@ def classify_document(regions: list[TextRegion]) -> DocumentClassification:
         scores[doc] = scores.get(doc, 0.0) + score
         reasons.setdefault(doc, []).extend(why)
 
-    # Keyword weight: 2 per distinct phrase. Format/identifier weight: 3.
+
     if pan_kw:
         add("pan", 2 * pan_kw, f"PAN_KEYWORDS_{pan_kw}")
     if has_pan:
@@ -189,9 +189,9 @@ def classify_document(regions: list[TextRegion]) -> DocumentClassification:
     if has_epic:
         add("voter_id", 3, "EPIC_FORMAT")
 
-    # NREGA cards do not have one public, nationally check-summed identifier
-    # shape. Require an explicit scheme title/acronym, or "Job Card" together
-    # with rural-employment context. A generic employee "job card" is not enough.
+
+
+
     if nrega_explicit_kw or has_nrega_hindi_title:
         add(
             "nrega_job_card",
@@ -205,9 +205,9 @@ def classify_document(regions: list[TextRegion]) -> DocumentClassification:
     ):
         add("nrega_job_card", 8, "NREGA_JOB_CARD_CONTEXT")
 
-    # "NPR" is also used by unrelated organisations. Accept the acronym only
-    # alongside the issuing authority; the full English/Hindi title is strong
-    # enough by itself.
+
+
+
     if npr_title_kw or has_npr_hindi_title:
         add("npr_letter", 9, "NPR_EXPLICIT_TITLE")
     elif has_npr_acronym and npr_issuer_kw:

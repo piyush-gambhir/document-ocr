@@ -8,8 +8,8 @@ from core.mrz_parser import _parse_mrz_date, icao_check_digit, parse_mrz, verify
 from core.ocr_engine import TextRegion
 
 
-# ICAO Doc 9303-4 specimen. Keep all 44 positions explicit: padding or slicing
-# a malformed fixture could hide a parser offset or checksum regression.
+
+
 LINE1 = "P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<"
 LINE2 = "L898902C36UTO7408122F1204159ZE184226B<<<<<10"
 
@@ -119,8 +119,8 @@ class TestParseMRZ:
 
     def test_digit_correction_recovers_dates_without_changing_alphanumeric_fields(self):
         line2 = list(LINE2)
-        line2[15] = "O"  # 0 in 740812
-        line2[17] = "I"  # 1 in 740812
+        line2[15] = "O"
+        line2[17] = "I"
         result = _parse("".join(line2))
         assert result.date_of_birth.value == "1974-08-12"
         assert result.date_of_birth.checksum_valid
@@ -174,7 +174,7 @@ def test_padding_noise_is_not_an_extra_given_name_and_raw_is_preserved():
     assert result.given_names.value == 'ANNA MARIA'
     assert result.raw_lines[0] == noisy
     assert 'MRZ_NAME_PADDING_NOISE' in result.errors
-    assert result.overall_checksum_valid  # Line-one names have no check digit.
+    assert result.overall_checksum_valid
 
 
 def test_single_fillers_preserve_all_given_name_components():

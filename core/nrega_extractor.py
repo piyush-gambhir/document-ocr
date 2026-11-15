@@ -55,9 +55,9 @@ class NregaFields:
     members: list[NregaMember] = field(default_factory=list)
 
 
-# Label vocabularies include common English/Hindi card wording and regional
-# variants observed in state forms. Values are always returned as printed;
-# only categorical values (gender/category/BPL) are canonicalised.
+
+
+
 _JOB_CARD_LABELS = (
     "JOB CARD NUMBER",
     "JOB CARD NO",
@@ -304,9 +304,9 @@ _DATE_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Job-card numbers are state-prefixed and contain multiple numeric hierarchy
-# components. Requiring at least three numeric components avoids confusing a
-# PAN, Aadhaar, phone number or the common one-component DL format for a JC.
+
+
+
 _JOB_CARD_CANDIDATE_RE = re.compile(
     r"(?<![A-Z0-9])("
     r"[A-Z]{2}\s*[-–—]\s*[0-9OILSBZGQD]{1,10}"
@@ -346,9 +346,9 @@ def _normalise(text: str, *, label: bool = False) -> str:
     normalised = unicodedata.normalize("NFKC", text).casefold()
     normalised = normalised.replace("&", " and ")
     normalised = re.sub(r"['’`]", "", normalised)
-    # ``re``'s ``\w`` omits combining vowel signs used by Indic scripts.
-    # Preserve letters, numbers and combining marks explicitly so values such
-    # as "महिला" and "नहीं" survive normalisation intact.
+
+
+
     normalised = "".join(
         character
         if (
@@ -360,8 +360,8 @@ def _normalise(text: str, *, label: bool = False) -> str:
     )
     normalised = " ".join(normalised.split())
     if label:
-        # These substitutions are only for comparing known label text. They
-        # are never applied to extracted values or identifiers.
+
+
         normalised = normalised.translate(str.maketrans({"0": "o", "1": "i"}))
     return normalised
 
@@ -372,8 +372,8 @@ def _label_score(text: str, aliases: tuple[str, ...]) -> float:
     if not candidate:
         return 0.0
 
-    # The text before a delimiter is usually the pure label; compare both it
-    # and the whole region so inline values remain discoverable.
+
+
     prefix = re.split(r"\s*[:=]\s*|\s+[–—-]\s+", text, maxsplit=1)[0]
     candidate_prefix = _normalise(prefix, label=True)
     best = 0.0
@@ -388,9 +388,9 @@ def _label_score(text: str, aliases: tuple[str, ...]) -> float:
         if f" {expected} " in f" {candidate} ":
             best = max(best, 0.99 + min(len(expected), 100) / 1000)
             continue
-        # Fuzzy matching is limited to similarly-sized label prefixes. This
-        # accepts OCR errors such as "Grarn Panchayat" but does not turn an
-        # arbitrary value into a label.
+
+
+
         if len(expected) >= 5 and candidate_prefix:
             size_ratio = len(candidate_prefix) / len(expected)
             if 0.65 <= size_ratio <= 1.45:
@@ -522,8 +522,8 @@ def _find_job_card_number(regions: list[TextRegion]) -> Optional[str]:
         if value:
             return value
 
-    # OCR can split a long number into adjacent regions, so inspect both
-    # individual regions and a reading-order join.
+
+
     for region in regions:
         value = _normalise_job_card_number(region.text)
         if value:
@@ -612,7 +612,7 @@ def _header_kind(text: str) -> Optional[str]:
     ]
     if not matches:
         return None
-    # Relation headings often contain "Name"; specific/strong matches win.
+
     matches.sort(key=lambda entry: (entry[1], entry[2]), reverse=True)
     return matches[0][0]
 
@@ -709,7 +709,7 @@ def _members_from_table(regions: list[TextRegion]) -> list[NregaMember]:
     min_x = min(_bounds(region)[0] for region in headers.values()) - 80
     max_x = max(_bounds(region)[2] for region in headers.values()) + 220
 
-    # Later household sections mark the end of the member table.
+
     stop_y = header_bottom + 520
     for region in regions:
         _, top, _, _ = _bounds(region)

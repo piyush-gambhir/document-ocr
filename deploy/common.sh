@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared validation only. Sourcing this file performs no cloud operations.
+
 set -euo pipefail
 require_command() {
   command -v "$1" >/dev/null 2>&1 || { printf 'Required command is missing: %s\n' "$1" >&2; exit 1; }

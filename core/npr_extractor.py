@@ -74,9 +74,9 @@ _ISSUE_DATE_HINDI_LABELS = ("जारी करने की तिथि", "�
 _PINCODE_LABELS = ("PIN CODE", "PINCODE", "POSTAL CODE")
 _PINCODE_HINDI_LABELS = ("पिन कोड",)
 
-# Single-word labels are common prose and also occur in the official document
-# title ("NPR name and address letter").  They are safe only as a standalone
-# label or as the prefix of an explicitly delimited ``Label: value`` field.
+
+
+
 _GENERIC_ENGLISH_LABELS = frozenset({"NAME", "ADDRESS"})
 _GENERIC_HINDI_LABELS = frozenset({"नाम", "पता"})
 
@@ -164,8 +164,8 @@ def _label_match_score(
 
     for label in english_labels:
         if normalised_prefix == label and normalised != label:
-            # An inline "Label: value" is stronger evidence than the same word
-            # appearing in a title such as "NPR name and address letter".
+
+
             best = max(best, 30_000 + len(label))
         elif normalised == label:
             best = max(best, 20_000 + len(label))
@@ -280,9 +280,9 @@ def _extract_name(regions: list[TextRegion]) -> Optional[str]:
     value = _labelled_value(regions, _NAME_LABELS, _NAME_HINDI_LABELS)
     if value is None or len(value) > 160:
         return None
-    # A resident's name should contain at least one letter.  We deliberately do
-    # not impose an English-only character set because NPR letters may be
-    # bilingual or use an Indian script.
+
+
+
     if not any(ch.isalpha() for ch in value):
         return None
     return value
@@ -326,8 +326,8 @@ def _extract_address(regions: list[TextRegion]) -> Optional[str]:
             parts.append(cleaned)
         used_regions.add(id(right))
 
-    # Find the first later field/footer.  Address continuation lines must end
-    # before it, even if they happen to be geometrically close.
+
+
     stop_y: Optional[int] = None
     for region in regions:
         if region is label or _top(region) < label_bottom - 4:

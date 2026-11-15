@@ -104,8 +104,8 @@ export class DocumentOCR {
         parameters[key] = options[key]
       }
     }
-    // Submission creates persistent work. Do not retry it automatically without
-    // server-side idempotency: a lost response could otherwise enqueue twice.
+
+
     return withRetry(async (signal) => {
       const form = new FormData()
       for (const [index, image] of images.entries()) form.append('images', await normalizeToBlob(image, signal), `document-${index}`)

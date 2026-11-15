@@ -91,7 +91,7 @@ resource "google_cloud_run_v2_service" "ocr" {
   }
   depends_on = [google_project_service.apis, google_secret_manager_secret_iam_member.token]
 }
-# Authoritative only for run.invoker: explicitly excludes public invocation.
+
 resource "google_cloud_run_v2_service_iam_binding" "invokers" {
   project  = var.project_id
   location = var.region

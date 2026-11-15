@@ -23,7 +23,7 @@ test('Clear prevents an in-flight extraction from restoring private document dat
     document: { getElementById: id => elements.get(id), createElement: element },
     FormData, URL, Blob, AbortController, setTimeout,
     Image: function () {}, Option: function () {},
-    // Deliberately complete even after abort: state must also reject late results.
+
     fetch: url => url === '/scan' ? pendingResponse : Promise.resolve({ ok: false }),
   };
   const html = readFileSync(path.join(__dirname, '../../core/review.html'), 'utf8');

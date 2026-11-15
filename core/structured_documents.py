@@ -58,7 +58,7 @@ def _us_date(value: str) -> str | None:
     value = value.strip().replace(".", "/")
     if re.fullmatch(r"[0-9\s/-]+", value):
         value = re.sub(r"\s+", "", value)
-    # OCR often joins a printed month to its neighbouring day or year.
+
     value = re.sub(r"(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", " ", value)
     for fmt in ("%m/%d/%Y", "%m-%d-%Y", "%Y-%m-%d", "%m%d%Y", "%d %b %Y", "%d %B %Y", "%d-%b-%Y",
                 "%m/%d/%y", "%m-%d-%y", "%Y %B %d", "%Y %b %d"):
@@ -127,7 +127,7 @@ def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
                 ys = [-(p[0] - origin[0]) * uy + (p[1] - origin[1]) * ux for p in other.bbox]
                 return min(xs), min(ys), max(xs), max(ys)
 
-            # Match fields in the label's own axes, including tilted photos.
+
             left, top, right, bottom = bounds(region)
             height = max(bottom - top, 1)
             nearby = []
@@ -136,19 +136,19 @@ def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
                     continue
                 c_left, c_top, c_right, c_bottom = bounds(candidate)
                 if c_bottom - c_top > height * 2:
-                    # Large background words/watermarks can overlap a small
-                    # label without being that field's value.
+
+
                     continue
                 overlap = min(bottom, c_bottom) - max(top, c_top)
                 gap = c_left - right
-                # A long horizontal value can have a slightly different OCR
-                # angle from its short label. Its furthest corner exaggerates
-                # vertical overlap; the top-edge centre follows the text row.
+
+
+
                 value_top = sum(-(p[0] - origin[0]) * uy + (p[1] - origin[1]) * ux
                                 for p in candidate.bbox[:2]) / 2
-                # OCR boxes can overlap even when the printed value is to
-                # the right. Limit tolerance to a small part of the label,
-                # and require the value's centre beyond the label's edge.
+
+
+
                 overlap_allowance = min(height * .75, (right - left) * .25)
                 same_row = (overlap >= height * .5
                             and -overlap_allowance <= gap < 450
@@ -167,9 +167,9 @@ def _label_values(regions: list[TextRegion], labels: tuple[str, ...]):
                         continue
                     nearby.append((max(gap, 0), candidate))
                 elif -max(5, height * .35) <= value_top - bottom < max(90, height * 3) and abs(c_left - left) < 220:
-                    # A blank field must not borrow the value belonging to the
-                    # next labeled field underneath it (for example W-9 lines
-                    # 1 and 2). A label in the same column closes this field.
+
+
+
                     crossed_label = any(
                         other is not region
                         and other.bbox
@@ -249,7 +249,7 @@ def _extract_aamva(barcodes: list[BarcodeResult]) -> StructuredExtraction | None
         try:
             parsed = parse_aamva(barcode)
         except ValueError as error:
-            # A corrupt payload cannot confidently identify DL versus ID.
+
             result = StructuredExtraction("us_driver_license", errors=[str(error)])
             result.checks.update({"barcode_decoded": True, "barcode_structure_valid": False})
             found.append(result)
@@ -353,8 +353,8 @@ def _extract_visual(result: StructuredExtraction, regions: list[TextRegion]) -> 
                     break
 
     if kind == "passport_card" and not result.fields.get("date_of_birth"):
-        # Some cards print sex and DOB on one baseline; OCR can merge both
-        # values into a single region. Require both labels and a strict date.
+
+
         has_sex = any(re.fullmatch(r"sex", r.text.strip(), re.I) for r in regions)
         if has_sex:
             for raw, region in _label_values(regions, (r"date of birth",)):

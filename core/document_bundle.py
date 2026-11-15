@@ -67,7 +67,7 @@ def reconcile_pages(results: list[dict], *, include_evidence: bool = True) -> di
     merged, conflicts = {}, []
     for key, entries in values.items():
         first = entries[0]['value']
-        # Only whitespace/case differences can be merged without a domain rule.
+
         def canonical(value):
             return ' '.join(value.upper().split()) if isinstance(value, str) else value
         if any(canonical(e['value']) != canonical(first) for e in entries):

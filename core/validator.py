@@ -15,7 +15,7 @@ from rapidfuzz import fuzz
 from .mrz_parser import MRZResult
 from .ocr_engine import TextRegion
 
-# Shared ISO/ICAO code validation also covers travel-card and visa recovery.
+
 from .document_registry import is_known_mrz_country
 
 _LABEL_HINTS = [
@@ -42,20 +42,20 @@ _LABEL_HINTS = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Result types
-# ---------------------------------------------------------------------------
+
+
+
 
 @dataclass
 class ValidationResult:
-    confidence: float  # 0.0 – 1.0
+    confidence: float
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+
+
+
 
 def find_visual_field(
     regions: list[TextRegion],
@@ -84,8 +84,8 @@ def find_visual_field(
             if label_text == keyword:
                 score = 10_000 - priority
             elif label_text.startswith(keyword + " "):
-                # An inline "Name: value" is stronger than NAME occurring
-                # inside "Father's Name: value", regardless of OCR confidence.
+
+
                 score = 2_000 + (len(keyword) * 100) - priority
             elif padded_keyword in padded_label:
                 score = (len(keyword) * 100) - priority
@@ -217,9 +217,9 @@ def find_label_value(
     label_region = find_visual_field(regions, labels)
     if label_region is None:
         return None
-    # Detection can merge an entire printed "Label: value" row. Match the
-    # label at the beginning, not an embedded word such as Name in Father's
-    # Name. Preserve punctuation and casing in the actual printed value.
+
+
+
     tokens = list(re.finditer(r"[A-Za-z0-9]+", label_region.text))
     for label in sorted(labels, key=len, reverse=True):
         words = _normalise_label_text(label).split()
@@ -227,7 +227,7 @@ def find_label_value(
             inline = label_region.text[tokens[len(words) - 1].end():].strip(" :\t#")
             if inline and not _looks_like_field_label(inline):
                 return inline
-            break  # A longer empty label must not become a shorter label's value.
+            break
     value = find_visual_value_right(regions, label_region) or find_visual_value_near(
         regions, label_region
     )
@@ -264,9 +264,9 @@ def _looks_like_field_label(text: str) -> bool:
     return any(f" {hint} " in padded for hint in _LABEL_HINTS)
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+
+
+
 
 def validate(
     mrz: Optional[MRZResult],
@@ -284,28 +284,28 @@ def validate(
     errors: list[str] = []
     warnings: list[str] = []
 
-    # --- MRZ checksum component (40%) ---
+
     if mrz is None:
         mrz_score = 0.0
         errors.append("MRZ_NOT_DETECTED")
     elif mrz.overall_checksum_valid:
         mrz_score = 1.0
     else:
-        # Partial credit: count how many individual fields pass
+
         checks = [
             mrz.passport_number.checksum_valid,
             mrz.date_of_birth.checksum_valid,
             mrz.expiry_date.checksum_valid,
         ]
         passed = sum(1 for c in checks if c)
-        mrz_score = passed / len(checks) * 0.7  # cap at 0.7 if overall fails
+        mrz_score = passed / len(checks) * 0.7
 
-    # --- Cross-match component (30%) ---
+
     cross_matches = 0
     cross_total = 0
 
     if mrz is not None:
-        # Name cross-match
+
         name_label = find_visual_field(regions, ["SURNAME", "FAMILY NAME", "LAST NAME", "NOM"])
         if name_label:
             name_value = find_visual_value_near(regions, name_label)
@@ -323,7 +323,7 @@ def validate(
                 else:
                     warnings.append("NAME_MISMATCH")
 
-        # DOB cross-match
+
         dob_label = find_visual_field(regions, ["DATE OF BIRTH", "BIRTH DATE", "DOB", "NAISSANCE"])
         if dob_label and mrz.date_of_birth.value:
             dob_value = find_visual_value_near(regions, dob_label)
@@ -335,7 +335,7 @@ def validate(
                 else:
                     warnings.append("DOB_MISMATCH")
 
-        # Expiry cross-match
+
         exp_label = find_visual_field(
             regions,
             ["DATE OF EXPIRY", "EXPIRY DATE", "DATE OF EXPIRATION", "EXPIRY", "EXPIRATION", "VALID UNTIL"],
@@ -350,7 +350,7 @@ def validate(
                 else:
                     warnings.append("EXPIRY_DATE_MISMATCH")
 
-        # Country code validation
+
         code = (mrz.country_code.value or "").upper()
         if not is_known_mrz_country(code):
             reason = f"UNKNOWN_COUNTRY_CODE_{code}" if code else "MISSING_COUNTRY_CODE"
@@ -359,9 +359,9 @@ def validate(
         if not is_known_mrz_country(mrz.nationality.value):
             errors.append("UNKNOWN_NATIONALITY")
 
-        # A correct checksum does not establish that a date exists. Unknown
-        # date components are permitted as fillers, but impossible numeric
-        # dates must not disappear silently when the parser returns None.
+
+
+
         parsed_dates: dict[str, date] = {}
         for name, field in (("DATE_OF_BIRTH", mrz.date_of_birth), ("EXPIRY_DATE", mrz.expiry_date)):
             if field.value is None:
@@ -379,13 +379,13 @@ def validate(
 
     cross_score = (cross_matches / cross_total) if cross_total > 0 else 0.5
 
-    # --- OCR confidence component (30%) ---
+
     if regions:
         avg_conf = sum(r.confidence for r in regions) / len(regions)
     else:
         avg_conf = 0.0
 
-    # --- Weighted average ---
+
     confidence = (mrz_score * 0.40) + (cross_score * 0.30) + (avg_conf * 0.30)
     confidence = round(min(max(confidence, 0.0), 1.0), 3)
 

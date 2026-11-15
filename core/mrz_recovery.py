@@ -13,7 +13,7 @@ from .mrz_parser import _clean_mrz_text, parse_mrz, verify_check_digit
 from .ocr_engine import TextRegion
 from .recovery_budget import recovery_allowed
 
-# A complete surname/given-name header with an observed padding terminator.
+
 _PADDED_HEADER = re.compile(r'P[A-Z<][A-Z<]{3}[A-Z]+(?:<[A-Z]+)*<<[A-Z]+(?:<[A-Z]+)*<{2,}')
 _ANCHOR = re.compile(r'[A-Z0-9<]{28,44}')
 _LINE_TWO = re.compile(r'[A-Z0-9<]{9}[0-9][A-Z<]{3}[0-9]{7}[MF<][0-9]{7}[A-Z0-9<]{16}')
@@ -56,7 +56,7 @@ def _read_crop(image, src, width, height, reader) -> list[TextRegion]:
     for region in reader(crop):
         text = _clean_mrz_text(region.text)
         if 20 <= len(text) < 44 and _PADDED_HEADER.fullmatch(text):
-            # Only omitted trailing fillers can be recovered from this rule.
+
             text = text.ljust(44, '<')
         points = np.asarray(region.bbox, np.float32)
         if points.shape != (4, 2) or not np.isfinite(points).all():
@@ -78,8 +78,8 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
     if existing and existing.overall_checksum_valid and 'MRZ_NAME_PADDING_NOISE' not in existing.errors:
         return regions
     if existing and existing.overall_checksum_valid:
-        # Only name-padding cleanup remains. It reads filler more reliably at
-        # the default enlargement and runs on already-valid scans, so keep it.
+
+
         band_ocr = ocr
     long_rows = [r for r in regions if len(r.text) >= 8 and len(r.bbox) == 4]
     vertical_rows = [r for r in long_rows if
@@ -87,8 +87,8 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
                      or (max(p[1] for p in r.bbox) - min(p[1] for p in r.bbox)) >
                      2 * (max(p[0] for p in r.bbox) - min(p[0] for p in r.bbox))]
     if len(vertical_rows) >= 4 and len(vertical_rows) / len(long_rows) >= .6:
-        # Sideways lines cannot reliably be recognized or paired in page-Y
-        # order. Try each quarter-turn, keeping original-page evidence boxes.
+
+
         h, w = image.shape[:2]
         corners = [(0, 0), (w - 1, 0), (w - 1, h - 1), (0, h - 1)]
         for order in ((3, 0, 1, 2), (1, 2, 3, 0)):
@@ -98,12 +98,12 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
             parsed = parse_mrz(recovered)
             if parsed and parsed.overall_checksum_valid:
                 return recovered
-        return regions  # The two-read budget is exhausted.
+        return regions
     anchors = _anchors(regions)
     band_budget = 2
     if not anchors and any(re.search(r'\bPASSPORT\b', r.text, re.I) for r in regions):
-        # A small passport in a large photo can lose its entire MRZ during
-        # detection downscaling. Focus on confident visible document text once.
+
+
         body = [r for r in regions if len(r.text) >= 4 and r.confidence >= .85 and len(r.bbox) == 4]
         if len(body) >= 5:
             points = np.asarray([p for r in body for p in r.bbox], np.float32)
@@ -120,12 +120,12 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
                 parsed = parse_mrz(recovered)
                 if parsed and parsed.overall_checksum_valid:
                     return recovered
-                # Detection may reveal only the beginning of the bottom row.
-                # Reuse its original-page geometry for one final band read;
-                # never insert unobserved suffix characters or check digits.
+
+
+
                 anchors = _anchors(recovered)
                 band_budget -= 1
-    # At most two band reads, plus one recognition-only fallback per full anchor.
+
     for anchor in sorted(anchors, key=lambda r: len(_clean_mrz_text(r.text)), reverse=True)[:band_budget]:
         box = np.asarray(anchor.bbox, dtype=np.float32)
         if box.shape != (4, 2) or not np.isfinite(box).all():
@@ -137,16 +137,16 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
             continue
         if not recovery_allowed():
             break
-        # Include the line above and a little border. Deskew using detected text,
-        # which still works when a document occupies a small part of a photograph.
-        # A TD3 line has 44 fixed-width characters. A partial detection must not
-        # clip the unseen right-hand characters from the recovery crop.
+
+
+
+
         anchor_text = _clean_mrz_text(anchor.text)
         extension = (44 / len(anchor_text) - 1) * (tr - tl)
         tr, br = tr + extension, br + extension
         if _checked_line_two_prefix(anchor_text):
-            # A truncated detector box can end inside a character. Leave one
-            # character of pixels at either edge of the predicted full row.
+
+
             margin = (tr - tl) / 44
             tl, bl, tr, br = tl - margin, bl - margin, tr + margin, br + margin
         full_width = float(np.linalg.norm(tr - tl))
@@ -155,8 +155,8 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
         src = [tl - 2.5 * vertical, tr - 2.5 * vertical,
                br + .5 * vertical, bl + .5 * vertical]
         recovered = _read_crop(image, src, w, h, band_ocr)
-        # The original full-width line two can be better than the cropped reading.
-        # Evaluate complete re-read first, then each recovered header with its anchor.
+
+
         candidates = [recovered] + [[r, anchor] for r in recovered
                                     if _PADDED_HEADER.fullmatch(_clean_mrz_text(r.text))]
         def candidate_reads():
@@ -164,15 +164,15 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
             if (recognize_line is None or not _LINE_TWO.fullmatch(_clean_mrz_text(anchor.text))
                     or not recovery_allowed()):
                 return
-            # A complete bottom line also localizes the name line immediately
-            # above it. Bypass detection when that line was missed in the band.
+
+
             line_src = [tl - 1.1 * vertical, tr - 1.1 * vertical,
                         tr + .1 * vertical, tl + .1 * vertical]
             line_height_px = max(10, int(line_height * 1.2 * w / full_width))
             header = _read_crop(image, line_src, w, line_height_px, recognize_line)
             for row in header:
-                # Names have no check digit: require clean syntax, observed name
-                # termination, and high recognition confidence before admission.
+
+
                 if row.confidence >= .9 and _PADDED_HEADER.fullmatch(row.text):
                     yield [row, anchor]
 
@@ -184,7 +184,7 @@ def recover_passport_mrz(image, regions: list[TextRegion], ocr, recognize_line=N
                 continue
             if existing and existing.passport_number.value != parsed.passport_number.value:
                 continue
-            # Preserve visual text and its coordinates; replace only MRZ-like rows.
+
             visual = [r for r in regions if not (
                 _ANCHOR.fullmatch(_clean_mrz_text(r.text))
                 and ('<' in _clean_mrz_text(r.text) or _LINE_TWO.fullmatch(_clean_mrz_text(r.text))))]

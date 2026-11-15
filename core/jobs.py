@@ -53,7 +53,7 @@ class JobStore:
                     if self.cipher.decrypt(sentinel[0]) != b'document-ocr-jobs-v1':
                         raise ValueError('JOB_KEY_MISMATCH')
                 else:
-                    # Validate any pre-sentinel queue before migrating it.
+
                     previous = db.execute("SELECT payload,result FROM jobs WHERE length(payload)>0 OR result IS NOT NULL LIMIT 1").fetchone()
                     if previous is not None:
                         self.cipher.decrypt(previous['payload'] or previous['result'])
@@ -147,7 +147,7 @@ class JobStore:
             with self.connection() as db:
                 db.execute("UPDATE jobs SET status='failed',error='JOB_PAYLOAD_DECRYPTION_FAILED',lease_until=NULL WHERE id=? AND lease_token=?", (identifier, token))
         except Exception:
-            # Stored errors never include input text, paths, secrets or model output.
+
             self.finish(identifier, token, error='JOB_PROCESSING_FAILED')
         return True
 
@@ -161,8 +161,8 @@ class JobStore:
             row = db.execute("SELECT id,status FROM jobs WHERE notify=1 AND notified=0 AND notification_attempts<6 AND notify_after<=? AND expires>? AND status IN ('succeeded','failed') ORDER BY created LIMIT 1", (now, now)).fetchone()
             if row is None:
                 return False
-            # Claim notification before network IO. Crash-safe at-least-once;
-            # consumers deduplicate the stable id/status event ID.
+
+
             db.execute('UPDATE jobs SET notification_attempts=notification_attempts+1,notify_after=? WHERE id=?', (now+300, row['id']))
         url, secret = config
         body = json.dumps({'id': row['id'], 'status': row['status']}, separators=(',', ':')).encode()
@@ -179,7 +179,7 @@ class JobStore:
                 with self.connection() as db:
                     db.execute('UPDATE jobs SET notified=1 WHERE id=?', (row['id'],))
         except Exception:
-            pass  # Persisted retry schedule above survives process restarts.
+            pass
         return True
 
 

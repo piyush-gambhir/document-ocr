@@ -187,7 +187,7 @@ def run_benchmark(
     ))
     cases = _load_dataset(root)
     if scanner is None:
-        # Delay OCR imports until a valid private dataset is available.
+
         sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
         from core.pipeline import scan
 
@@ -206,7 +206,7 @@ def run_benchmark(
             actual = result if isinstance(result, Mapping) else result.to_dict()
             if not isinstance(actual, Mapping):
                 raise TypeError("scanner must return a mapping or a result with to_dict()")
-        except Exception:  # Count failures without leaking OCR text or identity fields.
+        except Exception:
             actual = None
         results.append((expected, actual))
     return evaluate_results(results)
@@ -216,7 +216,7 @@ def main() -> int:
     try:
         report = run_benchmark()
     except Exception as exc:
-        # Runtime messages may contain identity values; expose only the error type.
+
         print(f"Passport benchmark setup failed ({type(exc).__name__}). Check the dataset and OCR setup.", file=sys.stderr)
         return 2
     print(json.dumps(report, indent=2))

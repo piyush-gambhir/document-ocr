@@ -30,8 +30,8 @@ def test_joined_issuer_does_not_accept_unknown_state_or_partial_token(issuer):
 
 @pytest.mark.parametrize("scale", [.5, 1, 2])
 def test_issue_date_survives_small_overlapping_ocr_boxes(scale):
-    # Observed after raster-PDF contrast normalization: the correct date's
-    # box overlaps the ISS label by 34.5px in the tilted label's own axes.
+
+
     observed = [
         TextRegion("4a ISS", [[1092, 256], [1250, 246], [1253, 298], [1095, 308]], .93),
         TextRegion("07/06/2024", [[1219, 240], [1567, 240], [1567, 303], [1219, 303]], .96),
@@ -76,9 +76,9 @@ def test_joined_expiry_label_is_recognized_without_borrowing_it_for_issue_date(i
 
 
 def test_long_date_below_short_tilted_label_uses_top_edge_centre():
-    # Saved PDF label and a fresh pixel reread have slightly different angles.
-    # The far-right corner crosses the old overlap limit although the date's
-    # top-edge centre is correctly below the label.
+
+
+
     result = extract_structured_document(regions("UNITED STATES PASSPORT CARD") + [
         TextRegion("Expires", [[1105, 784], [1250, 790], [1248, 831], [1103, 825]], .99),
         TextRegion("29 NOV 2019", [[1104, 824], [1448, 824], [1448, 884], [1104, 884]], .95),

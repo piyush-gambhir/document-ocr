@@ -16,14 +16,14 @@ from typing import Optional
 from .ocr_engine import TextRegion
 
 
-# ---------------------------------------------------------------------------
-# ICAO check digit
-# ---------------------------------------------------------------------------
+
+
+
 
 _WEIGHTS = [7, 3, 1]
 
 _CHAR_VALUES = {str(i): i for i in range(10)}
-_CHAR_VALUES.update({chr(c): c - 55 for c in range(65, 91)})  # A=10 .. Z=35
+_CHAR_VALUES.update({chr(c): c - 55 for c in range(65, 91)})
 _CHAR_VALUES["<"] = 0
 
 _DIGIT_CORRECTIONS = str.maketrans({
@@ -75,9 +75,9 @@ def verify_check_digit(data: str, expected: str) -> bool:
         return False
 
 
-# ---------------------------------------------------------------------------
-# Date parsing
-# ---------------------------------------------------------------------------
+
+
+
 
 def _parse_mrz_date(
     yymmdd: str,
@@ -109,15 +109,15 @@ def _parse_mrz_date(
         return None
 
 
-# ---------------------------------------------------------------------------
-# Result types
-# ---------------------------------------------------------------------------
+
+
+
 
 @dataclass
 class MRZField:
     value: Optional[str]
     raw: str
-    checksum_valid: Optional[bool] = None  # None if no checksum for this field
+    checksum_valid: Optional[bool] = None
 
 
 @dataclass
@@ -138,9 +138,9 @@ class MRZResult:
     errors: list[str] = field(default_factory=list)
 
 
-# ---------------------------------------------------------------------------
-# MRZ line detection
-# ---------------------------------------------------------------------------
+
+
+
 
 _MRZ_PATTERN = re.compile(r"^[A-Z0-9<]{40,44}$")
 _MRZ_LINE1_PATTERN = re.compile(r"P[A-Z<][A-Z<]{3}[A-Z<]{35,39}")
@@ -148,12 +148,12 @@ _MRZ_LINE1_PATTERN = re.compile(r"P[A-Z<][A-Z<]{3}[A-Z<]{35,39}")
 
 def _clean_mrz_text(raw: str) -> str:
     """Clean OCR text for MRZ matching — fix common substitution errors."""
-    # Recognizers can emit compatibility glyphs such as Roman numeral I or
-    # full-width Latin letters. Unicode defines their ASCII equivalents;
-    # unlike guessing a country or name, this does not substitute characters
-    # based on the expected document content.
+
+
+
+
     text = re.sub(r"\s+", "", unicodedata.normalize("NFKC", raw).upper())
-    # Common OCR substitutions for the '<' filler character
+
     text = text.replace("«", "<").replace("‹", "<").replace(">", "<")
     return text
 
@@ -168,15 +168,15 @@ def _find_mrz_lines(regions: list[TextRegion]) -> Optional[tuple[str, str]]:
             mrz_regions.append((y_pos, text))
 
     mrz_regions.sort(key=lambda x: x[0])
-    # Anchor the pair to a TD3 passport header. A footer or OCR duplicate below
-    # the MRZ must not displace the actual first line.
+
+
     for index in range(len(mrz_regions) - 2, -1, -1):
         line1 = mrz_regions[index][1]
         line2 = mrz_regions[index + 1][1]
         if _MRZ_LINE1_PATTERN.fullmatch(line1) and not _MRZ_LINE1_PATTERN.fullmatch(line2):
             return (_pad_to_44(line1), _pad_to_44(line2))
-    # Re-read text can be mapped back to a sideways document in the source
-    # photograph. Use the header's local axes instead of global page Y there.
+
+
     for header in regions:
         first = _clean_mrz_text(header.text)
         if not _MRZ_LINE1_PATTERN.fullmatch(first) or len(header.bbox) != 4:
@@ -204,9 +204,9 @@ def _pad_to_44(line: str) -> str:
     return line.ljust(44, "<")[:44]
 
 
-# ---------------------------------------------------------------------------
-# Parser
-# ---------------------------------------------------------------------------
+
+
+
 
 def _clean_name(raw: str) -> str:
     """Replace MRZ filler '<' with spaces and clean up."""
@@ -227,38 +227,38 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
     line2 = _apply_digit_corrections(line2)
     errors: list[str] = []
 
-    # --- Line 1 ---
-    # Pos 0:     document type (1 char, usually 'P')
-    # Pos 1:     document type sub (1 char)
-    # Pos 2-4:   issuing country (3 chars)
-    # Pos 5-43:  name (surname << given names)
+
+
+
+
+
 
     doc_type_raw = line1[0:2]
     country_raw = line1[2:5]
     name_raw = line1[5:44]
 
-    # Split name: surname and given names separated by "<<"
+
     name_parts = name_raw.split("<<", 1)
     surname_raw = name_parts[0] if name_parts else ""
     given_raw = name_parts[1] if len(name_parts) > 1 else ""
-    # Within given names a single filler separates components. A double filler
-    # starts padding; OCR noise later in that padding is not an extra name.
+
+
     given_value, _, padding = given_raw.partition("<<")
     if padding.replace("<", ""):
         errors.append("MRZ_NAME_PADDING_NOISE")
 
-    # --- Line 2 ---
-    # Pos 0-8:   passport number (9 chars)
-    # Pos 9:     check digit for passport number
-    # Pos 10-12: nationality (3 chars)
-    # Pos 13-18: date of birth YYMMDD (6 chars)
-    # Pos 19:    check digit for DOB
-    # Pos 20:    sex (M/F/<)
-    # Pos 21-26: expiry date YYMMDD (6 chars)
-    # Pos 27:    check digit for expiry
-    # Pos 28-41: personal number (14 chars)
-    # Pos 42:    check digit for personal number
-    # Pos 43:    overall check digit
+
+
+
+
+
+
+
+
+
+
+
+
 
     pn_raw = line2[0:9]
     pn_check = line2[9]
@@ -272,16 +272,16 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
     personal_check = line2[42]
     overall_check = line2[43]
 
-    # Validate check digits
+
     pn_valid = verify_check_digit(pn_raw, pn_check)
     dob_valid = verify_check_digit(dob_raw, dob_check)
     expiry_valid = verify_check_digit(expiry_raw, expiry_check)
-    # ICAO Doc 9303-4 permits '<' instead of zero for unused optional data.
+
     personal_valid = (
         personal_raw == "<" * 14 and personal_check == "<"
     ) or verify_check_digit(personal_raw, personal_check)
 
-    # Overall check digit: computed over passport_number + check + DOB + check + expiry + check + personal + check
+
     composite = line2[0:10] + line2[13:20] + line2[21:43]
     overall_valid = verify_check_digit(composite, overall_check)
 
@@ -296,7 +296,7 @@ def parse_mrz(regions: list[TextRegion]) -> Optional[MRZResult]:
     if not overall_valid:
         errors.append("OVERALL_CHECKSUM_FAILED")
 
-    # Parse sex
+
     sex_value = None
     if sex_raw in ("M", "F"):
         sex_value = sex_raw

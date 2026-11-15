@@ -113,9 +113,9 @@ def _expiry_date_region(regions):
         local = (points - label[0]) @ axes.T
         left, top = local.min(axis=0)
         right, bottom = local.max(axis=0)
-        # Compare the top-edge centers. Taking the extreme corner exaggerates
-        # overlap when a long date and its short label have slightly different
-        # detected angles despite sharing the same printed baseline.
+
+
+
         gap = local[:2, 1].mean() - local_label[:, 1].max()
         if (length > 0 and direction @ along / length >= .98
                 and abs(left) <= max(20, height * 2)
@@ -143,16 +143,16 @@ def _read_expiry_date(image, regions, recognize_line, unenhanced_image=None):
     prefix = re.sub(r'[\s/-]', '', anchor.text).upper()
 
     def valid(read):
-        # Preserve all characters already observed in the truncated date. The
-        # missing suffix must come from pixels and parse as a complete date.
+
+
         return (len(read) == 1 and _us_date(read[0].text) is not None
                 and re.sub(r'[\s/-]', '', read[0].text).upper().startswith(prefix))
 
     direct = _read_box(image, corners, width, height, recognize_line)
     if not valid(direct):
-        # A security background can obscure the final digit after CLAHE. Keep
-        # the exact observed prefix, and reread the same coordinates once in
-        # the original-color plane. Never run both this and denoise recovery.
+
+
+
         if (len(direct) == 1 and direct[0].confidence >= .9
                 and re.sub(r'[\s/-]', '', direct[0].text).upper() == prefix
                 and unenhanced_image is not None and unenhanced_image is not image
@@ -190,16 +190,16 @@ def recover_card_fields(image, regions: list[TextRegion], ocr, recognize_line, *
 
     output = list(regions)
     if before.missing_required_fields == ['expiry_date']:
-        # No detector rerun: one observed date box, at most two direct reads.
-        # Cards missing other fields keep the existing number/cluster budget.
+
+
         date_read = _read_expiry_date(image, regions, recognize_line, unenhanced_image)
         if date_read:
             candidate = output + date_read
             if acceptable(extract_structured_document(candidate)):
                 return candidate
     if 'document_number' not in before.fields:
-        # Locate an observed card-number label fragment. The fresh pixel read
-        # must contain the exact label; its spelling is never patched in code.
+
+
         anchor = next((row for row in regions if row.confidence >= .9 and len(row.bbox) == 4
                        and re.fullmatch(r'.{1,24}\bcard\s+(?:number|no\.?)', row.text.strip(), re.I)
                        and not re.match(r'passport\s*card', row.text.strip(), re.I)), None)
@@ -229,8 +229,8 @@ def recover_card_fields(image, regions: list[TextRegion], ocr, recognize_line, *
     if any(key in independently_read.fields and independently_read.fields[key] != value
            for key, value in before.fields.items()):
         return regions
-    # Keep unrelated reread text (especially large specimen watermarks) out of
-    # existing field association. Admit only missing labels and their values.
+
+
     additions = []
     for key, label in _FIELD_LABELS.items():
         if key in current.fields or key not in independently_read.fields:
@@ -240,5 +240,5 @@ def recover_card_fields(image, regions: list[TextRegion], ocr, recognize_line, *
                          and (label.match(row.text.strip()) or row.bbox in evidence_boxes))
     candidate = output + additions
     after = extract_structured_document(candidate)
-    # Every newly admitted field must have high-confidence observed evidence.
+
     return candidate if acceptable(after) else regions

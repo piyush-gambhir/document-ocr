@@ -52,7 +52,7 @@ async def test_sqlite_writer_does_not_block_http_health(monkeypatch, tmp_path):
         with store.connection() as db:
             db.execute('BEGIN IMMEDIATE')
             locked.set()
-            # The timeout keeps the regression finite if HTTP blocks the loop.
+
             release.wait(0.6)
 
     writer = threading.Thread(target=write_transaction)
@@ -78,12 +78,12 @@ def test_cropped_pdf_evidence_redacts_actual_ink_or_defers_to_ocr():
     )
     page = pdf_pages(data)[0]
     if not page.regions:
-        # Falling back to rendered OCR is safe when the PDF transform is unknown.
+
         return
     region = next(region for region in page.regions if 'JANE SAMPLE' in region.text)
     output = cv2.imdecode(np.frombuffer(redact(data, [region.bbox]), np.uint8), cv2.IMREAD_COLOR)
-    # The fixture's name is the third line. Its visible ink lies here after the
-    # crop translation, independently of the extracted PDF character geometry.
+
+
     original_line = page.image[190:250, 40:600]
     redacted_line = output[190:250, 40:600]
     ink = np.any(original_line < 100, axis=2)

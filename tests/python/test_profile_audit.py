@@ -14,8 +14,8 @@ from document_samples import regions
     ('EMPLOYMENT AUTHORIZATION', 'C09'),
 ])
 def test_uscis_visual_category_keeps_both_one_and_two_letter_prefixes(title, category):
-    # IR1 is visible on the USCIS 2023 green-card comparison specimen.
-    # https://www.uscis.gov/sites/default/files/document/guides/GreenCard_Comparison_EN.PDF.pdf
+
+
     result = extract_structured_document(regions(
         f'UNITED STATES {title}',
         'Surname: SPECIMEN', 'USCIS: 123-456-789',
@@ -26,7 +26,7 @@ def test_uscis_visual_category_keeps_both_one_and_two_letter_prefixes(title, cat
 
 
 def test_historical_ead_printed_two_digit_validity_dates_are_extracted():
-    # Exact visible dates from the hash-pinned reviewed USCIS specimen.
+
     result = extract_structured_document(regions(
         'UNITED STATES EMPLOYMENT AUTHORIZATION',
         'Surname: SPECIMEN', 'Given Name: TEST V', 'USCIS#: 000-000-811',

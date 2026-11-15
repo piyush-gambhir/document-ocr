@@ -127,8 +127,8 @@ def evaluate_manifest(manifest: Mapping[str, Any], scanner: Callable[[str], Any]
     for sample in measured["samples"]:
         fields = sample["expected"]["fields"]
         absent_count += sum(value is None for value in fields.values())
-        # An absent optional annotation is not a successful extraction and must
-        # not inflate exact accuracy when actual fields are also missing.
+
+
         sample["expected"]["fields"] = {name: value for name, value in fields.items() if value is not None}
     report = engine.evaluate_manifest(measured, scanner, dataset_root=dataset_root, field_blocks=FIELD_BLOCKS)
     report.update({"benchmark": "structured_documents", "measurementStatus": "measured", "split": manifest["split"], "absentFieldAnnotationsExcluded": absent_count})
@@ -140,7 +140,7 @@ def evaluate_manifest(manifest: Mapping[str, Any], scanner: Callable[[str], Any]
         metrics["independentNegativeGroups"] = len({item["groupId"] for item in samples if not item["expected"]["accepted"] and item["expected"].get("classificationTarget") == "unknown"})
     for scope, metrics in [("overall", report["summary"]), *[(f"document:{kind}", values) for kind, values in report["documents"].items()]]:
         for rule, metric in (("minIdentifierExactAccuracy", "identifierExactAccuracy"), ("minDateExactAccuracy", "dateExactAccuracy")):
-            # W-9 has no date field. Every other profile must measure dates.
+
             if metric == "dateExactAccuracy" and scope == "document:us_w9":
                 continue
             actual = metrics[metric]

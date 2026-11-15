@@ -17,9 +17,9 @@ def _r(text, x1, y1, x2, y2, conf=0.95):
     return TextRegion(text=text, bbox=_bbox(x1, y1, x2, y2), confidence=conf)
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
+
+
+
 
 def _pan_card_value_below():
     """Older NSDL PAN layout: bilingual labels above values."""
@@ -94,9 +94,9 @@ def _missing_name_labels():
     ]
 
 
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestPanExtractor:
     def test_value_below_layout(self):
@@ -127,7 +127,7 @@ class TestPanExtractor:
         assert f.father_name == "HARPAL SINGH"
         assert f.date_of_birth == "07/12/1978"
 
-    # --- name vs father disambiguation ------------------------------------
+
 
     def test_name_not_confused_with_father_name_value_below(self):
         f = extract_pan(_pan_card_value_below())
@@ -156,7 +156,7 @@ class TestPanExtractor:
         assert f.father_name == "MOHAN SHARMA"
         assert f.name is None
 
-    # --- DOB format variants ----------------------------------------------
+
 
     def test_dob_slash_format(self):
         f = extract_pan(_pan_card_value_below())
@@ -178,7 +178,7 @@ class TestPanExtractor:
         regions = [
             _r("Date of Birth", 40, 200, 220, 225),
             _r("15/08/1985", 40, 228, 220, 258),
-            # A printed 'issued on' style date placed visually first.
+
             _r("Issued 01/01/2024", 40, 60, 320, 90),
             _r("Name", 40, 100, 120, 125),
             _r("ROHIT SHARMA", 40, 128, 300, 158),
@@ -187,7 +187,7 @@ class TestPanExtractor:
         f = extract_pan(regions)
         assert f.date_of_birth == "15/08/1985"
 
-    # --- PAN number robustness --------------------------------------------
+
 
     def test_pan_not_confused_with_date(self):
         f = extract_pan(_pan_card_value_below())
@@ -198,7 +198,7 @@ class TestPanExtractor:
         real PAN should still be found."""
         regions = [
             _r("INCOME TAX DEPARTMENT", 40, 20, 400, 50),
-            _r("DL2072369058018", 40, 90, 300, 115),  # DL shape, not a PAN
+            _r("DL2072369058018", 40, 90, 300, 115),
             _r("ABCPE1234F", 40, 130, 260, 162),
         ]
         f = extract_pan(regions)
@@ -208,9 +208,9 @@ class TestPanExtractor:
         """When two PAN-shaped tokens exist, the one with a valid holder-type
         4th character wins over a shaped-but-invalid one."""
         regions = [
-            # 4th char 'Z' is not a valid holder type -> shaped but invalid.
+
             _r("ABCZE1234F", 40, 90, 260, 122),
-            # 4th char 'P' (individual) -> valid.
+
             _r("WXYPK5678Q", 40, 140, 260, 172),
         ]
         f = extract_pan(regions)
@@ -228,12 +228,12 @@ class TestPanExtractor:
     def test_pan_shaped_fallback_when_none_valid(self):
         """If no token has a valid holder type, fall back to the shaped token."""
         regions = [
-            _r("ABCZE1234F", 40, 90, 260, 122),  # 'Z' invalid holder type
+            _r("ABCZE1234F", 40, 90, 260, 122),
         ]
         f = extract_pan(regions)
         assert f.pan_number == "ABCZE1234F"
 
-    # --- missing labels / partial cards -----------------------------------
+
 
     def test_missing_name_and_father_labels(self):
         f = extract_pan(_missing_name_labels())
@@ -273,7 +273,7 @@ class TestPanExtractor:
         assert f.name == "ROHIT SHARMA"
         assert f.date_of_birth == "15/08/1985"
 
-    # --- contract -----------------------------------------------------------
+
 
     def test_panfields_contract_field_names(self):
         """The four contract fields must exist with these exact names."""

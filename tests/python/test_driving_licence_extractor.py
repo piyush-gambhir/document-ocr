@@ -20,9 +20,9 @@ def _r(text, x1, y1, x2, y2, conf=0.95):
     return TextRegion(text=text, bbox=_bbox(x1, y1, x2, y2), confidence=conf)
 
 
-# ---------------------------------------------------------------------------
-# Standard value-right (Maharashtra-style) layout
-# ---------------------------------------------------------------------------
+
+
+
 
 def _dl_regions():
     return [
@@ -64,7 +64,7 @@ class TestStandardLayout:
     def test_returns_dataclass_with_all_fields(self):
         f = extract_driving_licence(_dl_regions())
         assert isinstance(f, DrivingLicenceFields)
-        # Contract fields exist.
+
         for name in (
             "dl_number",
             "name",
@@ -76,9 +76,9 @@ class TestStandardLayout:
             assert hasattr(f, name)
 
 
-# ---------------------------------------------------------------------------
-# DL number format variants (spaced / hyphenated / split across regions)
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestDlNumberVariants:
     def test_spaced_form(self):
@@ -104,7 +104,7 @@ class TestDlNumberVariants:
         assert extract_driving_licence(regions).dl_number == "HR0619850034761"
 
     def test_number_split_across_two_regions(self):
-        # OCR sometimes splits the state/RTO prefix from the serial.
+
         regions = [
             _r("DL No", 40, 70, 150, 95),
             _r("MH12", 170, 70, 250, 95),
@@ -117,9 +117,9 @@ class TestDlNumberVariants:
         assert extract_driving_licence(regions).dl_number is None
 
 
-# ---------------------------------------------------------------------------
-# Three-date disambiguation: order on the card must not matter
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestDateDisambiguation:
     def test_assigns_each_date_by_adjacent_label(self):
@@ -129,7 +129,7 @@ class TestDateDisambiguation:
         assert f.validity_date == "11/06/2035"
 
     def test_reordered_dates_still_correct(self):
-        # Same labels/values but laid out in a scrambled vertical order.
+
         regions = [
             _r("Valid Till", 40, 70, 180, 95),
             _r("11/06/2035", 220, 70, 400, 95),
@@ -162,9 +162,9 @@ class TestDateDisambiguation:
         assert extract_driving_licence(regions).date_of_birth == "09.03.1986"
 
 
-# ---------------------------------------------------------------------------
-# Two validity dates: NT (non-transport) vs TR (transport)
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestTwoValidityDates:
     def _nt_tr_regions(self):
@@ -179,7 +179,7 @@ class TestTwoValidityDates:
 
     def test_primary_validity_is_non_transport(self):
         f = extract_driving_licence(self._nt_tr_regions())
-        # NT (non-transport) is the primary validity_date.
+
         assert f.validity_date == "11/06/2035"
 
     def test_transport_validity_exposed_separately(self):
@@ -196,14 +196,14 @@ class TestTwoValidityDates:
             _r("11/06/2018", 260, 70, 430, 95),
         ]
         f = extract_driving_licence(regions)
-        # When only a TR date exists, still surface it as validity_date.
+
         assert f.validity_date == "11/06/2018"
         assert f.validity_date_transport == "11/06/2018"
 
 
-# ---------------------------------------------------------------------------
-# Multi-line / present-vs-permanent address
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestAddress:
     def test_multi_line_address(self):
@@ -238,14 +238,14 @@ class TestAddress:
         ]
         f = extract_driving_licence(regions)
         assert "NEHRU NAGAR" in f.address
-        # The next label/value must not leak into the address block.
+
         assert "Blood Group" not in f.address
         assert "B+" not in f.address
 
 
-# ---------------------------------------------------------------------------
-# Relation (S/D/W of) — must not be confused with the holder name
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestRelation:
     def test_relation_and_name_distinct(self):
@@ -267,9 +267,9 @@ class TestRelation:
         assert extract_driving_licence(regions).relation_name == "RAMESH PATEL"
 
 
-# ---------------------------------------------------------------------------
-# Blood group
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestBloodGroup:
     def test_positive_compact(self):
@@ -298,9 +298,9 @@ class TestBloodGroup:
         assert extract_driving_licence(regions).blood_group is None
 
 
-# ---------------------------------------------------------------------------
-# Class of vehicle (COV)
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestClassOfVehicle:
     def test_single_cov_via_label(self):
@@ -320,7 +320,7 @@ class TestClassOfVehicle:
         assert "LMV" in cov
 
     def test_cov_fallback_scan(self):
-        # No COV label, but canonical tokens appear on the card.
+
         regions = [
             _r("DRIVING LICENCE", 40, 20, 320, 50),
             _r("MCWG", 40, 400, 140, 425),
@@ -335,9 +335,9 @@ class TestClassOfVehicle:
         assert extract_driving_licence(regions).class_of_vehicle is None
 
 
-# ---------------------------------------------------------------------------
-# Full card with every field present
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestFullCard:
     def _full_regions(self):
@@ -382,9 +382,9 @@ class TestFullCard:
         assert "411038" in f.address
 
 
-# ---------------------------------------------------------------------------
-# Robustness / empty input
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestRobustness:
     def test_empty_regions(self):

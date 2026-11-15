@@ -12,7 +12,7 @@ from document_samples import regions
 
 
 def checksum(value):
-    # Separate implementation using ICAO's decimal character weights.
+
     values = [0 if char == '<' else ord(char) - 48 if char.isdigit() else ord(char) - 55
               for char in value]
     return str(sum(number * (7, 3, 1)[index % 3]
@@ -50,8 +50,8 @@ def test_synthetic_travel_mrz_truth_agrees_with_visible_values_and_checksums(ide
 
 
 def test_every_synthetic_value_is_drawn_without_clipping(monkeypatch):
-    # Observe the actual drawing calls, so future font/layout changes cannot
-    # leave a duplicate test implementation measuring an obsolete layout.
+
+
     original_draw = ImageDraw.Draw
     drawn = []
 
@@ -85,8 +85,8 @@ def test_every_synthetic_value_is_drawn_without_clipping(monkeypatch):
     'NATIONAL POPULATION REGISTER', 'MAHATMA GANDHI NREGA',
 ])
 def test_valid_full_page_mrz_keeps_passport_routing_despite_background_keywords(monkeypatch, background_title):
-    # Ancillary/background text is weaker than the already readable valid MRZ.
-    # This specifically exercises the new early KYC return, not MRZ recovery.
+
+
     data = definition('passport', 0)
     full = regions(*data['title'], background_title, *data['mrzRaw'])
     assert pipeline.parse_mrz(full).overall_checksum_valid

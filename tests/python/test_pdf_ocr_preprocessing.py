@@ -10,8 +10,8 @@ from test_document_features import W9_LINES, make_pdf
 
 
 def test_pdf_contrast_preserves_pixels_geometry_and_original_view():
-    # PDFium rounding can render 1601 pixels: regular image normalization would
-    # resize this, invalidating native-text and redaction coordinates.
+
+
     original = np.random.default_rng(17).integers(40, 180, (101, 1601, 3), dtype=np.uint8)
     saved = original.copy()
     prep = pipeline._prepare_pdf_ocr(PreprocessResult(original, ['page warning']))
@@ -25,7 +25,7 @@ def test_pdf_contrast_preserves_pixels_geometry_and_original_view():
 @pytest.mark.parametrize('grouped', [False, True])
 @pytest.mark.parametrize('native_text', [False, True])
 def test_pdf_enhances_only_when_visible_ocr_is_needed(monkeypatch, grouped, native_text):
-    # Cover the raster path and an unrecognized stale native layer, in both APIs.
+
     data = make_pdf(['Unrelated scanner text without a document title'] if native_text else [])
     rendered = pdf_pages(data)[0].image
     visible_regions = pdf_pages(make_pdf(W9_LINES))[0].regions

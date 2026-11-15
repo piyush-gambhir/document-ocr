@@ -18,15 +18,15 @@ export function instanceCount(value: string): number {
   return count
 }
 
-/** Keep uploads and results streaming; only the container decodes document bytes. */
+
 export async function gateway(
   request: Request,
   token: string | undefined,
   forward: (request: Request) => Promise<Response>,
 ): Promise<Response> {
   if (!token) return Response.json({ error: 'AUTH_NOT_CONFIGURED' }, { status: 503 })
-  // The review shell contains no document data and accepts the bearer token in
-  // its UI. Browser navigation cannot supply that header before the UI loads.
+
+
   const reviewShell = request.method === 'GET' && new URL(request.url).pathname === '/review'
   if (!reviewShell && !await authorized(request, token)) {
     return Response.json({ error: 'UNAUTHORIZED' }, { status: 401, headers: { 'WWW-Authenticate': 'Bearer' } })

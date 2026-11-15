@@ -5,7 +5,6 @@ RUN python -m pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.loc
 COPY core/ ${LAMBDA_TASK_ROOT}/core/
 ARG DOCUMENT_OCR_KYC_LANGS=en
 ENV DOCUMENT_OCR_KYC_LANGS=${DOCUMENT_OCR_KYC_LANGS} PYTHONDONTWRITEBYTECODE=1
-# Lambda has a read-only root filesystem: package every selected model now.
 RUN python -m core.model_setup
 COPY deploy/lambda/handler.py ${LAMBDA_TASK_ROOT}/handler.py
 CMD ["handler.handler"]

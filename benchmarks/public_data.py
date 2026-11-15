@@ -102,7 +102,7 @@ def validate_manifest(manifest: dict, root: Path) -> None:
             if not (0 < f['length'] <= MAX_BYTES and 0 <= f['offset'] < f['archiveBytes']
                     and f['offset'] + f['length'] <= f['archiveBytes']):
                 raise ValueError('invalid archive range')
-    # Include a bounded metadata allowance for each unique dataset row request.
+
     transfer = sum(f.get('length', f['bytes']) for f in files)
     transfer += len({f['url'] for f in files if f.get('kind') in {'cord-row', 'symage-row'}}) * 1024**2
     if transfer > MAX_BYTES:

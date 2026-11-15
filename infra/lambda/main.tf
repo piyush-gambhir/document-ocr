@@ -57,7 +57,7 @@ resource "aws_lambda_function" "ocr" {
   }
   depends_on = [aws_cloudwatch_log_group.ocr, aws_iam_role_policy_attachment.logs, aws_iam_role_policy.input]
 }
-# No function URL/API Gateway is created; callers use IAM-authorized InvokeFunction.
+
 output "function_name" { value = aws_lambda_function.ocr.function_name }
 output "function_arn" { value = aws_lambda_function.ocr.arn }
 output "repository_url" { value = aws_ecr_repository.images.repository_url }

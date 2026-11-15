@@ -81,7 +81,7 @@ def _sample(
 
 def _manifest():
     samples = [_sample(document_type) for document_type in DOCUMENT_TYPES]
-    # A valid accuracy dataset needs a real denominator for false-success rate.
+
     samples.append(
         _sample(
             "pan",

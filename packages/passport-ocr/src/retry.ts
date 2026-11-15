@@ -48,7 +48,7 @@ export async function withRetry<T>(
     }
 
     if (attempt < retries) {
-      // Exponential backoff: 500ms, 1s, 2s...
+
       const delay = Math.min(500 * Math.pow(2, attempt), 5000)
       await new Promise((r) => setTimeout(r, delay))
     }

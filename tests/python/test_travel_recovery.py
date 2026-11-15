@@ -32,7 +32,7 @@ def reread(text, confidence=.99):
 def test_unicode_compatibility_glyphs_are_normalized_without_guessing_country():
     assert _clean_mrz_text("P<ⅠNDＳＡＭＰＬＥ<<ANNA<MARⅠA") == "P<INDSAMPLE<<ANNA<MARIA"
     assert _clean_mrz_text("P<|ND") == "P<|ND"
-    assert _clean_mrz_text("P<ІND") == "P<ІND"  # Cyrillic I is not a compatibility equivalent.
+    assert _clean_mrz_text("P<ІND") == "P<ІND"
 
 
 def test_shared_country_codes_include_iso_territories_and_icao_exceptions():

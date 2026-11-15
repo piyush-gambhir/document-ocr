@@ -19,7 +19,7 @@ from core.validators import (
 
 class TestVerhoeff:
     def test_known_valid_vector(self):
-        # External truth: the Verhoeff check digit of "236" is 3 → "2363" valid.
+
         assert verhoeff_validate("2363") is True
 
     def test_known_invalid_vector(self):
@@ -27,7 +27,7 @@ class TestVerhoeff:
 
     def test_single_digit_transposition_detected(self):
         assert verhoeff_validate("999888777669") is True
-        # Transpose two adjacent digits → must fail (Verhoeff catches this).
+
         assert verhoeff_validate("999888777696") is False
 
     def test_non_digit_is_invalid(self):
@@ -43,7 +43,7 @@ class TestPan:
         assert is_valid_pan("ABCPE1234F") is True
 
     def test_holder_type_char_enforced(self):
-        # 4th char 'D' is not a valid holder-type code.
+
         assert is_valid_pan("ABCDE1234Z") is False
 
     def test_normalize_from_noisy_text(self):

@@ -1,4 +1,4 @@
-/** Bundle only canonical source/templates, never local credentials or build output. */
+
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, lstatSync, writeFileSync } from 'node:fs'
 import { dirname, extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -27,7 +27,7 @@ for (const name of ['core', 'deploy', 'infra']) {
 for (const name of ['pyproject.toml', 'requirements.lock', 'README.md', 'HOSTING.md', 'FEATURES.md', 'LICENSE', '.dockerignore', '.gcloudignore']) {
   if (existsSync(join(repo, name))) cpSync(join(repo, name), join(destination, name))
 }
-// A scaffolding build context must never upload a developer's credentials or data.
+
 if (!existsSync(join(destination, '.dockerignore'))) {
   writeFileSync(join(destination, '.dockerignore'), '**\n!core/\n!core/**\n!deploy/\n!deploy/docker/\n!deploy/docker/server.py\n!deploy/lambda/\n!deploy/lambda/handler.py\n!requirements.lock\n**/__pycache__\n')
 }

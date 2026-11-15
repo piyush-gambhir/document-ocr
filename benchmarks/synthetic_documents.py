@@ -164,7 +164,7 @@ def render(definition: dict, *, variant: str = 'clean', negative: bool = False) 
         y += 62
     y += 40
     for label, value in definition['lines']:
-        # A template with empty values is a negative, not a complete document.
+
         value = '' if negative else value
         text = label + (': ' if label else '') + value
         font = ImageFont.load_default(size=34)

@@ -121,9 +121,9 @@ def test_unrelated_reread_watermarks_cannot_replace_previously_correct_names():
     reread = card()
     reread[4] = row('Surname', y=250, height=10)
     reread.append(row('EXEMPLAR', x=335, y=246, width=200, height=35))
-    # The reread alone correctly rejects the large watermark next to its small
-    # surname label. Merging every row would make the original larger label
-    # borrow that watermark as an inline surname.
+
+
+
     assert extract_structured_document(reread).fields['surname'] == 'EXAMPLE'
     assert extract_structured_document(rows + reread).fields['surname'] == 'EXEMPLAR'
     with patch('core.card_recovery._read_box', return_value=reread):

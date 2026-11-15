@@ -18,9 +18,9 @@ from deploy.docker.server import app
 import deploy.docker.server as server_module
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
+
+
+
 
 @pytest.fixture
 def small_image():
@@ -41,9 +41,9 @@ async def client():
         yield ac
 
 
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestHealth:
     async def test_health(self, client):
@@ -142,7 +142,7 @@ def test_warm_up_initializes_configured_kyc_models(monkeypatch):
 
 
 def test_scan_log_lines_reach_stderr():
-    # uvicorn configures only its own loggers; this one needs its own handler.
+
     assert server_module.logger.handlers
     assert server_module.logger.isEnabledFor(logging.INFO)
 

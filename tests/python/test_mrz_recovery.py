@@ -34,7 +34,7 @@ def test_recovers_padded_header_from_pixels_and_preserves_visual_coordinates():
     assert parsed.raw_lines == (LINE1, LINE2)
     assert recovered[0] is visual
     assert recovered[-1] is anchor
-    assert 220 < recovered[1].bbox[0][1] < 300  # Back in original page coordinates.
+    assert 220 < recovered[1].bbox[0][1] < 300
     ocr.assert_called_once()
 
 
@@ -68,7 +68,7 @@ def test_degenerate_geometry_does_not_invoke_ocr():
 
 
 def test_passport_number_starting_with_p_is_still_a_line_two_anchor():
-    # This is an anchor-selection test, not a valid-identifier fixture.
+
     anchor = region('P' + LINE2[1:])
     ocr = Mock(return_value=[])
     recover_passport_mrz(np.zeros((500, 900, 3), np.uint8), [anchor], ocr)
@@ -77,12 +77,12 @@ def test_passport_number_starting_with_p_is_still_a_line_two_anchor():
 
 def test_partial_anchor_extends_crop_to_read_unseen_right_hand_characters():
     image = np.zeros((500, 1400, 3), np.uint8)
-    image[:, 900:] = 255  # Beyond the original anchor's right edge at x=810.
+    image[:, 900:] = 255
     anchor = region(LINE2[:28] + '<<')
 
     def read(crop):
-        # Recover all 44 character positions plus one character of pixel
-        # margin on either side of the truncated detector box.
+
+
         assert crop.shape[1] == int(800 * 46 / 30)
         assert crop[:, -100:].mean() > 250
         return [region(LINE1, 20), region(LINE2, 70)]
@@ -175,8 +175,8 @@ def test_focus_crop_reuses_new_prefix_evidence_for_only_one_final_band():
     assert result[:len(rows)] == rows
     assert detector.call_count == 2
 
-    # Even if the final band is unreadable, a second prefix cannot consume a
-    # third detection pass. Keep the original evidence on failed recovery.
+
+
     detector = Mock(side_effect=[first_read, []])
     assert recover_passport_mrz(image, rows, detector) is rows
     assert detector.call_count == 2

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run on the target server (or use Docker's existing remote context).
+
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"

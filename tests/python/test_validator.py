@@ -12,9 +12,9 @@ from core.mrz_parser import MRZResult, MRZField
 from core.ocr_engine import TextRegion
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+
+
+
 
 def _make_mrz(
     *,
@@ -67,9 +67,9 @@ def _make_regions(label_text, value_text, label_y=100, value_y=150, x=50, conf=0
     ]
 
 
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
+
+
+
 
 class TestValidation:
     @pytest.mark.parametrize("issuer", ["", None, "<<<"])
@@ -80,7 +80,7 @@ class TestValidation:
     def test_mrz_none_gives_low_score(self):
         """No MRZ detected → mrz_score=0, cross_score defaults to 0.5, ocr_conf=0."""
         result = validate(mrz=None, regions=[])
-        # confidence = 0*0.4 + 0.5*0.3 + 0*0.3 = 0.15
+
         assert result.confidence == 0.15
         assert "MRZ_NOT_DETECTED" in result.errors
 
@@ -89,7 +89,7 @@ class TestValidation:
         mrz = _make_mrz(overall_valid=True)
         regions = _make_regions("SURNAME", "SMITH") + _make_regions("DATE OF BIRTH", "1990-03-15", label_y=200, value_y=250)
         result = validate(mrz=mrz, regions=regions)
-        # mrz_score = 1.0 since overall_valid is True
+
         assert result.confidence > 0.5
 
     def test_mrz_partial_checksums(self):
@@ -101,8 +101,8 @@ class TestValidation:
             expiry_valid=False,
         )
         result = validate(mrz=mrz, regions=[])
-        # mrz_score = (2/3)*0.7 ≈ 0.4667
-        # cross_score = 0.5 (no cross-match data), ocr_conf = 0.0
+
+
         expected_mrz_score = (2 / 3) * 0.7
         expected_confidence = round(expected_mrz_score * 0.4 + 0.5 * 0.3 + 0.0 * 0.3, 3)
         assert result.confidence == expected_confidence
@@ -187,19 +187,19 @@ class TestValidation:
         The English region's left edge is *not* aligned with the value column —
         the value column matches the leftmost edge of the bilingual block."""
         regions = [
-            # Bilingual prefix (mostly noise) at the left
+
             TextRegion(
                 text="fe /",
                 bbox=[[60, 120], [200, 120], [200, 150], [60, 150]],
                 confidence=0.55,
             ),
-            # English label well to the right of the prefix
+
             TextRegion(
                 text="Name of Father / Legal Guardian",
                 bbox=[[370, 120], [780, 120], [780, 150], [370, 150]],
                 confidence=0.98,
             ),
-            # Value left-aligned with the bilingual prefix, not the English label
+
             TextRegion(
                 text="SHRADHANAND MEHTA",
                 bbox=[[55, 160], [400, 160], [400, 195], [55, 195]],
@@ -208,7 +208,7 @@ class TestValidation:
         ]
         label = find_visual_field(regions, ["NAME OF FATHER", "FATHER"])
         assert label is not None
-        # English label alone reports left=370; bilingual block reports 60.
+
         assert min(p[0] for p in label.bbox) >= 370
         assert find_label_row_left_edge(regions, label) == 60
         value = find_visual_value_near(regions, label)
@@ -220,25 +220,25 @@ class TestValidation:
         row as the label of another. Such values must NOT shift the label's
         effective left edge — only short bilingual prefixes do."""
         regions = [
-            # Place-of-Issue value sitting on the same row as the next label
+
             TextRegion(
                 text="R.S.Lakshan",
                 bbox=[[80, 800], [290, 800], [290, 835], [80, 835]],
                 confidence=0.93,
             ),
-            # Date of issue label, in the centre column
+
             TextRegion(
                 text="Date of issue",
                 bbox=[[350, 810], [545, 810], [545, 840], [350, 840]],
                 confidence=0.79,
             ),
-            # The actual date value, below the date label
+
             TextRegion(
                 text="11/10/2011",
                 bbox=[[358, 845], [483, 845], [483, 875], [358, 875]],
                 confidence=1.0,
             ),
-            # An MRZ-shaped line at the bottom — must NOT be picked
+
             TextRegion(
                 text="P<INDRAMADUGULA<<SITA<MAHA<LAKSHMI<<<<<<<<<<",
                 bbox=[[50, 895], [720, 895], [720, 940], [50, 940]],
@@ -247,7 +247,7 @@ class TestValidation:
         ]
         label = find_visual_field(regions, ["DATE OF ISSUE"])
         assert label is not None
-        # The neighbouring R.S.Lakshan value must NOT be absorbed into the row.
+
         assert find_label_row_left_edge(regions, label) >= 350
         value = find_visual_value_near(regions, label)
         assert value is not None
@@ -322,10 +322,10 @@ class TestValidation:
 
     def test_confidence_weighted_average(self):
         """Explicit math check of the weighted-average formula."""
-        # MRZ with all checksums valid → mrz_score = 1.0
+
         mrz = _make_mrz(overall_valid=True)
-        # No visual labels to match → cross_score = 0.5
-        # Two regions with confidence 0.80 → avg_conf = 0.80
+
+
         regions = [
             TextRegion(
                 text="RANDOM TEXT",
@@ -339,5 +339,5 @@ class TestValidation:
             ),
         ]
         result = validate(mrz=mrz, regions=regions)
-        # confidence = 1.0*0.4 + 0.5*0.3 + 0.8*0.3 = 0.4 + 0.15 + 0.24 = 0.79
+
         assert result.confidence == 0.79

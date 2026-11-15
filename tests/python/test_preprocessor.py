@@ -56,7 +56,7 @@ class TestPdfLoading:
 class TestResolutionCheck:
     def test_valid_resolution(self):
         img = np.zeros((800, 1200, 3), dtype=np.uint8)
-        _check_resolution(img)  # should not raise
+        _check_resolution(img)
 
     def test_too_small(self):
         img = np.zeros((400, 300, 3), dtype=np.uint8)
@@ -65,19 +65,19 @@ class TestResolutionCheck:
 
     def test_boundary(self):
         img = np.zeros((600, 800, 3), dtype=np.uint8)
-        _check_resolution(img)  # exactly at minimum, should pass
+        _check_resolution(img)
 
 
 class TestBlurCheck:
     def test_sharp_image(self):
-        # Create image with high-frequency content (not blurry)
+
         img = np.full((800, 1200, 3), 255, dtype=np.uint8)
         cv2.putText(img, "DOCUMENT OCR", (60, 400), cv2.FONT_HERSHEY_SIMPLEX,
                     3, (0, 0, 0), 5)
-        _check_blur(img)  # readable, sharp text should pass
+        _check_blur(img)
 
     def test_blurry_image(self):
-        # Solid color image = zero Laplacian variance
+
         img = np.full((800, 1200, 3), 128, dtype=np.uint8)
         with pytest.raises(ImageQualityError, match="IMAGE_TOO_BLURRY"):
             _check_blur(img)
@@ -89,7 +89,7 @@ class TestGlareCheck:
         assert _check_glare(img) is None
 
     def test_heavy_glare(self):
-        # Image mostly white (V channel > 250 for most pixels)
+
         img = np.full((800, 1200, 3), 255, dtype=np.uint8)
         result = _check_glare(img)
         assert result == "GLARE_DETECTED"
@@ -97,14 +97,14 @@ class TestGlareCheck:
 
 class TestNormalise:
     def test_preserves_aspect_ratio(self):
-        # 900 < TARGET_WIDTH (1600), so no resize — dimensions unchanged
+
         img = np.zeros((600, 900, 3), dtype=np.uint8)
         result = _normalise(img)
         assert result.shape[0] == 600
         assert result.shape[1] == 900
 
     def test_downscale_large_image(self):
-        # 2400 > TARGET_WIDTH (1600), so it should downscale
+
         img = np.zeros((1200, 2400, 3), dtype=np.uint8)
         result = _normalise(img)
         assert result.shape[1] == 1600
@@ -116,21 +116,21 @@ class TestOrderPoints:
     def test_already_ordered(self):
         pts = np.array([[0, 0], [100, 0], [100, 100], [0, 100]], dtype=np.float32)
         ordered = _order_points(pts)
-        np.testing.assert_array_equal(ordered[0], [0, 0])     # top-left
-        np.testing.assert_array_equal(ordered[1], [100, 0])    # top-right
-        np.testing.assert_array_equal(ordered[2], [100, 100])  # bottom-right
-        np.testing.assert_array_equal(ordered[3], [0, 100])    # bottom-left
+        np.testing.assert_array_equal(ordered[0], [0, 0])
+        np.testing.assert_array_equal(ordered[1], [100, 0])
+        np.testing.assert_array_equal(ordered[2], [100, 100])
+        np.testing.assert_array_equal(ordered[3], [0, 100])
 
 
 class TestDocumentQuadPlausibility:
-    img_area = 1000.0 * 800.0  # arbitrary reference frame
+    img_area = 1000.0 * 800.0
 
     def test_full_frame_quad_accepted(self):
         quad = np.array([[[0, 0]], [[1000, 0]], [[1000, 800]], [[0, 800]]], dtype=np.int32)
         assert _is_plausible_document_quad(quad, self.img_area)
 
     def test_tiny_quad_rejected(self):
-        # The exact failure mode from the user's image: ~0.1% of the frame.
+
         quad = np.array(
             [[[18, 24]], [[30, 95]], [[26, 22]], [[1009, 63]]],
             dtype=np.int32,
@@ -138,14 +138,14 @@ class TestDocumentQuadPlausibility:
         assert not _is_plausible_document_quad(quad, self.img_area)
 
     def test_non_convex_quad_rejected(self):
-        # A self-intersecting "bowtie" quad — clearly not a document.
+
         quad = np.array(
             [[[0, 0]], [[1000, 800]], [[1000, 0]], [[0, 800]]], dtype=np.int32,
         )
         assert not _is_plausible_document_quad(quad, self.img_area)
 
     def test_thin_strip_rejected_by_aspect(self):
-        # Covers > 30 % of area but is a 10:1 strip — not a passport shape.
+
         quad = np.array(
             [[[0, 0]], [[1000, 0]], [[1000, 80]], [[0, 80]]], dtype=np.int32,
         )
@@ -154,17 +154,17 @@ class TestDocumentQuadPlausibility:
 
 class TestDocumentDetection:
     def test_no_real_boundary_returns_none(self):
-        # Pure white image — no edges, no contours, no quad.
+
         img = np.full((800, 1200, 3), 255, dtype=np.uint8)
         corners, warnings = _detect_document(img)
         assert corners is None
         assert "NO_DOCUMENT_BOUNDARY_DETECTED" in warnings
 
     def test_noise_contour_does_not_yield_bogus_quad(self):
-        # White background with a tiny black square (~1 % of frame).
-        # Without the plausibility check, polygon approximation of this
-        # contour would be returned as the "document" and silently destroy
-        # the image during perspective correction.
+
+
+
+
         img = np.full((800, 1200, 3), 255, dtype=np.uint8)
         cv2.rectangle(img, (40, 40), (140, 140), (0, 0, 0), -1)
         corners, warnings = _detect_document(img)
@@ -172,12 +172,12 @@ class TestDocumentDetection:
         assert "NO_DOCUMENT_BOUNDARY_DETECTED" in warnings
 
     def test_full_document_boundary_detected(self):
-        # Light grey "document" rectangle on a black background.
+
         img = np.zeros((800, 1200, 3), dtype=np.uint8)
         cv2.rectangle(img, (60, 60), (1140, 740), (220, 220, 220), -1)
         corners, _ = _detect_document(img)
         assert corners is not None
-        # All four corners should land inside the document footprint.
+
         for x, y in corners.tolist():
             assert 50 <= x <= 1150
             assert 50 <= y <= 750
@@ -194,9 +194,9 @@ class TestPreprocessFallbackToRaw:
         return buf.tobytes()
 
     def test_text_filled_image_without_real_boundary_keeps_full_resolution(self):
-        # Synthetic page with text but no document edges — mimics a flat scan
-        # that fills the frame. Preprocessing should not collapse it into a
-        # tiny strip.
+
+
+
         img = np.full((800, 1200, 3), 255, dtype=np.uint8)
         cv2.putText(img, "PASSPORT", (200, 200), cv2.FONT_HERSHEY_SIMPLEX,
                     3, (0, 0, 0), 6)
@@ -208,16 +208,16 @@ class TestPreprocessFallbackToRaw:
                     cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 3)
 
         result = preprocess(self._encode(img))
-        # Output width should still be the original (no downscale at < 1600).
+
         assert result.image.shape[1] == 1200
-        # And height should be roughly preserved — emphatically not a sliver.
+
         assert result.image.shape[0] >= 700
 
 
 class TestImageDecoding:
     @pytest.mark.parametrize("orientation", [2, 3, 4, 5, 6, 7, 8])
     def test_exif_orientation_is_identical_for_path_and_upload(self, tmp_path, orientation):
-        # Asymmetric color blocks catch mirrored and rotated decoding mistakes.
+
         pixels = np.zeros((80, 120, 3), dtype=np.uint8)
         pixels[:40, :60] = (230, 20, 40)
         pixels[40:, 60:] = (10, 170, 90)
@@ -283,7 +283,7 @@ def test_rotated_quad_never_reuses_a_corner():
     corrected = _perspective_correct(image, diamond)
     assert corrected.shape[:2] == (424, 424)
     assert corrected.mean() > 200
-    assert corrected.min() < 20  # the text survived the transform
+    assert corrected.min() < 20
 
 
 def test_first_heif_upload_in_a_fresh_process():

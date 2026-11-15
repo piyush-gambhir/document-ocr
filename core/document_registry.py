@@ -7,10 +7,10 @@ from dataclasses import dataclass
 import pycountry
 
 
-# ISO 3166-1 plus Doc 9303 Part 3, section 5 A–G (2024 consolidated edition):
-# https://www.icao.int/sites/default/files/publications/DocSeries/9303_p3_cons_en.pdf
-# Includes unspecified nationality XXX and deprecated codes for old documents.
-# Part H's IAO signs ICAO master lists; it is not a travel-document country.
+
+
+
+
 MRZ_COUNTRY_CODES = frozenset(country.alpha_3 for country in pycountry.countries) | {
     "D", "GBD", "GBN", "GBO", "GBP", "GBS", "RKS", "EUE",
     "UNO", "UNA", "UNK", "XBA", "XIM", "XCC", "XCE", "XCO", "XEC",
@@ -120,9 +120,9 @@ def list_document_profiles() -> list[dict]:
         }
         for profile in _PROFILES
     ]
-    # The legacy completion rules contain alternatives and, for Aadhaar,
-    # different front/address-side requirements. Expose those explicitly rather
-    # than pretending every logical requirement is one physical output field.
+
+
+
     for profile in profiles:
         if profile["documentType"] == "aadhaar":
             profile["requiredFieldsByVariant"] = {

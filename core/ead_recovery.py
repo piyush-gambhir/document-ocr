@@ -19,8 +19,8 @@ def recover_ead_fields(unenhanced_image, initial: StructuredExtraction, ocr, rec
     if fresh is None or fresh.document_type != 'us_ead' or fresh.issuing_country != 'US':
         return None
     if 'expiry_date' in fresh.missing_required_fields:
-        # An observed truncated label locates the pixels; only a fresh read of
-        # the complete label can associate a date with expiry.
+
+
         anchor = next((row for row in regions if row.confidence >= .9 and len(row.bbox) == 4
                        and re.fullmatch(r'card\s+expir(?:e|es)?[.:]?', row.text.strip(), re.I)), None)
         if anchor:
