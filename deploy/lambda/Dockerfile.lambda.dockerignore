@@ -1,4 +1,3 @@
-# Directory exceptions are followed by child exclusions for legacy Docker too.
 **
 !requirements.lock
 !core/
